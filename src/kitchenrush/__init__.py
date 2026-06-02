@@ -11,10 +11,12 @@ adapter and leaderboard apparatus arrive in later phases (see docs/ROADMAP.md).
 from __future__ import annotations
 
 from .adapter import ModelResponse, register_adapter, resolve_model
+from .agent import ModelAgent
 from .config import TIERS
 from .engine import KitchenRushEngine
+from .metrics import aggregate
 from .procgen import KitchenSpec, generate
-from .runner import run_episode
+from .runner import run_episode, run_suite
 from .tools import TOOL_SCHEMAS, ToolCall
 from .version import __version__
 
@@ -25,8 +27,11 @@ __all__ = [
     "KitchenSpec",
     "generate",
     "run_episode",
+    "run_suite",
+    "aggregate",
     "TOOL_SCHEMAS",
     "ToolCall",
+    "ModelAgent",
     "register_adapter",
     "resolve_model",
     "ModelResponse",

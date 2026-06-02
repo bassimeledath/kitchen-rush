@@ -1,26 +1,19 @@
-"""Model adapter interface (Phase 2 stub).
+"""Model adapters (Phase 2).
 
-Phase 1 ships only baseline policies (no network). Phase 2 implements a single
-LiteLLM-based ``ModelClient`` that turns a Kitchen Rush observation + tool schemas into
-native function calls and measures wall-clock latency. The protocol below is the intended
-contract (see docs/INTERFACE.md); the concrete client raises until implemented.
+A single LiteLLM-backed ``ModelClient`` covers OpenAI / Anthropic / Gemini / vLLM /
+Nemotron via native function calling, and measures wall-clock latency. The contract is
+deliberately tiny: messages + tool schemas in -> tool calls + text + latency + usage out.
+All game logic stays in the engine. (Requires the ``providers`` extra: ``pip install
+'kitchenrush[providers]'`` and provider API keys in the environment.)
 """
 
 from __future__ import annotations
 
+import json
+import time
 from typing import Any, Callable, Protocol, runtime_checkable
 
 from .tools import ToolCall
-
-
-@runtime_checkable
-class ModelClient(Protocol):
-    """messages + tool schemas in -> tool calls + text + latency out."""
-
-    name: str
-
-    def generate(self, *, system: str, messages: list[dict], tools: list[dict],
-                 **kwargs: Any) -> "ModelResponse": ...
 
 
 class ModelResponse:
@@ -32,16 +25,69 @@ class ModelResponse:
         self.usage = usage or {}
 
 
-class LiteLLMClient:
-    """Single multi-provider adapter (OpenAI / Anthropic / Gemini / vLLM / Nemotron)."""
+@runtime_checkable
+class ModelClient(Protocol):
+    """messages + tool schemas in -> ModelResponse out."""
 
-    def __init__(self, model: str, **kwargs: Any) -> None:
-        self.model = model
-        self.name = model
+    name: str
 
     def generate(self, *, system: str, messages: list[dict], tools: list[dict],
-                 **kwargs: Any) -> ModelResponse:
-        raise NotImplementedError("LiteLLMClient is implemented in Phase 2 (see docs/ROADMAP.md)")
+                 **kwargs: Any) -> ModelResponse: ...
+
+
+class LiteLLMClient:
+    """Multi-provider adapter. ``spec`` is ``provider:model`` (e.g. ``openai:gpt-4.1``);
+    it is translated to LiteLLM's ``provider/model`` form."""
+
+    def __init__(self, spec: str, **kwargs: Any) -> None:
+        self.name = spec
+        self.litellm_model = spec.replace(":", "/", 1) if ":" in spec else spec
+        self.extra = kwargs
+
+    def generate(self, *, system: str, messages: list[dict], tools: list[dict],
+                 temperature: float = 0.2, **kwargs: Any) -> ModelResponse:
+        try:
+            import litellm
+        except ImportError as exc:  # pragma: no cover - exercised only without the extra
+            raise RuntimeError(
+                "litellm is required for model runs: pip install 'kitchenrush[providers]'"
+            ) from exc
+
+        full_messages = [{"role": "system", "content": system}, *messages]
+        start = time.perf_counter()
+        resp = litellm.completion(
+            model=self.litellm_model,
+            messages=full_messages,
+            tools=tools,
+            tool_choice="auto",
+            temperature=temperature,
+            **{**self.extra, **kwargs},
+        )
+        latency_s = time.perf_counter() - start
+
+        choice = resp.choices[0].message
+        tool_calls: list[ToolCall] = []
+        for tc in (getattr(choice, "tool_calls", None) or []):
+            try:
+                args = json.loads(tc.function.arguments or "{}")
+            except (json.JSONDecodeError, TypeError):
+                args = {}
+            tool_calls.append(ToolCall(tc.function.name, args, id=getattr(tc, "id", None)))
+
+        usage_obj = getattr(resp, "usage", None)
+        usage = {
+            "prompt_tokens": getattr(usage_obj, "prompt_tokens", 0) or 0,
+            "completion_tokens": getattr(usage_obj, "completion_tokens", 0) or 0,
+            "reasoning_tokens": _reasoning_tokens(usage_obj),
+        }
+        return ModelResponse(tool_calls, getattr(choice, "content", "") or "", latency_s, usage)
+
+
+def _reasoning_tokens(usage_obj: Any) -> int:
+    details = getattr(usage_obj, "completion_tokens_details", None)
+    if details is None:
+        return 0
+    return getattr(details, "reasoning_tokens", 0) or 0
 
 
 ADAPTER_REGISTRY: dict[str, Callable[..., ModelClient]] = {"litellm": LiteLLMClient}
@@ -52,9 +98,9 @@ def register_adapter(provider: str, factory: Callable[..., ModelClient]) -> None
 
 
 def resolve_model(spec: str, **kwargs: Any) -> ModelClient:
-    """Resolve ``provider:model`` (e.g. ``openai:gpt-4.1``) to a client instance."""
+    """Resolve ``provider:model`` to a client. Custom providers registered via
+    ``register_adapter`` win; everything else flows through LiteLLM."""
     provider, _, model = spec.partition(":")
-    if provider not in ADAPTER_REGISTRY:
-        # default everything through LiteLLM in Phase 2
-        return LiteLLMClient(spec, **kwargs)
-    return ADAPTER_REGISTRY[provider](model or provider, **kwargs)
+    if provider in ADAPTER_REGISTRY and provider != "litellm":
+        return ADAPTER_REGISTRY[provider](model or provider, **kwargs)
+    return LiteLLMClient(spec, **kwargs)

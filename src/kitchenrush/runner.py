@@ -8,15 +8,21 @@ the Phase-2 model adapter will measure real wall-clock latency. No network is re
 
 from __future__ import annotations
 
-from typing import Callable
+from typing import Callable, Iterable
 
-from . import config
+from . import config, scoring
 from .engine import KitchenRushEngine
-from .procgen import KitchenSpec
+from .procgen import KitchenSpec, generate
 from .report import EpisodeResult
 from .tools import TOOL_SCHEMAS, ToolCall
 
 Policy = Callable[[dict, list[dict]], tuple[list[ToolCall], float]]
+PolicyFactory = Callable[[int, int], Policy]
+
+
+def s_ref_for(spec: KitchenSpec) -> float:
+    """Instant-serve upper bound: every order at full value, no decay (placeholder oracle)."""
+    return sum(scoring.base_value(o.dish) for o in spec.orders)
 
 
 def run_episode(spec: KitchenSpec, policy: Policy, *, max_turns: int | None = None,
@@ -42,3 +48,19 @@ def run_episode(spec: KitchenSpec, policy: Policy, *, max_turns: int | None = No
             })
 
     return EpisodeResult(seed=spec.seed, tier=spec.tier, report=engine.final_report(), steps=steps)
+
+
+def run_suite(seeds: Iterable[int], tier: str, policy_factory: PolicyFactory, *,
+              trials: int = 1, max_turns: int | None = None) -> list[EpisodeResult]:
+    """Run ``trials`` episodes per seed; a fresh policy per episode (for sampling variety)."""
+    episodes: list[EpisodeResult] = []
+    for seed in seeds:
+        spec = generate(seed, tier)
+        s_ref = s_ref_for(spec)
+        for trial in range(trials):
+            policy = policy_factory(seed, trial)
+            result = run_episode(spec, policy, max_turns=max_turns)
+            result.s_ref = s_ref
+            result.trial = trial
+            episodes.append(result)
+    return episodes

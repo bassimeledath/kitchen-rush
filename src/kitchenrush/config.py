@@ -44,6 +44,16 @@ COMBO_CAP = 2.0
 COMBO_MIN_STEPS = 4          # min recipe steps to advance the combo streak
 SHOW_READY_ACTIONS = True
 
+# RP (reproducible) latency-track proxy (SCORING §1.2; open questions #2/#3).
+RP_BETA0 = 0.30              # s, fixed per-call overhead
+RP_BETA_IN = 0.0002         # s per input token
+RP_BETA_OUT = 0.006         # s per output token (~167 tok/s decode); incl. reasoning tokens
+
+# Reliability + headline (SCORING §6).
+THETA_PASS = 0.6            # an episode passes a seed iff score_raw >= THETA_PASS * S_ref
+PASS_K = 4                  # trials per seed for Pass^k
+DEFAULT_TEMPERATURE = 0.2   # sampling temperature for trials
+
 # --- ingredient states (RULES §2.3) ------------------------------------------
 RAW = "RAW"
 CHOPPED = "CHOPPED"
