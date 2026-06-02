@@ -129,7 +129,11 @@ def main(argv: list[str] | None = None) -> int:
     seeds.set_defaults(func=_cmd_seeds)
 
     args = parser.parse_args(argv)
-    return args.func(args)
+    try:
+        return args.func(args)
+    except RuntimeError as exc:               # e.g. missing providers extra / API keys
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
