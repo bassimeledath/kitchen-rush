@@ -29,6 +29,10 @@ HOW TO PLAY:
 - You stand on a grid and must be next to the right station to act: collect at a dispenser,
   chop at a cutting board, cook at a stove, plate at a plating counter, serve at the pass,
   discard at the bin.
+- The kitchen is a grid of [row, col] cells; row 0 is the NORTH (top) edge. Directions:
+  north=row-1 (up), south=row+1 (down), east=col+1 (right), west=col-1 (left). You cannot
+  stand ON a station — stand on a floor cell orthogonally adjacent to it. Read the grid to
+  work out where to go.
 - move(direction, steps) walks in a straight line until it hits a wall/station.
 - Cooked items sit on a burner; collect_cooked when READY (before they BURN).
 - plate(recipe) needs exactly the right finished components in hand; serve(order_id) an
@@ -36,31 +40,44 @@ HOW TO PLAY:
 - You MAY issue several tool calls in one response (e.g. move then collect then cook). They
   run in order and you are charged thinking time only ONCE — so plan a few steps ahead.
 
-Always respond with native tool calls. Use the observation's ready_actions as hints.
+Always respond with native tool calls.
 """
 
 
 def render_observation(obs: dict) -> str:
+    """Render only what a human player perceives: the kitchen layout, where things are, the
+    order tickets/timers, the chef's hands, and what just happened. NO hints — no
+    pre-computed directions/paths and no list of currently-valid actions (a human gets
+    neither; they read the grid and reason themselves)."""
+    grid_rows = obs["grid_ascii"].split("\n")
+    n = len(grid_rows)
+    cr, cc = obs["chef_pos"]
     lines = [
         f"clock={obs['clock_gs']}gs  remaining={obs['remaining_gs']}gs  "
         f"score={obs['score']}  combo={obs['combo_count']}",
-        f"you are at {obs['chef_pos']}; hands={obs['hands']} (free slots {obs['hand_slots_free']})",
-        "grid (" + obs["grid_legend"] + "):",
-        obs["grid_ascii"],
-        "stations: " + ", ".join(f"{s['type']}{('/'+s['ingredient']) if s['ingredient'] else ''}@{s['cell']}"
-                                 for s in obs["stations"]),
+        f"you are at [row {cr}, col {cc}]; hands={obs['hands']} (free slots {obs['hand_slots_free']})",
+        "kitchen grid (row 0 = north/top; " + obs["grid_legend"] + "):",
+        "      col: " + " ".join(str(c) for c in range(n)),
+    ]
+    for r in range(n):
+        lines.append(f"  row {r}:  " + "  ".join(grid_rows[r][c] for c in range(n)))
+    lines.append("directions: north=row-1, south=row+1, east=col+1, west=col-1; "
+                 "you must stand on a floor cell ADJACENT to a station to use it.")
+    lines.append("stations (positions are visible on the grid above):")
+    for s in obs["stations"]:
+        tag = f"{s['type']}{('/' + s['ingredient']) if s['ingredient'] else ''}"
+        lines.append(f"  {tag} @[{s['cell'][0]},{s['cell'][1]}]")
+    lines.append(
         "burners: " + ", ".join(
             f"#{b['burner_index']}@{b['cell']}:{b['status']}"
             + (f"({b['ingredient']} ready{b['ready_gs']}/burn{b['burn_gs']})" if b["ingredient"] else "")
             for b in obs["burners"]
-        ),
-        "orders:",
-    ]
+        )
+    )
+    lines.append("orders:")
     for o in obs["orders"]:
         lines.append(f"  {o['order_id']} {o['dish']} [{o['status']}] "
                      f"deadline {o['deadline_gs']}gs ({o['gs_remaining']}gs left) value {o['base_value']}")
-    if obs.get("ready_actions"):
-        lines.append("ready_actions here: " + ", ".join(obs["ready_actions"]))
     if obs["last_turn"]:
         results = obs["last_turn"].get("calls", [])
         if results:
