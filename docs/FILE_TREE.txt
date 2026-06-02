@@ -1,0 +1,98 @@
+kitchen-rush/
+├── README.md
+├── LICENSE
+├── CHANGELOG.md
+├── CITATION.cff
+├── pyproject.toml
+├── uv.lock
+├── .env.example
+├── .gitignore
+├── docs/
+│   ├── DESIGN.md
+│   ├── RULES.md
+│   ├── SCORING.md
+│   ├── INTERFACE.md
+│   ├── PROCEDURAL.md
+│   ├── MOVEMENT.md
+│   ├── MIGRATION.md
+│   ├── ROADMAP.md
+│   └── CONTAMINATION.md
+├── src/
+│   └── kitchenrush/
+│       ├── __init__.py
+│       ├── version.py
+│       ├── config/
+│       │   ├── __init__.py
+│       │   ├── constants.py          # THE single canonical constant table (code form)
+│       │   ├── defaults.py           # GameConfig dataclass + tier presets (theta)
+│       │   └── tiers.json            # serialized tier presets
+│       ├── engine/
+│       │   ├── __init__.py
+│       │   ├── state.py              # GameState dataclass (authoritative mutable state)
+│       │   ├── engine.py            # KitchenRushEngine: step(), observe(), tool_specs()
+│       │   ├── grid.py              # tiles, stations, adjacency, straight-line move
+│       │   ├── recipes.py           # recipe catalog, ingredient states, step DAG
+│       │   ├── cooking.py           # burner / cook-timer / burn subsystem
+│       │   ├── scoring.py           # score deltas, decay, combo, penalties (cites constants)
+│       │   ├── events.py            # KitchenEvent, ordered event log, tie-break sweep
+│       │   └── clock.py             # float game-clock, latency->gs conversion, advance sweep
+│       ├── tools/
+│       │   ├── __init__.py
+│       │   ├── schemas.py           # canonical native-FC tool JSON schemas (source of truth)
+│       │   └── executor.py          # ToolCall -> engine method dispatch, fail-fast-commit
+│       ├── procgen/
+│       │   ├── __init__.py
+│       │   ├── generator.py         # seeded KitchenSpec generation (grid + orders + timers)
+│       │   ├── layout.py            # grid archetypes, station placement, reachability
+│       │   ├── orders.py            # NHPP arrival stream, deadlines, value
+│       │   ├── oracle.py            # greedy-EDF reference scheduler (feasibility + S*)
+│       │   ├── spec.py              # KitchenSpec dataclass + canonical (de)serialization
+│       │   └── splits.py            # train/dev/test/challenge seed bands + manifests
+│       ├── adapters/
+│       │   ├── __init__.py
+│       │   ├── base.py              # ModelClient protocol, ModelResponse, ToolCall, Usage, LatencySample
+│       │   ├── openai_compatible.py # OpenAI + vLLM + Nemotron
+│       │   ├── anthropic.py
+│       │   ├── gemini.py
+│       │   ├── litellm.py
+│       │   ├── tokenizer.py         # pinned tokenizer for RP-track token counting
+│       │   └── registry.py          # ADAPTER_REGISTRY, register_adapter, resolve_model
+│       ├── harness/
+│       │   ├── __init__.py
+│       │   ├── runner.py            # run_episode / run_suite turn loop
+│       │   ├── agent.py             # default reference Agent (prompt + transcript threading)
+│       │   └── conversation.py      # provider-neutral transcript
+│       ├── report/
+│       │   ├── __init__.py
+│       │   ├── schema.py            # pydantic StepRecord / EpisodeResult / RunSummary
+│       │   ├── writer.py            # JSONL trajectory + summary writer
+│       │   └── aggregate.py         # pass_at_k, latency percentiles, RTTC, normalization
+│       ├── leaderboard/
+│       │   ├── __init__.py
+│       │   ├── manifest.py          # SubmissionManifest model
+│       │   ├── validate.py          # offline + CI validator (recomputes RP, checks hashes)
+│       │   └── build.py             # leaderboard.json / .csv builder
+│       └── cli.py                   # kitchenrush run|validate|submit|leaderboard|adapters|seeds
+├── baselines/
+│   ├── null_agent.py               # does nothing
+│   ├── random_agent.py             # random legal tool calls
+│   └── oracle_agent.py             # greedy-EDF replay (zero-latency reference)
+├── tests/
+│   ├── test_determinism.py
+│   ├── test_clock_latency.py
+│   ├── test_scoring.py
+│   ├── test_recipe_feasibility.py
+│   ├── test_grid_movement.py
+│   ├── test_chained_calls.py
+│   ├── test_procgen.py
+│   ├── test_oracle.py
+│   ├── test_adapters_conformance.py
+│   ├── test_replay.py
+│   └── test_leaderboard_validate.py
+├── leaderboard/
+│   ├── submissions/                # checked-in submission manifests
+│   └── leaderboard.json
+├── runs/                           # gitignored trajectory output
+└── ui/
+    ├── README.md                   # placeholder: replay dashboard (lower priority)
+    └── .gitkeep

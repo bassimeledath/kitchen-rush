@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use Kitchen Rush, please cite it."
+title: "Kitchen Rush: A Benchmark for Fast and Accurate Tool Calling"
+abstract: >-
+  Kitchen Rush is a text-to-text, Overcooked-inspired benchmark in which a model plays a
+  chef on a seeded grid kitchen, issuing native function calls to fulfill orders before
+  they expire and before food burns. Its defining feature is that latency costs points by
+  construction: per-response thinking time is converted to game-seconds that advance a
+  shared world clock before each action resolves, making the speed-accuracy tradeoff the
+  object of measurement.
+type: software
+authors:
+  - family-names: Eledath
+    given-names: Bassim
+repository-code: "https://github.com/bassimeledath/kitchen-rush"
+url: "https://github.com/bassimeledath/kitchen-rush"
+keywords:
+  - benchmark
+  - tool calling
+  - function calling
+  - latency
+  - realtime agents
+  - large language models
+license: Apache-2.0
+version: 0.1.0

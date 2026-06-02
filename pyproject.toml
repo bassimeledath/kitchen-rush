@@ -1,0 +1,74 @@
+[project]
+name = "kitchenrush"
+version = "0.1.0"
+description = "A benchmark for fast AND accurate native tool calling (latency costs points by construction)."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Bassim Eledath" }]
+keywords = [
+    "benchmark",
+    "tool-calling",
+    "function-calling",
+    "agents",
+    "latency",
+    "realtime",
+    "llm",
+    "evaluation",
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "numpy>=1.26",
+    "pydantic>=2.6",
+    "typer>=0.12",
+    "rich>=13.7",
+]
+
+[project.optional-dependencies]
+openai = ["openai>=1.40", "tiktoken>=0.7"]      # also covers vLLM / Nemotron via base_url
+anthropic = ["anthropic>=0.34"]
+gemini = ["google-genai>=0.3"]
+litellm = ["litellm>=1.40"]
+all = [
+    "openai>=1.40",
+    "tiktoken>=0.7",
+    "anthropic>=0.34",
+    "google-genai>=0.3",
+    "litellm>=1.40",
+]
+dev = ["pytest>=8.0", "ruff>=0.5", "mypy>=1.10"]
+
+[project.scripts]
+kitchenrush = "kitchenrush.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/bassimeledath/kitchen-rush"
+Repository = "https://github.com/bassimeledath/kitchen-rush"
+Issues = "https://github.com/bassimeledath/kitchen-rush/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kitchenrush"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
