@@ -60,6 +60,15 @@ trajectory; ≥3 models rank differently in a way that tracks speed *and* accura
 - `ui/` replay dashboard (watch food burn while the model thinks).
 - Future: speech-to-speech evaluation track.
 
+## Phase 6 — Multi-agent co-op (2+ chefs) — designed, deferred
+
+One model controlling **C ≥ 2 chefs** in a shared kitchen (single-chef is the C=1 case).
+This deepens the core thesis: one "think" can dispatch actions to all chefs, so coordinating
+more bodies per response **amortizes latency**. Full design in
+[docs/MULTI_AGENT.md](MULTI_AGENT.md). Recommended order: synchronous timing (advance by
+`max` action duration) with no hand-offs → add hand-off counters → event-driven async timing.
+Nothing in Phase 1 blocks it; we are intentionally not adding unused plumbing yet.
+
 ---
 
 ## Open questions (most are deferred until they matter)
