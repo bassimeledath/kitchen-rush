@@ -2,6 +2,18 @@
 
 **A public benchmark for FAST *and* ACCURATE tool calling.**
 
+> **Status — pre-alpha (Phase 1).** The deterministic engine, seeded procedural
+> generation, baselines, and CLI are implemented and tested (stdlib-only). Model
+> adapters, the reproducible latency track, and the leaderboard are upcoming
+> (see [docs/ROADMAP.md](docs/ROADMAP.md)). Most of this README describes the
+> **end state**; what runs today is:
+> ```bash
+> pip install -e .            # or: uv sync
+> kitchenrush run --baseline random --seed 0 --tier easy
+> kitchenrush seeds --tier medium
+> pytest                      # 28 passing
+> ```
+
 Kitchen Rush is a text-to-text, Overcooked-inspired benchmark in which a model plays a chef on a seeded grid kitchen, issuing **native function calls** (move, collect, chop, cook, plate, serve) to fulfill arriving orders before they expire and before food burns. Its defining feature: **latency costs points by construction.** The model's measured per-response thinking time is converted to game-seconds that advance a single shared world clock *before* each action resolves — so while the model deliberates, the world keeps moving, cooks burn, and deadlines pass.
 
 ## The gap we fill

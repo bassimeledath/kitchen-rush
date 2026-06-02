@@ -4,19 +4,30 @@ Latency costs points by construction: a model's per-response thinking time is co
 game-seconds that advance a shared world clock *before* each action resolves, so while the
 model deliberates, food burns and orders expire.
 
-This is a pre-alpha scaffold. The public API below is the intended surface; submodules are
-stubs pending implementation (see docs/ROADMAP.md). Imports are kept lazy/minimal so the
-package remains importable while modules are filled in.
+Phase 1 (engine + procgen + baselines + CLI) is stdlib-only and importable here. The model
+adapter and leaderboard apparatus arrive in later phases (see docs/ROADMAP.md).
 """
 
 from __future__ import annotations
 
+from .adapter import ModelResponse, register_adapter, resolve_model
+from .config import TIERS
+from .engine import KitchenRushEngine
+from .procgen import KitchenSpec, generate
+from .runner import run_episode
+from .tools import TOOL_SCHEMAS, ToolCall
 from .version import __version__
 
-__all__ = ["__version__"]
-
-# Intended public API (uncomment as the modules are implemented):
-# from .adapters.registry import register_adapter, resolve_model
-# from .engine.engine import KitchenRushEngine
-# from .procgen.generator import generate_spec
-# __all__ += ["register_adapter", "resolve_model", "KitchenRushEngine", "generate_spec"]
+__all__ = [
+    "__version__",
+    "TIERS",
+    "KitchenRushEngine",
+    "KitchenSpec",
+    "generate",
+    "run_episode",
+    "TOOL_SCHEMAS",
+    "ToolCall",
+    "register_adapter",
+    "resolve_model",
+    "ModelResponse",
+]
