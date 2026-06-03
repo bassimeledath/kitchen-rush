@@ -4,17 +4,18 @@
 
 > **Status — alpha (Phases 1–3 done).** The deterministic engine, seeded procedural
 > generation, baselines, a native-FC model adapter (via LiteLLM), the reference agent,
-> both latency tracks (RT/RP), and aggregate metrics (Pass^k, RTTC) are implemented and
-> tested. The public leaderboard, multi-agent, and UI (Phases 4–6) are upcoming
-> (see [docs/ROADMAP.md](docs/ROADMAP.md)). Some of this README still describes the
-> **end state**; what runs today:
+> both latency tracks (RT/RP), the KR headline metric, a greedy-EDF reference oracle, and a
+> **user-selectable latency budget** are implemented and tested. The public leaderboard,
+> multi-agent, and UI (Phases 4–6) are upcoming (see [docs/ROADMAP.md](docs/ROADMAP.md)).
+> What runs today:
 > ```bash
 > pip install -e .                      # core is stdlib-only
 > kitchenrush run   --baseline random --seed 0 --tier easy
-> kitchenrush bench --baseline random --tier easy --seeds 12 --trials 2 --track rp
+> kitchenrush bench --baseline random --tier easy --seeds 12 --trials 2
+> kitchenrush calibrate --tier easy --profile voice   # voice=1s | chat=5s | quality=20s
 > pip install -e '.[providers]'         # for real models (needs API keys)
-> kitchenrush run   --model openai:gpt-4.1 --seed 0 --tier easy --track rp
-> pytest                                # 38 passing
+> kitchenrush bench --model openai:gpt-4.1 --tier easy --profile chat --track rt
+> pytest                                # 47 passing
 > ```
 
 Kitchen Rush is a text-to-text, Overcooked-inspired benchmark in which a model plays a chef on a seeded grid kitchen, issuing **native function calls** (move, collect, chop, cook, plate, serve) to fulfill arriving orders before they expire and before food burns. Its defining feature: **latency costs points by construction.** The model's measured per-response thinking time is converted to game-seconds that advance a single shared world clock *before* each action resolves — so while the model deliberates, the world keeps moving, cooks burn, and deadlines pass.

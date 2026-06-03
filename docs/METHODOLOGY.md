@@ -68,6 +68,34 @@ Accuracy stays necessary because it is **outcome-graded**: only valid deliveries
 invalids, burns, expiries, and broken combos cost them. This yields the intended interior
 optimum (reckless-fast and careful-slow both lose).
 
+### 2.1 B is a user-selectable axis (latency profiles)
+
+Different users have different latency needs, so **B is a parameter**, not a fixed constant:
+`--latency-budget <s>` or presets `--profile voice (B=1s) | chat (B=5s) | quality (B=20s)`.
+Each B is its own leaderboard slice (a single fused realtime ranking at that operating point —
+*not* a latency-vs-accuracy tradeoff plot). The horizon scales with B so a loose budget isn't
+clipped, and the oracle is re-normalized at the chosen B.
+
+**Evidence it's meaningful (synthetic sweep, clean EDF oracle at injected latency ℓ):**
+
+| budget B | KR(ℓ=1s) | KR(ℓ=2s) | KR(ℓ=4s) |
+|---|---|---|---|
+| 1 (voice) | 66 | 50 | 15 |
+| 5 (chat)  | 88 | 68 | 14 |
+| 20 (quality) | 97 | 94 | 19 |
+
+A 2-second agent goes 50 → 68 → 94 as the budget loosens — the ranking genuinely reorders by
+latency need. Two robustness facts from the same sweep:
+- **No global saturation.** Agents far slower than the budget (ℓ≥4s) stay near 0 at *every* B —
+  loosening the budget can't rescue an agent whose cumulative think dominates. So "everyone
+  passes past some t" does not happen for slow models.
+- **The saturation that does occur is narrow:** at large B, agents *already* faster than the
+  budget cluster near 100 and tie *on a clean agent*. For a latency-relaxed user that's
+  correct (they're equivalent on latency), and what should separate them is **quality**
+  (invalids/burns) — which needs the always-on throughput/quality pressure (dense order stream
+  + parallel reference oracle) to have headroom. That is the documented fix for the high-B end
+  (see ROADMAP), not a patch to the metric.
+
 ## 3. Latency tracks
 
 | Track | `latency_seconds` | Role |

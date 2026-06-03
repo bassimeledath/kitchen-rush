@@ -44,6 +44,7 @@ class KitchenSpec:
     stations: list[StationSpec]
     chef_start: tuple[int, int]
     orders: list[OrderSpec]
+    latency_budget: float = 1.0   # B: seconds/decision the deadlines were priced at
 
 
 def _substreams(seed: int) -> tuple[random.Random, random.Random]:
@@ -51,9 +52,12 @@ def _substreams(seed: int) -> tuple[random.Random, random.Random]:
     return random.Random(seed * 1000 + 1), random.Random(seed * 1000 + 2)
 
 
-def critical_path(dish: str, grid_n: int, b: float = config.B_SECONDS) -> tuple[float, int, float]:
+def critical_path(dish: str, grid_n: int, b: float | None = None) -> tuple[float, int, float]:
     """Reference critical path for one order, priced at ``b`` seconds per decision
-    (METHODOLOGY §2). Returns (A_o intrinsic time, K_o decisions, C_o = A_o + K_o*b)."""
+    (METHODOLOGY §2). Returns (A_o intrinsic time, K_o decisions, C_o = A_o + K_o*b).
+    ``b`` defaults to ``config.B_SECONDS`` (read at call time, not import time)."""
+    if b is None:
+        b = config.B_SECONDS
     comps = config.RECIPES[dish]
     n_collect = len(comps)
     n_chop = 0
@@ -141,7 +145,7 @@ def _build_layout(rng: random.Random, tier: config.Tier) -> tuple[list[StationSp
     raise RuntimeError("failed to generate a valid layout")
 
 
-def _build_orders(rng: random.Random, tier: config.Tier) -> list[OrderSpec]:
+def _build_orders(rng: random.Random, tier: config.Tier, b: float) -> list[OrderSpec]:
     from . import scoring
 
     import math
@@ -154,11 +158,8 @@ def _build_orders(rng: random.Random, tier: config.Tier) -> list[OrderSpec]:
         if t >= tier.horizon_gs:
             break
         dish = rng.choice(tier.recipes)
-        _, _, c_o = critical_path(dish, tier.grid_n)
-        deadline = t + math.ceil(tier.slack * c_o)
-        if deadline > tier.horizon_gs:
-            # would be cut off by the horizon; stop the stream (RULES §13.1 guarantee)
-            break
+        _, _, c_o = critical_path(dish, tier.grid_n, b)
+        deadline = t + math.ceil(tier.slack * c_o)   # priced at B; horizon scales to fit (generate)
         orders.append(
             OrderSpec(
                 order_id=f"O{idx}",
@@ -171,29 +172,39 @@ def _build_orders(rng: random.Random, tier: config.Tier) -> list[OrderSpec]:
         idx += 1
     if not orders:  # guarantee at least one solvable order
         dish = tier.recipes[0]
-        _, _, c_o = critical_path(dish, tier.grid_n)
-        deadline = min(tier.horizon_gs, math.ceil(tier.slack * c_o))
-        orders.append(OrderSpec("O1", dish, 0.0, float(deadline), scoring.base_value(dish)))
+        _, _, c_o = critical_path(dish, tier.grid_n, b)
+        orders.append(OrderSpec("O1", dish, 0.0, float(math.ceil(tier.slack * c_o)),
+                                scoring.base_value(dish)))
     return orders
 
 
-def generate(seed: int, tier: str = "easy") -> KitchenSpec:
-    """Deterministically generate a kitchen instance from an integer seed and tier name."""
+def generate(seed: int, tier: str = "easy", b: float | None = None) -> KitchenSpec:
+    """Deterministically generate a kitchen instance from a seed, tier, and latency budget B.
+
+    ``b`` (seconds/decision) prices the order deadlines (METHODOLOGY §2); defaults to
+    ``config.B_SECONDS``. Different B = different difficulty for the same seed/tier."""
     if tier not in config.TIERS:
         raise ValueError(f"unknown tier {tier!r}; choose from {sorted(config.TIERS)}")
+    if b is None:
+        b = config.B_SECONDS
     t = config.TIERS[tier]
     rng_grid, rng_orders = _substreams(seed)
     stations, chef_start = _build_layout(rng_grid, t)
-    orders = _build_orders(rng_orders, t)
+    orders = _build_orders(rng_orders, t, b)
+    # Horizon scales to fit the (B-priced) schedule so a loose budget isn't clipped, while
+    # keeping the RULES invariant "every deadline <= horizon" (§13.1).
+    max_deadline = max((o.deadline_gs for o in orders), default=t.horizon_gs)
+    horizon = max(t.horizon_gs, max_deadline + 1.0)
     return KitchenSpec(
         seed=seed,
         tier=tier,
         grid_n=t.grid_n,
         burner_count=t.burner_count,
-        horizon_gs=t.horizon_gs,
+        horizon_gs=horizon,
         show_ready_actions=t.show_ready_actions,
         active_recipes=t.recipes,
         stations=stations,
         chef_start=chef_start,
         orders=orders,
+        latency_budget=b,
     )

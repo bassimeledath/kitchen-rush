@@ -20,6 +20,18 @@ from .runner import run_episode, run_suite
 from .version import __version__
 
 
+_PROFILES = {"voice": 1.0, "chat": 5.0, "quality": 20.0}   # latency budget B (s/decision)
+
+
+def _resolve_b(args: argparse.Namespace) -> float:
+    """Latency budget B from --latency-budget (wins), else --profile preset, else default."""
+    if getattr(args, "latency_budget", None) is not None:
+        return float(args.latency_budget)
+    if getattr(args, "profile", None):
+        return _PROFILES[args.profile]
+    return config.B_SECONDS
+
+
 def _policy_factory(args: argparse.Namespace):
     """Return a callable (seed, trial) -> policy from the run/bench args."""
     if args.model:
@@ -49,12 +61,14 @@ def _print_report(rep: dict, label: str, track: str) -> None:
 
 
 def _cmd_run(args: argparse.Namespace) -> int:
+    config.B_SECONDS = _resolve_b(args)
     spec = generate(args.seed, args.tier)
     policy = _policy_factory(args)(args.seed, 0)
     result = run_episode(spec, policy, max_turns=args.max_turns)
     from .runner import anchors_for
     result.s_null, result.s_ref = anchors_for(spec)
-    label = f"model={args.model}" if args.model else f"baseline={args.baseline}"
+    base = f"model={args.model}" if args.model else f"baseline={args.baseline}"
+    label = f"{base}  B={config.B_SECONDS:g}s"
     if args.out:
         write_jsonl(result, args.out)
     if args.json:
@@ -67,11 +81,13 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
 
 def _cmd_bench(args: argparse.Namespace) -> int:
+    config.B_SECONDS = _resolve_b(args)
     seeds = range(args.start, args.start + args.seeds)
     episodes = run_suite(seeds, args.tier, _policy_factory(args),
                          trials=args.trials, max_turns=args.max_turns)
     agg = aggregate(episodes, k=args.trials)
-    label = f"model={args.model}" if args.model else f"baseline={args.baseline}"
+    base = f"model={args.model}" if args.model else f"baseline={args.baseline}"
+    label = f"{base}  B={config.B_SECONDS:g}s"
     if args.json:
         print(json.dumps(agg, indent=2))
     else:
@@ -94,6 +110,7 @@ def _cmd_calibrate(args: argparse.Namespace) -> int:
     from .oracle import OracleAgent, null_score, reference_score
     from .runner import run_episode
 
+    config.B_SECONDS = _resolve_b(args)
     seeds = range(args.start, args.start + args.seeds)
     specs = [generate(s, args.tier) for s in seeds]
     completed = served = orders = 0
@@ -102,7 +119,7 @@ def _cmd_calibrate(args: argparse.Namespace) -> int:
         served += rep["counters"]["orders_served"]
         orders += rep["counters"]["orders_total"]
         completed += rep["counters"]["orders_served"] == rep["counters"]["orders_total"]
-    print(f"Kitchen Rush calibrate — tier={args.tier} ({len(specs)} seeds)")
+    print(f"Kitchen Rush calibrate — tier={args.tier} B={config.B_SECONDS:g}s ({len(specs)} seeds)")
     print(f"  oracle@0 order completion: {served}/{orders}  "
           f"(fully-completed instances: {completed}/{len(specs)})")
     for latency in [0.0, 0.5, 1.0, 2.0, 4.0]:
@@ -135,6 +152,10 @@ def _add_policy_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--temperature", type=float, default=config.DEFAULT_TEMPERATURE)
     p.add_argument("--latency", type=float, default=0.5, help="baseline seconds/response (-> game-time)")
     p.add_argument("--max-turns", type=int, default=None)
+    p.add_argument("--latency-budget", type=float, default=None,
+                   help="B: seconds/decision the deadlines are priced at (default 1.0)")
+    p.add_argument("--profile", choices=sorted(_PROFILES), default=None,
+                   help="latency preset: voice=1s, chat=5s, quality=20s (sets --latency-budget)")
     p.add_argument("--json", action="store_true")
 
 
@@ -166,6 +187,10 @@ def main(argv: list[str] | None = None) -> int:
     cal.add_argument("--tier", choices=sorted(config.TIERS), default="easy")
     cal.add_argument("--start", type=int, default=0)
     cal.add_argument("--seeds", type=int, default=12)
+    cal.add_argument("--latency-budget", type=float, default=None,
+                     help="B: seconds/decision the deadlines are priced at (default 1.0)")
+    cal.add_argument("--profile", choices=sorted(_PROFILES), default=None,
+                     help="latency preset: voice=1s, chat=5s, quality=20s")
     cal.set_defaults(func=_cmd_calibrate)
 
     args = parser.parse_args(argv)

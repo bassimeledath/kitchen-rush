@@ -49,13 +49,18 @@ Implemented (see [docs/METHODOLOGY.md](METHODOLOGY.md)):
   instances (`S_ref ≤ S_null`) excluded + counted.
 - **Greedy-EDF reference + null floor** (`oracle.py`): the `S_ref` ceiling, the `S_null`
   floor, and the injected-latency calibration sweep (`kitchenrush calibrate`).
-- **B = 1 s deadlines** — derived from the reference critical path (`procgen.critical_path`).
+- **User-selectable latency budget B** — `--latency-budget` / `--profile voice|chat|quality`
+  (B = 1 / 5 / 20 s). Deadlines are priced at B (`procgen.critical_path`); the horizon scales
+  with B; each B is its own leaderboard slice. A synthetic sweep confirms the ranking reorders
+  by latency need (a 2s agent: KR 50→68→94 across voice/chat/quality).
 - Multi-trial `run_suite` + Pass^k; **RT primary / RP shadow** tracks.
 
 Remaining in Phase 3:
-- **Parallel reference scheduler** — the current *sequential* oracle can't fully complete
-  dense/overlapping orders, so **easy is calibrated** (KR(EDF@1s)≈68, monotone, 0 degenerate)
-  while **medium/hard are provisional** until a parallel oracle gives them a strong `S_ref`.
+- **Parallel reference scheduler + dense/throughput-bound stream** — the current *sequential*
+  oracle can't fully complete dense/overlapping orders, so **easy is calibrated** (KR(EDF@1s)≈70,
+  monotone) while **medium/hard are provisional**. This also fixes the only saturation case
+  (at large B, already-fast clean agents tie near 100; an always-on throughput/quality pressure
+  gives quality headroom to separate them).
 - **Model panel** → first real KR baseline (in progress).
 - Full sensitivity sweep, then freeze parameters on the stability plateau (METHODOLOGY §5).
 
