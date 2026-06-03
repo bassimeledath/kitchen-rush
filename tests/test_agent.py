@@ -70,3 +70,29 @@ def test_render_observation_contains_key_fields():
     obs = KitchenRushEngine(spec).observe()
     text = render_observation(obs)
     assert "clock=" in text and "grid" in text and "orders" in text
+
+
+def test_render_observation_has_no_hints():
+    """No cheating: the prompt must not pre-solve navigation or list valid actions."""
+    from kitchenrush.engine import KitchenRushEngine
+    text = render_observation(KitchenRushEngine(procgen.generate(0, "easy")).observe())
+    assert "offset" not in text.lower()
+    assert "ready_action" not in text.lower()
+    assert "->" not in text  # no "go 3 south, 4 east"-style routing
+
+
+class RaisingClient:
+    name = "raises"
+
+    def generate(self, **kwargs):
+        raise RuntimeError("simulated API timeout")
+
+
+def test_agent_degrades_to_stall_on_client_error():
+    """A model/infra error must become a stall (no action), not crash the run (RULES §13.7)."""
+    obs = {"chef_pos": [0, 0], "hands": [], "hand_slots_free": 4, "grid_ascii": ".",
+           "grid_legend": "x", "stations": [], "burners": [], "orders": [],
+           "clock_gs": 0, "remaining_gs": 1, "score": 0, "combo_count": 0,
+           "last_turn": {}, "events_since_last": []}
+    calls, latency = ModelAgent(RaisingClient(), track="rt", stall_seconds=12.0)(obs, [])
+    assert calls == [] and latency == 12.0

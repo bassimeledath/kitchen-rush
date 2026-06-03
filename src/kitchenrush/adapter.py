@@ -45,7 +45,8 @@ class LiteLLMClient:
         self.extra = kwargs
 
     def generate(self, *, system: str, messages: list[dict], tools: list[dict],
-                 temperature: float = 0.2, **kwargs: Any) -> ModelResponse:
+                 temperature: float = 0.2, timeout: float = 90.0, num_retries: int = 2,
+                 **kwargs: Any) -> ModelResponse:
         try:
             import litellm
         except ImportError as exc:  # pragma: no cover - exercised only without the extra
@@ -55,12 +56,15 @@ class LiteLLMClient:
 
         full_messages = [{"role": "system", "content": system}, *messages]
         start = time.perf_counter()
+        # timeout + retries guard against transient network blips (infra, not model speed).
         resp = litellm.completion(
             model=self.litellm_model,
             messages=full_messages,
             tools=tools,
             tool_choice="auto",
             temperature=temperature,
+            timeout=timeout,
+            num_retries=num_retries,
             **{**self.extra, **kwargs},
         )
         latency_s = time.perf_counter() - start

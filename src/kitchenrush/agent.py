@@ -93,20 +93,26 @@ class ModelAgent:
 
     def __init__(self, client: ModelClient, *, track: str = "rp",
                  temperature: float = config.DEFAULT_TEMPERATURE,
-                 system_prompt: str = SYSTEM_PROMPT) -> None:
+                 system_prompt: str = SYSTEM_PROMPT, stall_seconds: float = 30.0) -> None:
         if track not in ("rt", "rp"):
             raise ValueError(f"track must be 'rt' or 'rp', got {track!r}")
         self.client = client
         self.track = track
         self.temperature = temperature
         self.system = system_prompt
+        self.stall_seconds = stall_seconds
 
     def __call__(self, obs: dict, tools: list[dict]) -> tuple[list[ToolCall], float]:
         user = render_observation(obs)
         messages = [{"role": "user", "content": user}]
-        resp = self.client.generate(
-            system=self.system, messages=messages, tools=tools, temperature=self.temperature
-        )
+        try:
+            resp = self.client.generate(
+                system=self.system, messages=messages, tools=tools, temperature=self.temperature
+            )
+        except Exception as exc:  # noqa: BLE001 - any model/infra error degrades to a stall (RULES §13.7)
+            import sys
+            print(f"[ModelAgent] stall: {type(exc).__name__}: {str(exc)[:120]}", file=sys.stderr)
+            return [], self.stall_seconds
         if self.track == "rt":
             latency_s = resp.latency_s
         else:
