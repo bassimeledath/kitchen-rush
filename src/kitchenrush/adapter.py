@@ -35,6 +35,9 @@ class ModelClient(Protocol):
                  **kwargs: Any) -> ModelResponse: ...
 
 
+_NO_TEMPERATURE: set[str] = set()   # models that reject the temperature param (learned at runtime)
+
+
 class LiteLLMClient:
     """Multi-provider adapter. ``spec`` is ``provider:model`` (e.g. ``openai:gpt-4.1``);
     it is translated to LiteLLM's ``provider/model`` form."""
@@ -55,18 +58,30 @@ class LiteLLMClient:
             ) from exc
 
         full_messages = [{"role": "system", "content": system}, *messages]
-        start = time.perf_counter()
-        # timeout + retries guard against transient network blips (infra, not model speed).
-        resp = litellm.completion(
+        params = dict(
             model=self.litellm_model,
             messages=full_messages,
             tools=tools,
             tool_choice=tool_choice,   # "required" -> tool call(s) only, no prose (faster)
-            temperature=temperature,
             timeout=timeout,
             num_retries=num_retries,
             **{**self.extra, **kwargs},
         )
+        # Newer reasoning models (e.g. Opus 4.7) deprecate `temperature`; litellm's registry may
+        # be too old to drop it. Learn once per model and stop sending it thereafter.
+        if self.litellm_model not in _NO_TEMPERATURE:
+            params["temperature"] = temperature
+        start = time.perf_counter()
+        # timeout + retries guard against transient network blips (infra, not model speed).
+        try:
+            resp = litellm.completion(**params)
+        except Exception as exc:  # noqa: BLE001
+            if "temperature" in params and "temperature" in str(exc).lower():
+                _NO_TEMPERATURE.add(self.litellm_model)
+                params.pop("temperature", None)
+                resp = litellm.completion(**params)
+            else:
+                raise
         latency_s = time.perf_counter() - start
 
         choice = resp.choices[0].message
