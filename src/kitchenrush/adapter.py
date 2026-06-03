@@ -46,7 +46,7 @@ class LiteLLMClient:
 
     def generate(self, *, system: str, messages: list[dict], tools: list[dict],
                  temperature: float = 0.2, timeout: float = 90.0, num_retries: int = 2,
-                 **kwargs: Any) -> ModelResponse:
+                 tool_choice: str = "required", **kwargs: Any) -> ModelResponse:
         try:
             import litellm
         except ImportError as exc:  # pragma: no cover - exercised only without the extra
@@ -61,7 +61,7 @@ class LiteLLMClient:
             model=self.litellm_model,
             messages=full_messages,
             tools=tools,
-            tool_choice="auto",
+            tool_choice=tool_choice,   # "required" -> tool call(s) only, no prose (faster)
             temperature=temperature,
             timeout=timeout,
             num_retries=num_retries,

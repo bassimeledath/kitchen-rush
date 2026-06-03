@@ -39,7 +39,8 @@ HOW TO PLAY:
 - You MAY issue several tool calls in one response (e.g. move then collect then cook). They
   run in order and you are charged thinking time only ONCE — so plan a few steps ahead.
 
-Always respond with native tool calls.
+Respond with native tool call(s) ONLY — no prose, no explanation. Emitting a few chained
+calls in one response is encouraged; the kitchen only acts on the calls.
 """
 
 
