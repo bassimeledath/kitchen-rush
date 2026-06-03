@@ -48,7 +48,6 @@ TOOL_SCHEMAS: list[dict] = [
         },
         ["row", "col"],
     ),
-    _tool("observe", "Return the full kitchen observation. Costs game-time.", {}, []),
     _tool(
         "collect",
         "Pick up one raw ingredient. Must be next to its dispenser.",

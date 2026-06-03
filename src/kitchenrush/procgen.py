@@ -150,31 +150,43 @@ def _build_orders(rng: random.Random, tier: config.Tier, b: float) -> list[Order
 
     import math
 
-    orders: list[OrderSpec] = []
+    # 1. arrivals + dishes — Overcooked-style progressive release: 2 orders active at t=0,
+    #    the rest released over time (Poisson gaps at tier.arrival_rate).
+    raw: list[tuple[float, str]] = []
     t = 0.0
-    idx = 1
-    while len(orders) < tier.max_orders:
-        t += rng.expovariate(tier.arrival_rate)
-        if t >= tier.horizon_gs:
-            break
-        dish = rng.choice(tier.recipes)
+    for idx in range(1, tier.max_orders + 1):
+        if idx <= 2:
+            arrival = 0.0
+        else:
+            t += rng.expovariate(tier.arrival_rate)
+            if t >= tier.horizon_gs:
+                break
+            arrival = t
+        raw.append((arrival, rng.choice(tier.recipes)))
+    if not raw:  # guarantee at least one solvable order
+        raw.append((0.0, tier.recipes[0]))
+
+    # 2. deadlines priced on a single-server (one-chef) queue at B s/decision, so that
+    #    simultaneous/bunched orders stay feasible for the *sequential* reference oracle:
+    #    an order's headroom covers its queue wait PLUS its own critical path, not just the
+    #    isolated path. ``finish`` tracks when the chef clears each order in arrival order;
+    #    deadline = arrival + ceil(slack * (finish - arrival)). Horizon scales in generate().
+    orders: list[OrderSpec] = []
+    busy = 0.0
+    for idx, (arrival, dish) in enumerate(raw, start=1):
         _, _, c_o = critical_path(dish, tier.grid_n, b)
-        deadline = t + math.ceil(tier.slack * c_o)   # priced at B; horizon scales to fit (generate)
+        finish = max(arrival, busy) + c_o
+        busy = finish
+        deadline = arrival + math.ceil(tier.slack * (finish - arrival))
         orders.append(
             OrderSpec(
                 order_id=f"O{idx}",
                 dish=dish,
-                arrival_gs=round(t, 3),
+                arrival_gs=round(arrival, 3),
                 deadline_gs=float(deadline),
                 base_value=scoring.base_value(dish),
             )
         )
-        idx += 1
-    if not orders:  # guarantee at least one solvable order
-        dish = tier.recipes[0]
-        _, _, c_o = critical_path(dish, tier.grid_n, b)
-        orders.append(OrderSpec("O1", dish, 0.0, float(math.ceil(tier.slack * c_o)),
-                                scoring.base_value(dish)))
     return orders
 
 

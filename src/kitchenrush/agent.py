@@ -17,72 +17,74 @@ from .latency import rp_latency_seconds
 from .tokenizer import count_tokens
 from .tools import ToolCall
 
-SYSTEM_PROMPT = """You are the chef in Kitchen Rush, a real-time kitchen game scored on points.
+SYSTEM_PROMPT = """You are the chef in Kitchen Rush, a real-time kitchen. You score points by
+SERVING ORDERS BEFORE THEIR DEADLINE — that is the priority. Each active order has a countdown
+(time left); serve it in time or it EXPIRES and you LOSE points. Serving sooner scores more
+(an order's value decays as its timer runs down). Invalid actions and burned food also cost
+points.
 
-GOAL: maximize points by serving as many orders as possible before their deadlines and
-before food burns. Points decay the longer an order waits, so be FAST and accurate.
+TIME IS REAL: your thinking time advances the same clock that counts every order down — so be
+decisive and act every turn. Never stall.
 
-CRITICAL: your thinking time IS game time. While you deliberate, the clock advances, food
-burns, and orders expire. Decide quickly and act.
+HOW TO PLAY (you must stand on a floor cell orthogonally ADJACENT to a station to use it):
+- move_to(row, col): walk to a floor cell; the path is found for you (cost = distance). You
+  cannot stand ON a station, so move_to a floor cell next to it, then act.
+- collect(ingredient) at its dispenser; chop(ingredient) at a cutting board; cook(ingredient)
+  at a stove; collect_cooked(ingredient) at that stove once it is READY (before it BURNS);
+  plate(recipe) at a plating counter once your hands hold EXACTLY its components;
+  serve(order_id) at the pass holding the matching plated dish.
+- Several orders are active at once and MORE ARRIVE OVER TIME. Juggle them: while something
+  cooks on a burner, go prep or serve another order — do NOT wait idly.
+- Emit several tool calls in one response (e.g. move_to -> collect -> cook); they run in
+  order and you are charged thinking time only ONCE, so plan a few steps ahead.
 
-HOW TO PLAY:
-- You stand on a grid and must be next to the right station to act: collect at a dispenser,
-  chop at a cutting board, cook at a stove, plate at a plating counter, serve at the pass,
-  discard at the bin.
-- The kitchen is a grid of [row, col] cells (row 0 = top). You cannot stand ON a station —
-  to use one, be on a floor cell orthogonally adjacent to it.
-- move_to(row, col) walks you to that floor cell (the kitchen finds the path; cost = path
-  length). So to act at a station, move_to a floor cell next to it, then call the action.
-- Cooked items sit on a burner; collect_cooked when READY (before they BURN).
-- plate(recipe) needs exactly the right finished components in hand; serve(order_id) an
-  ACTIVE order whose dish matches your plated dish.
-- You MAY issue several tool calls in one response (e.g. move then collect then cook). They
-  run in order and you are charged thinking time only ONCE — so plan a few steps ahead.
-
-Respond with native tool call(s) ONLY — no prose, no explanation. Emitting a few chained
-calls in one response is encouraged; the kitchen only acts on the calls.
+Each turn you receive the full, up-to-date kitchen state: your position, hands, every station,
+burner timers, and every active order WITH ITS TIME LEFT. Always take a productive action
+toward serving the most urgent order. Respond with tool call(s) ONLY — no prose.
 """
 
 
 def render_observation(obs: dict) -> str:
-    """Render only what a human player perceives: the kitchen layout, where things are, the
-    order tickets/timers, the chef's hands, and what just happened. NO hints — no
-    pre-computed directions/paths and no list of currently-valid actions (a human gets
-    neither; they read the grid and reason themselves)."""
+    """Render the full, up-to-date state with the deadline-driven ORDERS up front (the
+    priority), each with its time left and recipe. No hints — no pre-computed paths and no
+    valid-action list; the model reads the grid and reasons itself."""
     grid_rows = obs["grid_ascii"].split("\n")
     n = len(grid_rows)
     cr, cc = obs["chef_pos"]
-    lines = [
-        f"clock={obs['clock_gs']}gs  remaining={obs['remaining_gs']}gs  "
-        f"score={obs['score']}  combo={obs['combo_count']}",
-        f"you are at [row {cr}, col {cc}]; hands={obs['hands']} (free slots {obs['hand_slots_free']})",
-        "kitchen grid (row 0 = north/top; " + obs["grid_legend"] + "):",
-        "      col: " + " ".join(str(c) for c in range(n)),
-    ]
+    active = [o for o in obs["orders"] if o["status"] == "ACTIVE"]
+    pending = [o for o in obs["orders"] if o["status"] == "PENDING"]
+
+    lines = [f"clock={obs['clock_gs']}gs  score={obs['score']}  combo={obs['combo_count']}",
+             "ACTIVE orders (serve each before its time left hits 0 — this is the goal):"]
+    if active:
+        for o in sorted(active, key=lambda o: o["gs_remaining"]):
+            need = ", ".join(f"{i}={s}" for i, s in config.RECIPES[o["dish"]].items())
+            lines.append(f"  {o['order_id']}: {o['dish']}  —  {o['gs_remaining']:.0f}s LEFT  "
+                         f"(value {o['base_value']:g}; needs {need})")
+    else:
+        lines.append("  (none active right now)")
+    if pending:
+        nxt = min(p["arrival_gs"] for p in pending) - obs["clock_gs"]
+        lines.append(f"  (+{len(pending)} more orders incoming; next in ~{max(0, nxt):.0f}s)")
+
+    lines.append(f"you: [row {cr}, col {cc}]   hands={obs['hands']} (free {obs['hand_slots_free']})")
+    lines.append("burners: " + ", ".join(
+        f"#{b['burner_index']}@{b['cell']}:{b['status']}"
+        + (f"({b['ingredient']} ready@{b['ready_gs']}gs/burns@{b['burn_gs']}gs)" if b["ingredient"] else "")
+        for b in obs["burners"]))
+    lines.append("kitchen grid (row 0 = top; " + obs["grid_legend"] + "):")
+    lines.append("      col " + " ".join(str(c) for c in range(n)))
     for r in range(n):
-        lines.append(f"  row {r}:  " + "  ".join(grid_rows[r][c] for c in range(n)))
-    lines.append("you must stand on a floor cell ADJACENT to a station to use it; "
-                 "move_to(row, col) takes you to any reachable floor cell.")
-    lines.append("stations (positions are visible on the grid above):")
-    for s in obs["stations"]:
-        tag = f"{s['type']}{('/' + s['ingredient']) if s['ingredient'] else ''}"
-        lines.append(f"  {tag} @[{s['cell'][0]},{s['cell'][1]}]")
-    lines.append(
-        "burners: " + ", ".join(
-            f"#{b['burner_index']}@{b['cell']}:{b['status']}"
-            + (f"({b['ingredient']} ready{b['ready_gs']}/burn{b['burn_gs']})" if b["ingredient"] else "")
-            for b in obs["burners"]
-        )
-    )
-    lines.append("orders:")
-    for o in obs["orders"]:
-        lines.append(f"  {o['order_id']} {o['dish']} [{o['status']}] "
-                     f"deadline {o['deadline_gs']}gs ({o['gs_remaining']}gs left) value {o['base_value']}")
-    if obs["last_turn"]:
+        lines.append(f"  row {r}: " + "  ".join(grid_rows[r][c] for c in range(n)))
+    lines.append("stations: " + ", ".join(
+        f"{s['type']}{('/' + s['ingredient']) if s['ingredient'] else ''}@[{s['cell'][0]},{s['cell'][1]}]"
+        for s in obs["stations"]))
+    if obs.get("last_turn"):
         results = obs["last_turn"].get("calls", [])
         if results:
-            lines.append("last turn: " + "; ".join(f"{c.get('action','?')}:{'ok' if c['ok'] else 'INVALID'} "
-                                                    f"({c.get('note','')})" for c in results))
+            lines.append("last turn: " + "; ".join(
+                f"{c.get('action', '?')}:{'ok' if c['ok'] else 'INVALID'}({c.get('note', '')})"
+                for c in results))
     if obs.get("events_since_last"):
         lines.append("events: " + "; ".join(f"{e['type']}@{e['clock_gs']}" for e in obs["events_since_last"]))
     return "\n".join(lines)
