@@ -23,6 +23,9 @@ htmlcov/
 # Benchmark run outputs (trajectories, summaries)
 runs/
 
+# Dispatch worker scratch (plans, IPC, worker analyses)
+.dispatch/
+
 # OS / editor
 .DS_Store
 .idea/
