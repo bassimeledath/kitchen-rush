@@ -27,7 +27,11 @@ OBSERVE_GS = 1.0
 INVALID_GS = 3.0
 
 HORIZON_GS = 300.0
-MAX_TURNS = 300
+# The real time limit is the game-time HORIZON (the world clock). MAX_TURNS is only a paranoid
+# anti-runaway ceiling that never binds for a model making progress; STALL_TURNS ends an
+# episode that does no productive work for that many consecutive turns (the true safety net).
+MAX_TURNS = 500
+STALL_TURNS = 50
 MAX_STEPS_PER_MOVE = 8       # single-leg cap
 SCHEMA_MAX_STEPS = 12        # hard schema cap before clamping
 MAX_CALLS_PER_RESPONSE = 6

@@ -65,10 +65,15 @@ def test_move_to_reaches_cell_and_charges_path():
     assert eng.clock_gs > before              # travel time charged
 
 
-def test_move_to_station_cell_is_invalid():
+def test_move_to_station_cell_stops_adjacent():
+    # Aiming at a station's own cell is a "walk up to the counter" affordance: it succeeds
+    # and leaves the chef on a floor cell orthogonally adjacent to that station.
     eng = KitchenRushEngine(make_spec())
     eng.chef_pos = (1, 0)
-    assert _do(eng, "move_to", row=2, col=1)["ok"] is False   # (2,1) is a stove station
+    res = _do(eng, "move_to", row=2, col=1)                    # (2,1) is a stove station
+    assert res["ok"]
+    assert eng.chef_pos != (2, 1) and eng.chef_pos not in eng.stations
+    assert abs(eng.chef_pos[0] - 2) + abs(eng.chef_pos[1] - 1) == 1
 
 
 def test_move_to_current_cell_is_noop():
@@ -79,10 +84,17 @@ def test_move_to_current_cell_is_noop():
     assert eng.clock_gs == before
 
 
-def test_station_gating_rejects_far_collect():
+def test_collect_auto_walks_to_dispenser():
+    # Auto-navigation: a station action from afar walks the chef there (charging travel) and
+    # succeeds — no manual move_to first. Movement still costs game-time, so the grid matters.
     eng = KitchenRushEngine(make_spec())
-    eng.chef_pos = (2, 2)                     # not adjacent to any dispenser
-    assert _do(eng, "collect", ingredient="bun")["ok"] is False
+    eng.chef_pos = (2, 2)                      # not adjacent to any dispenser
+    before = eng.clock_gs
+    res = _do(eng, "collect", ingredient="bun")
+    assert res["ok"]
+    assert len(eng.hands) == 1 and eng.hands[0].ingredient == "bun"
+    assert eng.clock_gs > before               # travel + collect both charged
+    assert abs(eng.chef_pos[0] - 0) + abs(eng.chef_pos[1] - 1) == 1   # ended adjacent to bun @(0,1)
 
 
 def test_chained_move_to_then_collect():
