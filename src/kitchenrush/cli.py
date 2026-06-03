@@ -52,8 +52,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
     spec = generate(args.seed, args.tier)
     policy = _policy_factory(args)(args.seed, 0)
     result = run_episode(spec, policy, max_turns=args.max_turns)
-    from .runner import s_ref_for
-    result.s_ref = s_ref_for(spec)
+    from .runner import anchors_for
+    result.s_null, result.s_ref = anchors_for(spec)
     label = f"model={args.model}" if args.model else f"baseline={args.baseline}"
     if args.out:
         write_jsonl(result, args.out)
@@ -77,11 +77,45 @@ def _cmd_bench(args: argparse.Namespace) -> int:
     else:
         print(f"Kitchen Rush bench — tier={args.tier} {label} track={args.track} "
               f"({agg['seeds']} seeds x {args.trials} trials = {agg['episodes']} episodes)")
-        for key in ("RTTC", "mean_score", "score_std", "cv", "eta_mean", "completion_rate",
-                    "expiry_rate", "invalid_rate", "pass_1", f"pass_{args.trials}",
-                    "think_gs_p50", "think_gs_p95"):
+        keys = dict.fromkeys((  # dict.fromkeys dedupes (pass_1 == pass_{trials} when trials=1)
+            "KR", "kr_std", "mean_score_raw", "completion_rate", "expiry_rate",
+            "invalid_rate", "pass_1", f"pass_{args.trials}", "think_gs_p50",
+            "think_gs_p95", "degenerate_instances",
+        ))
+        for key in keys:
             if key in agg:
-                print(f"  {key:16} {agg[key]}")
+                print(f"  {key:20} {agg[key]}")
+    return 0
+
+
+def _cmd_calibrate(args: argparse.Namespace) -> int:
+    """Sweep the greedy-EDF reference at injected latencies and print KR(EDF@l) — the
+    calibration shape used to choose final parameter values (METHODOLOGY §5)."""
+    from .oracle import OracleAgent, null_score, reference_score
+    from .runner import run_episode
+
+    seeds = range(args.start, args.start + args.seeds)
+    specs = [generate(s, args.tier) for s in seeds]
+    completed = served = orders = 0
+    for spec in specs:
+        rep = run_episode(spec, OracleAgent(0.0)).report
+        served += rep["counters"]["orders_served"]
+        orders += rep["counters"]["orders_total"]
+        completed += rep["counters"]["orders_served"] == rep["counters"]["orders_total"]
+    print(f"Kitchen Rush calibrate — tier={args.tier} ({len(specs)} seeds)")
+    print(f"  oracle@0 order completion: {served}/{orders}  "
+          f"(fully-completed instances: {completed}/{len(specs)})")
+    for latency in [0.0, 0.5, 1.0, 2.0, 4.0]:
+        krs = []
+        for spec in specs:
+            s_null = null_score(spec)
+            s_ref = reference_score(spec, 0.0)
+            if s_ref <= s_null:
+                continue
+            s = reference_score(spec, latency)
+            krs.append(100.0 * max(0.0, min(1.0, (s - s_null) / (s_ref - s_null))))
+        val = sum(krs) / len(krs) if krs else float("nan")
+        print(f"  KR(EDF@{latency:>3}s) = {val:5.1f}   (over {len(krs)} non-degenerate seeds)")
     return 0
 
 
@@ -127,6 +161,12 @@ def main(argv: list[str] | None = None) -> int:
     seeds.add_argument("--start", type=int, default=0)
     seeds.add_argument("--count", type=int, default=5)
     seeds.set_defaults(func=_cmd_seeds)
+
+    cal = sub.add_parser("calibrate", help="sweep the EDF reference at injected latencies (KR shape)")
+    cal.add_argument("--tier", choices=sorted(config.TIERS), default="easy")
+    cal.add_argument("--start", type=int, default=0)
+    cal.add_argument("--seeds", type=int, default=12)
+    cal.set_defaults(func=_cmd_calibrate)
 
     args = parser.parse_args(argv)
     try:

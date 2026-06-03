@@ -54,6 +54,9 @@ THETA_PASS = 0.6            # an episode passes a seed iff score_raw >= THETA_PA
 PASS_K = 4                  # trials per seed for Pass^k
 DEFAULT_TEMPERATURE = 0.2   # sampling temperature for trials
 
+# Realtime target (METHODOLOGY §2): deadlines are priced at B seconds per decision.
+B_SECONDS = 1.0
+
 # --- ingredient states (RULES §2.3) ------------------------------------------
 RAW = "RAW"
 CHOPPED = "CHOPPED"
@@ -139,27 +142,30 @@ class Tier:
     burner_count: int
     horizon_gs: float
     recipes: tuple[str, ...]
-    arrival_rate: float        # orders per game-second (controls frequency)
-    deadline_factor: float     # deadline = arrival + work_estimate * factor
+    arrival_rate: float        # orders per game-second (controls frequency / overlap)
+    slack: float               # sigma: deadline = arrival + ceil(slack * C_o(B))
     show_ready_actions: bool
     max_orders: int
 
 
+# NOTE: arrival rates are deliberately spaced so the current *sequential* greedy-EDF
+# reference (oracle.py) can complete instances (a strong S_ref). Denser, more-overlapping
+# tiers await a parallel reference scheduler — see docs/ROADMAP.md.
 TIERS: dict[str, Tier] = {
     "easy": Tier(
-        "easy", grid_n=7, burner_count=2, horizon_gs=240.0,
+        "easy", grid_n=7, burner_count=2, horizon_gs=260.0,
         recipes=("burger", "soup", "salad"),
-        arrival_rate=1 / 30, deadline_factor=2.2, show_ready_actions=True, max_orders=8,
+        arrival_rate=1 / 45, slack=1.6, show_ready_actions=True, max_orders=5,
     ),
     "medium": Tier(
-        "medium", grid_n=7, burner_count=2, horizon_gs=300.0,
+        "medium", grid_n=7, burner_count=2, horizon_gs=340.0,
         recipes=("burger", "soup", "salad", "mushroom_cheeseburger"),
-        arrival_rate=1 / 22, deadline_factor=1.9, show_ready_actions=True, max_orders=12,
+        arrival_rate=1 / 50, slack=1.5, show_ready_actions=True, max_orders=6,
     ),
     "hard": Tier(
-        "hard", grid_n=9, burner_count=2, horizon_gs=360.0,
+        "hard", grid_n=9, burner_count=2, horizon_gs=420.0,
         recipes=tuple(RECIPES.keys()),
-        arrival_rate=1 / 18, deadline_factor=1.7, show_ready_actions=False, max_orders=16,
+        arrival_rate=1 / 55, slack=1.4, show_ready_actions=False, max_orders=7,
     ),
 }
 

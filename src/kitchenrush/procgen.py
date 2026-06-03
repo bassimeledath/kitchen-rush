@@ -51,19 +51,33 @@ def _substreams(seed: int) -> tuple[random.Random, random.Random]:
     return random.Random(seed * 1000 + 1), random.Random(seed * 1000 + 2)
 
 
-def _work_estimate(dish: str, grid_n: int) -> float:
-    """Rough lower bound on game-seconds to complete one order (for deadline sizing)."""
+def critical_path(dish: str, grid_n: int, b: float = config.B_SECONDS) -> tuple[float, int, float]:
+    """Reference critical path for one order, priced at ``b`` seconds per decision
+    (METHODOLOGY §2). Returns (A_o intrinsic time, K_o decisions, C_o = A_o + K_o*b)."""
     comps = config.RECIPES[dish]
-    action_gs = config.PLATE_GS + config.SERVE_GS
+    n_collect = len(comps)
+    n_chop = 0
+    n_cook = 0
+    cook_time_sum = 0.0
     for ing, state in comps.items():
         ic = config.INGREDIENTS[ing]
-        action_gs += config.COLLECT_GS
         if state == config.CHOPPED or (state == config.COOKED and ic.cookable_from == config.CHOPPED):
-            action_gs += config.CHOP_GS
+            n_chop += 1
         if state == config.COOKED:
-            action_gs += config.COOK_START_GS + ic.cook_time + config.COOK_PICKUP_GS
-    travel = config.MOVE_GS_PER_STEP * grid_n * (len(comps) + 2)
-    return action_gs + travel
+            n_cook += 1
+            cook_time_sum += ic.cook_time
+    action_gs = (
+        n_collect * config.COLLECT_GS
+        + n_chop * config.CHOP_GS
+        + n_cook * (config.COOK_START_GS + config.COOK_PICKUP_GS)
+        + cook_time_sum
+        + config.PLATE_GS
+        + config.SERVE_GS
+    )
+    k_o = n_collect + n_chop + n_cook + n_cook + 2  # collects, chops, cooks, pickups, plate, serve
+    travel = config.MOVE_GS_PER_STEP * (grid_n * 0.5) * k_o
+    a_o = action_gs + travel
+    return a_o, k_o, a_o + k_o * b
 
 
 def _floor_connected(grid_n: int, station_cells: set[tuple[int, int]]) -> bool:
@@ -130,6 +144,8 @@ def _build_layout(rng: random.Random, tier: config.Tier) -> tuple[list[StationSp
 def _build_orders(rng: random.Random, tier: config.Tier) -> list[OrderSpec]:
     from . import scoring
 
+    import math
+
     orders: list[OrderSpec] = []
     t = 0.0
     idx = 1
@@ -138,7 +154,8 @@ def _build_orders(rng: random.Random, tier: config.Tier) -> list[OrderSpec]:
         if t >= tier.horizon_gs:
             break
         dish = rng.choice(tier.recipes)
-        deadline = t + _work_estimate(dish, tier.grid_n) * tier.deadline_factor
+        _, _, c_o = critical_path(dish, tier.grid_n)
+        deadline = t + math.ceil(tier.slack * c_o)
         if deadline > tier.horizon_gs:
             # would be cut off by the horizon; stop the stream (RULES §13.1 guarantee)
             break
@@ -147,15 +164,16 @@ def _build_orders(rng: random.Random, tier: config.Tier) -> list[OrderSpec]:
                 order_id=f"O{idx}",
                 dish=dish,
                 arrival_gs=round(t, 3),
-                deadline_gs=round(deadline, 3),
+                deadline_gs=float(deadline),
                 base_value=scoring.base_value(dish),
             )
         )
         idx += 1
     if not orders:  # guarantee at least one solvable order
         dish = tier.recipes[0]
-        deadline = min(tier.horizon_gs, _work_estimate(dish, tier.grid_n) * tier.deadline_factor)
-        orders.append(OrderSpec("O1", dish, 0.0, round(deadline, 3), scoring.base_value(dish)))
+        _, _, c_o = critical_path(dish, tier.grid_n)
+        deadline = min(tier.horizon_gs, math.ceil(tier.slack * c_o))
+        orders.append(OrderSpec("O1", dish, 0.0, float(deadline), scoring.base_value(dish)))
     return orders
 
 

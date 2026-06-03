@@ -14,7 +14,8 @@ class EpisodeResult:
     tier: str
     report: dict[str, Any]
     steps: list[dict[str, Any]] = field(default_factory=list)
-    s_ref: float | None = None     # instant-serve upper bound (placeholder oracle), set by run_suite
+    s_ref: float | None = None     # greedy-EDF reference ceiling (zero latency), set by run_suite
+    s_null: float | None = None    # do-nothing floor (all orders expire), set by run_suite
     trial: int = 0
 
     def to_dict(self) -> dict[str, Any]:
@@ -23,6 +24,7 @@ class EpisodeResult:
             "tier": self.tier,
             "trial": self.trial,
             "s_ref": self.s_ref,
+            "s_null": self.s_null,
             "report": self.report,
             "steps": self.steps,
         }

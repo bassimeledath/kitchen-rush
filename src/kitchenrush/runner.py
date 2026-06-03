@@ -20,9 +20,11 @@ Policy = Callable[[dict, list[dict]], tuple[list[ToolCall], float]]
 PolicyFactory = Callable[[int, int], Policy]
 
 
-def s_ref_for(spec: KitchenSpec) -> float:
-    """Instant-serve upper bound: every order at full value, no decay (placeholder oracle)."""
-    return sum(scoring.base_value(o.dish) for o in spec.orders)
+def anchors_for(spec: KitchenSpec) -> tuple[float, float]:
+    """(S_null, S_ref) for an instance: the do-nothing floor and the greedy-EDF ceiling
+    (METHODOLOGY §1). S_ref runs the oracle at zero latency."""
+    from .oracle import null_score, reference_score  # lazy import to avoid a cycle
+    return null_score(spec), reference_score(spec, 0.0)
 
 
 def run_episode(spec: KitchenSpec, policy: Policy, *, max_turns: int | None = None,
@@ -56,11 +58,12 @@ def run_suite(seeds: Iterable[int], tier: str, policy_factory: PolicyFactory, *,
     episodes: list[EpisodeResult] = []
     for seed in seeds:
         spec = generate(seed, tier)
-        s_ref = s_ref_for(spec)
+        s_null, s_ref = anchors_for(spec)
         for trial in range(trials):
             policy = policy_factory(seed, trial)
             result = run_episode(spec, policy, max_turns=max_turns)
             result.s_ref = s_ref
+            result.s_null = s_null
             result.trial = trial
             episodes.append(result)
     return episodes
