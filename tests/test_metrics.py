@@ -3,8 +3,9 @@
 from kitchenrush import procgen
 from kitchenrush.baselines import NullAgent, RandomAgent
 from kitchenrush.metrics import aggregate, episode_metrics, percentile
+from kitchenrush.oracle import null_score
 from kitchenrush.report import EpisodeResult
-from kitchenrush.runner import run_suite
+from kitchenrush.runner import run_episode, run_suite
 
 
 def test_percentile():
@@ -68,6 +69,16 @@ def test_suite_runs_and_is_deterministic():
     b = aggregate(run_suite(range(0, 3), "easy", factory, trials=2), k=2)
     assert a == b
     assert 0.0 <= a["KR"] <= 100.0
+
+
+def test_truncated_run_force_expires_unresolved_orders():
+    # An episode cut short (small max_turns) must NOT let unserved orders escape expiry.
+    # A do-nothing agent should land exactly on the null floor regardless of truncation.
+    spec = procgen.generate(0, "easy")
+    rep = run_episode(spec, NullAgent(latency=0.0), max_turns=3).report
+    assert rep["counters"]["orders_served"] == 0
+    assert rep["counters"]["orders_expired"] == rep["counters"]["orders_total"]
+    assert abs(rep["score_raw"] - null_score(spec)) < 1e-6   # == null floor, no free pass
 
 
 def test_null_baseline_scores_zero_kr():

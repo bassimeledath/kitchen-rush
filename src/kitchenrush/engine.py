@@ -116,6 +116,7 @@ class KitchenRushEngine:
         self.events: list[Event] = []
         self._events_since_last: list[Event] = []
         self._last_turn: dict[str, Any] = {}
+        self._finalized = False
 
         self._record("game_start", {})
         self.advance(0.0)  # fire any arrivals scheduled at t=0
@@ -566,6 +567,21 @@ class KitchenRushEngine:
 
     # -- final report (RULES §13.6) -------------------------------------------
     def final_report(self) -> dict[str, Any]:
+        # Truncation-invariance: any order still unresolved at episode end (e.g. the run was
+        # cut by MAX_TURNS before its deadline) counts as a MISS. Otherwise a fast agent can
+        # dodge expiry penalties by running out of turns and beat the null floor without
+        # serving anything (spurious positive KR). Keeps scoring consistent with S_null
+        # (which assumes all unserved orders expire). Idempotent.
+        if not self._finalized:
+            self._finalized = True
+            for o in self._order_list:
+                if o.status in ("PENDING", "ACTIVE"):
+                    o.status = "EXPIRED"
+                    self.score += scoring.expiry_penalty(o.base_value)
+                    self.combo_count = 0
+                    self.counters["expiries"] += 1
+                    self.counters["orders_expired"] += 1
+                    self._record("force_expired_end", {"order_id": o.order_id})
         return {
             "seed": self.spec.seed,
             "tier": self.spec.tier,
