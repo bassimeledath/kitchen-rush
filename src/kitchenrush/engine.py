@@ -211,6 +211,9 @@ class KitchenRushEngine:
         self.clock_gs = target
 
     def _check_terminate(self) -> bool:
+        # The primary terminator is game-time (the horizon); orders_exhausted ends it early when
+        # everything is resolved. The per-turn ceiling lives in run_episode (and the stall guard
+        # in step), NOT here — so a generous reference budget is not capped at MAX_TURNS.
         if self.terminated:
             return True
         if self.clock_gs >= self.spec.horizon_gs:
@@ -219,9 +222,6 @@ class KitchenRushEngine:
         elif all(o.status in ("SERVED", "EXPIRED") for o in self._order_list):
             self.terminated = True
             self._record("terminated", {"reason": "orders_exhausted"})
-        elif self.turn_count >= config.MAX_TURNS:
-            self.terminated = True
-            self._record("terminated", {"reason": "max_turns"})
         return self.terminated
 
     # -- turn entry point (RULES §3.2.3) --------------------------------------
