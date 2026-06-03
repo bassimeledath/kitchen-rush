@@ -17,7 +17,7 @@ from .latency import rp_latency_seconds
 from .tokenizer import count_tokens
 from .tools import ToolCall
 
-SYSTEM_PROMPT = """You are the chef in Kitchen Rush, a real-time kitchen. GOAL: serve each
+SYSTEM_PROMPT = f"""You are the chef in Kitchen Rush, a real-time kitchen. GOAL: serve each
 order before its deadline. Each active order shows its TIME LEFT; serve it in time to score
 (sooner = more — value decays to a floor), or it EXPIRES and you LOSE points. Burned food and
 impossible actions also cost points.
@@ -36,10 +36,11 @@ automatically (the walk costs travel time):
 - serve(order_id): deliver a held plated dish to that order.
 - move_to(row, col): OPTIONAL — only to pre-position yourself; usually unnecessary.
 
-CHAIN YOUR CALLS — this is essential: emit a SEQUENCE of actions in ONE response. They run in
-order and you are charged thinking time only ONCE, so a multi-step chain is far faster and
-scores better than one call per turn. Example for a burger (needs bun=RAW, patty=COOKED), all
-in a SINGLE response:
+CHAIN YOUR CALLS — this is essential: emit a SEQUENCE of actions in ONE response (up to
+{config.MAX_CALLS_PER_RESPONSE} per response; any beyond that are dropped, not executed). They
+run in order and you are charged thinking time only ONCE, so a multi-step chain is far faster
+and scores better than one call per turn. Example for a burger (needs bun=RAW, patty=COOKED),
+all in a SINGLE response:
   collect("patty"), cook("patty"), collect("bun")
 Then, on a later turn once the patty is READY:
   collect_cooked("patty"), plate("burger"), serve("O1")

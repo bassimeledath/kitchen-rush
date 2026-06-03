@@ -95,12 +95,15 @@ def _cmd_bench(args: argparse.Namespace) -> int:
               f"({agg['seeds']} seeds x {args.trials} trials = {agg['episodes']} episodes)")
         keys = dict.fromkeys((  # dict.fromkeys dedupes (pass_1 == pass_{trials} when trials=1)
             "KR", "kr_std", "mean_score_raw", "completion_rate", "expiry_rate",
-            "invalid_rate", "pass_1", f"pass_{args.trials}", "think_gs_p50",
+            "invalid_rate", "overflow_calls", "pass_1", f"pass_{args.trials}", "think_gs_p50",
             "think_gs_p95", "degenerate_instances",
         ))
         for key in keys:
             if key in agg:
                 print(f"  {key:20} {agg[key]}")
+        if agg.get("invalid_breakdown"):
+            parts = ", ".join(f"{cat}={cnt}" for cat, cnt in agg["invalid_breakdown"].items())
+            print(f"  {'invalid_breakdown':20} {parts}")
     return 0
 
 

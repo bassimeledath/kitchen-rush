@@ -70,6 +70,19 @@ class Event:
     detail: dict = field(default_factory=dict)
 
 
+# Invalid-action categories (diagnostic taxonomy, surfaced in final_report). These turn the
+# benchmark into a tool that tells you HOW a model fails, not just that it scored low.
+INV_EARLY_PICKUP = "early_pickup"     # collect_cooked before the item is READY
+INV_WRONG_INVENTORY = "wrong_inventory"  # plate/cook/chop/serve without the right held items
+INV_BURNER_FULL = "burner_full"       # cook with every burner busy
+INV_EXPIRED_SERVE = "expired_serve"   # serve an order that already expired
+INV_BAD_TARGET = "bad_target"         # unknown order/ingredient/recipe, or not on the menu
+INV_UNREACHABLE = "unreachable"       # no reachable station of the needed type
+INV_MALFORMED = "malformed"           # bad args / unknown tool
+INV_CATEGORIES = (INV_EARLY_PICKUP, INV_WRONG_INVENTORY, INV_BURNER_FULL, INV_EXPIRED_SERVE,
+                  INV_BAD_TARGET, INV_UNREACHABLE, INV_MALFORMED)
+
+
 def _new_counters() -> dict[str, Any]:
     return {
         "serves_ok": 0, "invalid_actions": 0, "burns": 0, "expiries": 0, "drops": 0,
@@ -77,6 +90,8 @@ def _new_counters() -> dict[str, Any]:
         "chain_partial_failures": 0, "total_think_gs": 0.0, "total_action_gs": 0.0,
         "timeouts": 0, "empty_turns": 0, "max_combo": 0,
         "orders_total": 0, "orders_served": 0, "orders_expired": 0,
+        "overflow_calls": 0,                       # calls past MAX_CALLS_PER_RESPONSE (dropped)
+        "invalid_by_reason": {c: 0 for c in INV_CATEGORIES},
     }
 
 
@@ -225,6 +240,9 @@ class KitchenRushEngine:
         self.advance(think_gs)
 
         capped = calls[: config.MAX_CALLS_PER_RESPONSE]
+        overflow = [c.name for c in calls[config.MAX_CALLS_PER_RESPONSE:]]  # NOT silently dropped
+        if overflow:
+            self.counters["overflow_calls"] += len(overflow)
         if len(capped) > 1:
             self.counters["chained_turns"] += 1
         if not capped:
@@ -261,6 +279,7 @@ class KitchenRushEngine:
             "calls": results,
             "aborted_calls": aborted,
             "failed_at_index": failed_at,
+            "overflow_dropped": overflow,   # calls past the per-response cap (not executed)
         }
         return self.observe()
 
@@ -273,26 +292,28 @@ class KitchenRushEngine:
             "serve": self._a_serve, "discard": self._a_discard,
         }.get(call.name)
         if handler is None:
-            return self._invalid(f"unknown tool {call.name!r}")
+            return self._invalid(f"unknown tool {call.name!r}", INV_MALFORMED)
         try:
             return handler(call.arguments or {})
         except (KeyError, TypeError, ValueError) as exc:
-            return self._invalid(f"malformed call {call.name}: {exc}")
+            return self._invalid(f"malformed call {call.name}: {exc}", INV_MALFORMED)
 
     def _ok(self, action: str, note: str) -> dict[str, Any]:
         self.last_invalid_reason = None
         self._record(action, {"note": note})
         return {"ok": True, "action": action, "note": note}
 
-    def _invalid(self, reason: str) -> dict[str, Any]:
+    def _invalid(self, reason: str, category: str = INV_MALFORMED) -> dict[str, Any]:
         self.advance(config.INVALID_GS)
         self.counters["invalid_actions"] += 1
+        self.counters["invalid_by_reason"][category] = \
+            self.counters["invalid_by_reason"].get(category, 0) + 1
         self.counters["total_action_gs"] += config.INVALID_GS
         self.score += config.INVALID_PENALTY
         self.combo_count = 0
         self.last_invalid_reason = reason
-        self._record("invalid", {"reason": reason})
-        return {"ok": False, "action": "invalid", "note": reason}
+        self._record("invalid", {"reason": reason, "category": category})
+        return {"ok": False, "action": "invalid", "note": reason, "category": category}
 
     def _charge(self, gs: float) -> None:
         self.counters["total_action_gs"] += gs
@@ -328,23 +349,23 @@ class KitchenRushEngine:
             r = int(args.get("row"))
             c = int(args.get("col"))
         except (TypeError, ValueError):
-            return self._invalid("row and col must be integers")
+            return self._invalid("row and col must be integers", INV_MALFORMED)
         target = (r, c)
         if not self._in_bounds(target):
-            return self._invalid(f"cell [{r}, {c}] is off the grid")
+            return self._invalid(f"cell [{r}, {c}] is off the grid", INV_BAD_TARGET)
         if target in self.stations:
             # "Walk up to the counter": aiming at a station means stand on the nearest
             # reachable floor cell beside it (move_to already does the pathfinding). This is
             # a navigation affordance, not a hint — the chef still chooses which station.
             adj = self._nearest_access_cell(target)
             if adj is None:
-                return self._invalid(f"no reachable floor cell next to station [{r}, {c}]")
+                return self._invalid(f"no reachable floor cell next to station [{r}, {c}]", INV_UNREACHABLE)
             target = adj
         if target == self.chef_pos:
             return self._ok("move_to", "already there")
         dist = self._shortest(self.chef_pos, target)
         if dist is None:
-            return self._invalid(f"cell [{r}, {c}] is unreachable")
+            return self._invalid(f"cell [{r}, {c}] is unreachable", INV_UNREACHABLE)
         self._charge(dist * config.MOVE_GS_PER_STEP)
         self.chef_pos = target
         suffix = f" (next to [{r}, {c}])" if target != (r, c) else ""
@@ -404,11 +425,11 @@ class KitchenRushEngine:
     def _a_collect(self, args: dict) -> dict[str, Any]:
         ing = args.get("ingredient")
         if ing not in self.active_ingredients:
-            return self._invalid(f"{ing} not used in this kitchen")
+            return self._invalid(f"{ing} not used in this kitchen", INV_BAD_TARGET)
         if len(self.hands) >= config.HAND_SLOTS:
-            return self._invalid("hands full")
+            return self._invalid("hands full", INV_WRONG_INVENTORY)
         if not self._walk_to(config.ING, ing):
-            return self._invalid(f"cannot reach a {ing} dispenser")
+            return self._invalid(f"cannot reach a {ing} dispenser", INV_UNREACHABLE)
         self._charge(config.COLLECT_GS)
         self.hands.append(Component(ing, config.RAW))
         return self._ok("collect", f"collected {ing}")
@@ -416,12 +437,12 @@ class KitchenRushEngine:
     def _a_chop(self, args: dict) -> dict[str, Any]:
         ing = args.get("ingredient")
         if ing not in config.INGREDIENTS or not config.INGREDIENTS[ing].choppable:
-            return self._invalid(f"{ing} is not choppable")
+            return self._invalid(f"{ing} is not choppable", INV_BAD_TARGET)
         item = self._held(ing, config.RAW)
         if item is None:
-            return self._invalid(f"not holding raw {ing}")
+            return self._invalid(f"not holding raw {ing}", INV_WRONG_INVENTORY)
         if not self._walk_to(config.BOARD):
-            return self._invalid("cannot reach a cutting board")
+            return self._invalid("cannot reach a cutting board", INV_UNREACHABLE)
         self._charge(config.CHOP_GS)
         item.state = config.CHOPPED
         return self._ok("chop", f"chopped {ing}")
@@ -430,18 +451,18 @@ class KitchenRushEngine:
         ing = args.get("ingredient")
         ic = config.INGREDIENTS.get(ing)
         if ic is None or ic.cookable_from is None:
-            return self._invalid(f"{ing} is not cookable")
+            return self._invalid(f"{ing} is not cookable", INV_BAD_TARGET)
         item = self._held(ing, ic.cookable_from)
         if item is None:
-            return self._invalid(f"need {ing} in state {ic.cookable_from} to cook")
+            return self._invalid(f"need {ing} in state {ic.cookable_from} to cook", INV_WRONG_INVENTORY)
         free_cells = {b.cell for b in self.burners if b.job is None}
         if not free_cells:
-            return self._invalid("all burners are busy")
+            return self._invalid("all burners are busy", INV_BURNER_FULL)
         if not self._walk_to_cells(free_cells):
-            return self._invalid("cannot reach a free stove")
+            return self._invalid("cannot reach a free stove", INV_UNREACHABLE)
         free = [i for i, c in enumerate(self.burners) if c.cell in self._adjacent_stations(config.STOVE) and c.job is None]
         if not free:
-            return self._invalid("no free burner here")
+            return self._invalid("no free burner here", INV_BURNER_FULL)
         self._charge(config.COOK_START_GS)
         self.hands.remove(item)
         idx = free[0]
@@ -453,7 +474,7 @@ class KitchenRushEngine:
     def _a_collect_cooked(self, args: dict) -> dict[str, Any]:
         ing = args.get("ingredient")
         if len(self.hands) >= config.HAND_SLOTS:
-            return self._invalid("hands full")
+            return self._invalid("hands full", INV_WRONG_INVENTORY)
         want = args.get("burner_index")
         # stoves carrying a ready/burned matching item (status read before any travel)
         target_cells = {
@@ -463,9 +484,17 @@ class KitchenRushEngine:
             and (want is None or i == want)
         }
         if not target_cells:
-            return self._invalid(f"no ready/burned {ing} on a burner")
+            # distinguish "grabbed too early" (it's still cooking) from "nothing there"
+            still_cooking = any(
+                b.job and b.job.ingredient == ing and b.job.status(self.clock_gs) == "COOKING"
+                and (want is None or i == want)
+                for i, b in enumerate(self.burners)
+            )
+            if still_cooking:
+                return self._invalid(f"{ing} is not ready yet (still cooking)", INV_EARLY_PICKUP)
+            return self._invalid(f"no ready/burned {ing} on a burner", INV_BAD_TARGET)
         if not self._walk_to_cells(target_cells):
-            return self._invalid(f"cannot reach the stove with {ing}")
+            return self._invalid(f"cannot reach the stove with {ing}", INV_UNREACHABLE)
         adj = set(self._adjacent_stations(config.STOVE))
         candidates = [
             i for i, b in enumerate(self.burners)
@@ -474,7 +503,7 @@ class KitchenRushEngine:
             and (want is None or i == want)
         ]
         if not candidates:
-            return self._invalid(f"no ready/burned {ing} on a burner here")
+            return self._invalid(f"no ready/burned {ing} on a burner here", INV_EARLY_PICKUP)
         idx = candidates[0]
         job = self.burners[idx].job
         assert job is not None
@@ -488,7 +517,7 @@ class KitchenRushEngine:
     def _a_plate(self, args: dict) -> dict[str, Any]:
         recipe = args.get("recipe")
         if recipe not in self.active_recipes:
-            return self._invalid(f"{recipe} not on the menu")
+            return self._invalid(f"{recipe} not on the menu", INV_BAD_TARGET)
         required = dict(config.RECIPES[recipe])
         comps = [h for h in self.hands if not h.is_plate]
         have: dict[tuple[str, str], int] = {}
@@ -496,9 +525,9 @@ class KitchenRushEngine:
             have[(c.ingredient, c.state)] = have.get((c.ingredient, c.state), 0) + 1
         need = {(i, s): 1 for i, s in required.items()}
         if have != need:
-            return self._invalid("held components do not exactly match the recipe")
+            return self._invalid("held components do not exactly match the recipe", INV_WRONG_INVENTORY)
         if not self._walk_to(config.PLATE):
-            return self._invalid("cannot reach a plating counter")
+            return self._invalid("cannot reach a plating counter", INV_UNREACHABLE)
         self._charge(config.PLATE_GS)
         for i, s in required.items():
             self.hands.remove(self._held(i, s))  # type: ignore[arg-type]
@@ -509,16 +538,16 @@ class KitchenRushEngine:
         order_id = args.get("order_id")
         order = self.orders.get(order_id)
         if order is None:
-            return self._invalid(f"no such order {order_id!r}")
+            return self._invalid(f"no such order {order_id!r}", INV_BAD_TARGET)
         if order.status != "ACTIVE":
-            return self._invalid(f"order {order_id} is {order.status}, not ACTIVE")
+            return self._invalid(f"order {order_id} is {order.status}, not ACTIVE", INV_EXPIRED_SERVE)
         plate = next((h for h in self.hands if h.is_plate and h.ingredient == order.dish), None)
         if plate is None:
-            return self._invalid(f"not holding a plated {order.dish}")
+            return self._invalid(f"not holding a plated {order.dish}", INV_WRONG_INVENTORY)
         if not self._walk_to(config.PASS):
-            return self._invalid("cannot reach the pass")
+            return self._invalid("cannot reach the pass", INV_UNREACHABLE)
         if order.status != "ACTIVE":  # the order may have expired while walking to the pass
-            return self._invalid(f"order {order_id} expired before you reached the pass")
+            return self._invalid(f"order {order_id} expired before you reached the pass", INV_EXPIRED_SERVE)
         self._charge_serve(order_id)
         tf = scoring.time_factor(self.clock_gs, order.arrival_gs, order.deadline_gs)
         qualifies = config.recipe_n_steps(order.dish) >= config.COMBO_MIN_STEPS
@@ -544,9 +573,9 @@ class KitchenRushEngine:
         item = args.get("item")
         held = next((h for h in self.hands if h.ingredient == item or (h.is_plate and item == f"plate:{h.ingredient}")), None)
         if held is None:
-            return self._invalid(f"not holding {item!r}")
+            return self._invalid(f"not holding {item!r}", INV_WRONG_INVENTORY)
         if not self._walk_to(config.BIN):
-            return self._invalid("cannot reach the bin")
+            return self._invalid("cannot reach the bin", INV_UNREACHABLE)
         self._charge(config.DISCARD_GS)
         self.hands.remove(held)
         if held.state != config.BURNED:

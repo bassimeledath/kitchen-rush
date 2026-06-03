@@ -54,6 +54,8 @@ def episode_metrics(ep: EpisodeResult) -> dict[str, Any]:
         "completion_rate": c["orders_served"] / total,
         "expiry_rate": c["orders_expired"] / total,
         "invalid_rate": c["invalid_actions"] / calls,
+        "invalid_by_reason": c.get("invalid_by_reason", {}),
+        "overflow_calls": c.get("overflow_calls", 0),
         "burns": c["burns"],
         "think_gs": [s["think_gs"] for s in ep.steps],
     }
@@ -83,6 +85,13 @@ def aggregate(episodes: list[EpisodeResult], *, k: int = config.PASS_K) -> dict[
     pass_k = (sum(1 for v in by_seed.values() if all(v)) / len(by_seed)) if by_seed else 0.0
 
     thinks = sorted(t for m in ems for t in m["think_gs"])
+    # Failure taxonomy: pool invalid counts by category across episodes (a diagnostic that says
+    # HOW models fail — timing vs inventory vs capacity vs stale serves — not just the rate).
+    inv_breakdown: dict[str, int] = {}
+    for m in ems:
+        for cat, cnt in (m["invalid_by_reason"] or {}).items():
+            inv_breakdown[cat] = inv_breakdown.get(cat, 0) + cnt
+    inv_breakdown = {cat: cnt for cat, cnt in inv_breakdown.items() if cnt}
     return {
         "episodes": n,
         "seeds": len({m["seed"] for m in ems}),
@@ -93,6 +102,8 @@ def aggregate(episodes: list[EpisodeResult], *, k: int = config.PASS_K) -> dict[
         "completion_rate": round(mean("completion_rate"), 4),
         "expiry_rate": round(mean("expiry_rate"), 4),
         "invalid_rate": round(mean("invalid_rate"), 4),
+        "invalid_breakdown": dict(sorted(inv_breakdown.items(), key=lambda kv: -kv[1])),
+        "overflow_calls": sum(m["overflow_calls"] for m in ems),
         "pass_1": round(pass_1, 4),
         f"pass_{k}": round(pass_k, 4),
         "think_gs_p50": round(percentile(thinks, 0.50), 3),
