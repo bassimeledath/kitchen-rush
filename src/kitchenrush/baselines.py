@@ -40,6 +40,6 @@ class RandomAgent:
             else:
                 call = ToolCall("observe", {})
         else:
-            direction = self.rng.choice(list(config.DIRECTIONS))
-            call = ToolCall("move", {"direction": direction, "steps": self.rng.randint(1, config.MAX_STEPS_PER_MOVE)})
+            n = len(obs.get("grid_ascii", ".").split("\n"))
+            call = ToolCall("move_to", {"row": self.rng.randint(0, n - 1), "col": self.rng.randint(0, n - 1)})
         return [call], self.latency

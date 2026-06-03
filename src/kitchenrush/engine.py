@@ -9,6 +9,7 @@ model deliberates.
 
 from __future__ import annotations
 
+from collections import deque
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -252,7 +253,7 @@ class KitchenRushEngine:
     # -- action dispatch ------------------------------------------------------
     def _exec(self, call: ToolCall) -> dict[str, Any]:
         handler = {
-            "move": self._a_move, "observe": self._a_observe, "collect": self._a_collect,
+            "move_to": self._a_move_to, "observe": self._a_observe, "collect": self._a_collect,
             "chop": self._a_chop, "prep": self._a_chop, "cook": self._a_cook,
             "collect_cooked": self._a_collect_cooked, "plate": self._a_plate,
             "serve": self._a_serve, "discard": self._a_discard,
@@ -289,33 +290,43 @@ class KitchenRushEngine:
                 return h
         return None
 
-    def _a_move(self, args: dict) -> dict[str, Any]:
-        direction = args.get("direction")
-        if direction not in config.DIRECTIONS:
-            return self._invalid(f"bad direction {direction!r}")
+    def _shortest(self, start: tuple[int, int], goal: tuple[int, int]) -> int | None:
+        """BFS shortest-path length over floor cells (None if unreachable)."""
+        if start == goal:
+            return 0
+        seen = {start}
+        q = deque([(start, 0)])
+        while q:
+            cur, dist = q.popleft()
+            for dr, dc in config.DIRECTIONS.values():
+                nb = (cur[0] + dr, cur[1] + dc)
+                if nb in seen or not self._is_floor(nb):
+                    continue
+                if nb == goal:
+                    return dist + 1
+                seen.add(nb)
+                q.append((nb, dist + 1))
+        return None
+
+    def _a_move_to(self, args: dict) -> dict[str, Any]:
         try:
-            requested = int(args.get("steps"))
+            r = int(args.get("row"))
+            c = int(args.get("col"))
         except (TypeError, ValueError):
-            return self._invalid("steps must be an integer")
-        steps = max(1, min(config.SCHEMA_MAX_STEPS, requested))
-        eff = min(steps, config.MAX_STEPS_PER_MOVE)
-        dr, dc = config.DIRECTIONS[direction]
-        r, c = self.chef_pos
-        moved = 0
-        for _ in range(eff):
-            nb = (r + dr, c + dc)
-            if self._is_floor(nb):
-                r, c = nb
-                moved += 1
-            else:
-                break
-        if moved == 0:
-            return self._invalid("move blocked immediately")
-        if moved < eff:
-            self.counters["overshoot"] += 1
-        self._charge(moved * config.MOVE_GS_PER_STEP)
-        self.chef_pos = (r, c)
-        return self._ok("move", f"moved {direction} {moved}")
+            return self._invalid("row and col must be integers")
+        target = (r, c)
+        if not self._in_bounds(target):
+            return self._invalid(f"cell [{r}, {c}] is off the grid")
+        if target in self.stations:
+            return self._invalid("cannot stand on a station; move to an adjacent floor cell")
+        if target == self.chef_pos:
+            return self._ok("move_to", "already there")
+        dist = self._shortest(self.chef_pos, target)
+        if dist is None:
+            return self._invalid(f"cell [{r}, {c}] is unreachable")
+        self._charge(dist * config.MOVE_GS_PER_STEP)
+        self.chef_pos = target
+        return self._ok("move_to", f"moved to [{r}, {c}] ({dist} steps)")
 
     def _a_observe(self, args: dict) -> dict[str, Any]:
         self.counters["observe_calls"] += 1

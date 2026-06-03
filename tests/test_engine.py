@@ -55,15 +55,28 @@ def test_full_burger_serves_and_scores():
     assert rep["score_raw"] > 0
 
 
-def test_move_overshoot_then_blocked_is_invalid():
+def test_move_to_reaches_cell_and_charges_path():
     eng = KitchenRushEngine(make_spec())
     eng.chef_pos = (1, 0)
-    eng.step([ToolCall("move", {"direction": "south", "steps": 5})], 0.0)
-    assert eng.chef_pos == (4, 0)            # stopped at the bottom wall
-    assert eng.counters["overshoot"] == 1
-    obs = eng.step([ToolCall("move", {"direction": "south", "steps": 2})], 0.0)
-    assert obs["last_turn"]["calls"][0]["ok"] is False   # 0-cell move is invalid (E02)
-    assert eng.counters["invalid_actions"] == 1
+    before = eng.clock_gs
+    res = _do(eng, "move_to", row=3, col=2)   # a reachable floor cell
+    assert res["ok"]
+    assert eng.chef_pos == (3, 2)
+    assert eng.clock_gs > before              # travel time charged
+
+
+def test_move_to_station_cell_is_invalid():
+    eng = KitchenRushEngine(make_spec())
+    eng.chef_pos = (1, 0)
+    assert _do(eng, "move_to", row=2, col=1)["ok"] is False   # (2,1) is a stove station
+
+
+def test_move_to_current_cell_is_noop():
+    eng = KitchenRushEngine(make_spec())
+    eng.chef_pos = (1, 0)
+    before = eng.clock_gs
+    assert _do(eng, "move_to", row=1, col=0)["ok"]
+    assert eng.clock_gs == before
 
 
 def test_station_gating_rejects_far_collect():
@@ -72,11 +85,11 @@ def test_station_gating_rejects_far_collect():
     assert _do(eng, "collect", ingredient="bun")["ok"] is False
 
 
-def test_chained_move_then_collect():
+def test_chained_move_to_then_collect():
     eng = KitchenRushEngine(make_spec())
     eng.chef_pos = (1, 0)
     obs = eng.step(
-        [ToolCall("move", {"direction": "east", "steps": 1}),
+        [ToolCall("move_to", {"row": 1, "col": 1}),   # floor cell adjacent to bun @(0,1)
          ToolCall("collect", {"ingredient": "bun"})],
         0.0,
     )

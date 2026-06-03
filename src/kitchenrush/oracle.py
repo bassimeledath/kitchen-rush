@@ -61,13 +61,11 @@ class OracleAgent:
         path = self._bfs(chef, access, blocked, n)
         if not path:
             return [ToolCall("observe", {})]
-        legs = self._legs(chef, path)
-        calls = [ToolCall("move", {"direction": d, "steps": s}) for d, s in legs]
-        if action and len(calls) <= config.MAX_CALLS_PER_RESPONSE - 1:
+        dest = path[-1]  # nearest reachable access cell; the engine handles the walk
+        calls = [ToolCall("move_to", {"row": dest[0], "col": dest[1]})]
+        if action:
             calls.append(action)
-        else:
-            calls = calls[: config.MAX_CALLS_PER_RESPONSE]
-        return calls or [ToolCall("observe", {})]
+        return calls
 
     @staticmethod
     def _grid(obs: dict) -> tuple[set, int]:

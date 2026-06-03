@@ -29,11 +29,10 @@ HOW TO PLAY:
 - You stand on a grid and must be next to the right station to act: collect at a dispenser,
   chop at a cutting board, cook at a stove, plate at a plating counter, serve at the pass,
   discard at the bin.
-- The kitchen is a grid of [row, col] cells; row 0 is the NORTH (top) edge. Directions:
-  north=row-1 (up), south=row+1 (down), east=col+1 (right), west=col-1 (left). You cannot
-  stand ON a station — stand on a floor cell orthogonally adjacent to it. Read the grid to
-  work out where to go.
-- move(direction, steps) walks in a straight line until it hits a wall/station.
+- The kitchen is a grid of [row, col] cells (row 0 = top). You cannot stand ON a station —
+  to use one, be on a floor cell orthogonally adjacent to it.
+- move_to(row, col) walks you to that floor cell (the kitchen finds the path; cost = path
+  length). So to act at a station, move_to a floor cell next to it, then call the action.
 - Cooked items sit on a burner; collect_cooked when READY (before they BURN).
 - plate(recipe) needs exactly the right finished components in hand; serve(order_id) an
   ACTIVE order whose dish matches your plated dish.
@@ -61,8 +60,8 @@ def render_observation(obs: dict) -> str:
     ]
     for r in range(n):
         lines.append(f"  row {r}:  " + "  ".join(grid_rows[r][c] for c in range(n)))
-    lines.append("directions: north=row-1, south=row+1, east=col+1, west=col-1; "
-                 "you must stand on a floor cell ADJACENT to a station to use it.")
+    lines.append("you must stand on a floor cell ADJACENT to a station to use it; "
+                 "move_to(row, col) takes you to any reachable floor cell.")
     lines.append("stations (positions are visible on the grid above):")
     for s in obs["stations"]:
         tag = f"{s['type']}{('/' + s['ingredient']) if s['ingredient'] else ''}"

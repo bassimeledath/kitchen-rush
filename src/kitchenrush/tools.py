@@ -39,13 +39,14 @@ def _tool(name: str, description: str, properties: dict, required: list[str]) ->
 
 TOOL_SCHEMAS: list[dict] = [
     _tool(
-        "move",
-        "Walk in a straight line; stops at the first wall/station (no auto-turn).",
+        "move_to",
+        "Walk to a floor cell [row, col]; the kitchen finds the path. You cannot stand on a "
+        "station, so move to a floor cell next to it. Cost = path length in game-seconds.",
         {
-            "direction": {"type": "string", "enum": list(config.DIRECTIONS.keys())},
-            "steps": {"type": "integer", "minimum": 1, "maximum": config.SCHEMA_MAX_STEPS},
+            "row": {"type": "integer", "minimum": 0},
+            "col": {"type": "integer", "minimum": 0},
         },
-        ["direction", "steps"],
+        ["row", "col"],
     ),
     _tool("observe", "Return the full kitchen observation. Costs game-time.", {}, []),
     _tool(
