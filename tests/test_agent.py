@@ -55,6 +55,18 @@ def test_rp_track_uses_token_proxy_and_differs_from_rt():
     assert rp >= config.RP_BETA0 and rp != rt
 
 
+def test_warmup_makes_a_throwaway_call_before_scoring():
+    client = MockClient([ToolCall("observe", {})], latency_s=0.1)
+    ModelAgent(client, track="rt").warmup([])
+    assert client.calls_seen == 1   # one throwaway spin-up call, result discarded
+
+
+def test_run_episode_warms_up_then_plays():
+    client = MockClient([ToolCall("observe", {})], latency_s=0.1)
+    run_episode(procgen.generate(1, "easy"), ModelAgent(client, track="rt"), max_turns=4)
+    assert client.calls_seen >= 2   # warmup + at least one scored turn
+
+
 def test_full_episode_with_mock_agent_runs_and_logs():
     spec = procgen.generate(1, "easy")
     agent = ModelAgent(MockClient([ToolCall("observe", {})], latency_s=0.3), track="rt")

@@ -28,8 +28,9 @@ dependencies = []
 
 [project.optional-dependencies]
 # Phase 2: a single LiteLLM adapter covers OpenAI / Anthropic / Gemini / vLLM / Nemotron.
-providers = ["litellm>=1.40"]
-all = ["litellm>=1.40"]
+# tenacity is needed for litellm's retry path (e.g. NVIDIA NIM cold-starts).
+providers = ["litellm>=1.40", "tenacity>=8.0"]
+all = ["litellm>=1.40", "tenacity>=8.0"]
 dev = ["pytest>=8.0", "ruff>=0.5", "mypy>=1.10"]
 
 [project.scripts]

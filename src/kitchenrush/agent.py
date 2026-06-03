@@ -101,6 +101,17 @@ class ModelAgent:
         self.system = system_prompt
         self.stall_seconds = stall_seconds
 
+    def warmup(self, tools: list[dict]) -> None:
+        """Spin up the model (e.g. a cold NIM endpoint) with one throwaway call so the first
+        *scored* turn isn't charged for one-time cold-start. Result discarded; errors ignored.
+        Only the measured-wall-clock (RT) track is affected by cold-start; harmless for RP."""
+        try:
+            self.client.generate(system=self.system,
+                                 messages=[{"role": "user", "content": "Reply 'ready'."}],
+                                 tools=tools, temperature=self.temperature)
+        except Exception:  # noqa: BLE001 - warmup is best-effort
+            pass
+
     def __call__(self, obs: dict, tools: list[dict]) -> tuple[list[ToolCall], float]:
         user = render_observation(obs)
         messages = [{"role": "user", "content": user}]

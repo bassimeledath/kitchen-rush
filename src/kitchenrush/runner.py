@@ -31,6 +31,9 @@ def run_episode(spec: KitchenSpec, policy: Policy, *, max_turns: int | None = No
                 record_steps: bool = True) -> EpisodeResult:
     engine = KitchenRushEngine(spec)
     max_turns = max_turns or config.MAX_TURNS
+    # Warm up the model before scoring so a one-time cold-start never pollutes RT latency.
+    if hasattr(policy, "warmup"):
+        policy.warmup(TOOL_SCHEMAS)
     obs = engine.observe()
     steps: list[dict] = []
 
