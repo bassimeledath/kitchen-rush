@@ -10,7 +10,7 @@ itself is worth standardizing.
 
 ---
 
-## Phase 1 — Playable, deterministic engine (✅ in progress)
+## Phase 1 — Playable, deterministic engine (✅ done)
 
 The irreducible core. Stdlib-only (no third-party runtime deps).
 
@@ -30,24 +30,34 @@ The irreducible core. Stdlib-only (no third-party runtime deps).
 **Exit criteria:** `kitchenrush run` plays a full game; tests green; same seed + same
 actions + same latency → bit-identical result.
 
-## Phase 2 — Real models (single adapter)
+## Phase 2 — Real models (single adapter) (✅ done)
 
-- `adapter.py` — **one LiteLLM-based** `ModelClient` (covers OpenAI / Anthropic / Gemini /
-  vLLM / Nemotron via native function calling) that measures wall-clock latency.
-- Wire the adapter into `runner.py`; default reference agent prompt.
-- `report.py` — JSONL trajectory + run-summary writer.
-- Run a few real models; confirm scores **spread apart** (the benchmark discriminates).
+- `adapter.py` — **one LiteLLM-based** `ModelClient` (OpenAI / Anthropic / Gemini / vLLM /
+  Nemotron via native function calling) that measures wall-clock latency, with timeout +
+  retries and graceful stall-on-error.
+- `agent.py` — stateless reference agent fed **only human-visible info** (readable grid,
+  station positions, tickets, hands, outcomes — no nav hints, no valid-action list).
+- `report.py` — JSONL trajectory writer.
+- Validated against real Gemini 2.5/3.5-flash: the latency mechanic cleanly separated
+  "too slow" from "can't play."
 
-**Exit criteria:** `kitchenrush run --model openai:gpt-4.1 --seeds test` produces a scored
-trajectory; ≥3 models rank differently in a way that tracks speed *and* accuracy.
+## Phase 3 — Make it a benchmark (✅ core done)
 
-## Phase 3 — Make it a benchmark (only after Phase 2 is convincing)
+Implemented (see [docs/METHODOLOGY.md](METHODOLOGY.md)):
+- **KR headline** — `100·mean clip((S−S_null)/(S_ref−S_null),0,1)`; a single realtime score,
+  **no √-gates** (raw score, rates, latency percentiles, Pass^k are diagnostics); degenerate
+  instances (`S_ref ≤ S_null`) excluded + counted.
+- **Greedy-EDF reference + null floor** (`oracle.py`): the `S_ref` ceiling, the `S_null`
+  floor, and the injected-latency calibration sweep (`kitchenrush calibrate`).
+- **B = 1 s deadlines** — derived from the reference critical path (`procgen.critical_path`).
+- Multi-trial `run_suite` + Pass^k; **RT primary / RP shadow** tracks.
 
-- Multi-trial runs + reliability (Pass^k / score variance).
-- Aggregate metrics + a headline score (RTTC), normalized against baselines.
-- **Reproducible (RP) latency track** (token-proxy) — add when cross-hardware comparison
-  actually matters. Resolves open questions #2/#3.
-- Hand-written per-provider adapters only if LiteLLM hides needed behavior.
+Remaining in Phase 3:
+- **Parallel reference scheduler** — the current *sequential* oracle can't fully complete
+  dense/overlapping orders, so **easy is calibrated** (KR(EDF@1s)≈68, monotone, 0 degenerate)
+  while **medium/hard are provisional** until a parallel oracle gives them a strong `S_ref`.
+- **Model panel** → first real KR baseline (in progress).
+- Full sensitivity sweep, then freeze parameters on the stability plateau (METHODOLOGY §5).
 
 ## Phase 4 — Public leaderboard & anti-overfitting
 
@@ -77,6 +87,9 @@ Only **#1** and **#5** need an answer to start; both have safe defaults already 
 1. **`LATENCY_SCALE`** (how harshly thinking-time hurts) — adopted **1.0** (1 real-sec =
    1 game-sec); revisit after Phase 2 calibration. *(active)*
 5. **Pass^k temperature** — adopted **0.2**; revisit in Phase 3. *(active)*
-2. RP token-proxy coefficients (β) — **deferred to Phase 3** (no RP track yet).
-3. Pinned tokenizer for RP counting — **deferred to Phase 3**.
+2. RP token-proxy coefficients (β) — **implemented** with defaults (0.30 / 0.0002 / 0.006);
+   calibrate in the sensitivity sweep. *(RT is primary, so this is lower-stakes.)*
+3. Pinned tokenizer for RP counting — **placeholder** (deterministic char/4); swap for a
+   real BPE before any RP-ranked release.
 4. Headline split (hidden `challenge` vs public `test`) — **deferred to Phase 4**.
+6. **Parallel reference scheduler** — needed to calibrate medium/hard (new, active).
