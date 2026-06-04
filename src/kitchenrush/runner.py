@@ -28,8 +28,8 @@ def anchors_for(spec: KitchenSpec) -> tuple[float, float]:
 
 
 def run_episode(spec: KitchenSpec, policy: Policy, *, max_turns: int | None = None,
-                record_steps: bool = True) -> EpisodeResult:
-    engine = KitchenRushEngine(spec)
+                record_steps: bool = True, record_trace: bool = False) -> EpisodeResult:
+    engine = KitchenRushEngine(spec, record_trace=record_trace)
     max_turns = max_turns or config.MAX_TURNS
     # Warm up the model before scoring so a one-time cold-start never pollutes RT latency.
     if hasattr(policy, "warmup"):
@@ -52,7 +52,10 @@ def run_episode(spec: KitchenSpec, policy: Policy, *, max_turns: int | None = No
                 "last_turn": obs["last_turn"],
             })
 
-    return EpisodeResult(seed=spec.seed, tier=spec.tier, report=engine.final_report(), steps=steps)
+    report = engine.final_report()
+    engine.emit_end_frame()   # capture end-of-game force-expiries + final score (no-op if not tracing)
+    return EpisodeResult(seed=spec.seed, tier=spec.tier, report=report, steps=steps,
+                         trace=engine.trace)
 
 
 def run_suite(seeds: Iterable[int], tier: str, policy_factory: PolicyFactory, *,

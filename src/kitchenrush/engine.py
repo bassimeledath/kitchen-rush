@@ -98,7 +98,7 @@ def _new_counters() -> dict[str, Any]:
 class KitchenRushEngine:
     """A single playable Kitchen Rush episode."""
 
-    def __init__(self, spec: KitchenSpec) -> None:
+    def __init__(self, spec: KitchenSpec, *, record_trace: bool = False) -> None:
         self.spec = spec
         self.grid_n = spec.grid_n
         self.show_ready_actions = spec.show_ready_actions
@@ -135,8 +135,15 @@ class KitchenRushEngine:
         self._no_progress_turns = 0    # consecutive turns doing no productive work (stall guard)
         self._turn_productive = False  # set by _charge/_charge_serve when real work happens
 
+        # Opt-in fine-grained replay trace (one frame per think-window and per action). Off by
+        # default so benchmark runs pay nothing; the replay exporter turns it on.
+        self.record_trace = record_trace
+        self.trace: list[dict[str, Any]] = []
+        self._frame_cursor = 0         # index into self.events already attached to a frame
+
         self._record("game_start", {})
         self.advance(0.0)  # fire any arrivals scheduled at t=0
+        self._emit_frame("start")
 
     # -- grid helpers ---------------------------------------------------------
     def _in_bounds(self, cell: tuple[int, int]) -> bool:
@@ -238,6 +245,9 @@ class KitchenRushEngine:
         # 1. thinking time advances the world first
         self.counters["total_think_gs"] += think_gs
         self.advance(think_gs)
+        # Replay: a "think" frame captures the latency cost — the clock jumped and any food may
+        # have burned / orders expired while the model deliberated, before it acted.
+        self._emit_frame("think", think_gs=think_gs)
 
         capped = calls[: config.MAX_CALLS_PER_RESPONSE]
         overflow = [c.name for c in calls[config.MAX_CALLS_PER_RESPONSE:]]  # NOT silently dropped
@@ -256,6 +266,11 @@ class KitchenRushEngine:
                 self.counters["total_tool_calls"] += 1
                 res = self._exec(call)
                 results.append(res)
+                self._emit_frame("action", action={
+                    "name": call.name, "arguments": call.arguments,
+                    "ok": res["ok"], "note": res.get("note", ""),
+                    "category": res.get("category"),
+                })
                 if not res["ok"]:
                     failed_at = i
                     self.counters["chain_partial_failures"] += 1 if len(capped) > 1 else 0
@@ -583,6 +598,63 @@ class KitchenRushEngine:
             self.counters["drops"] += 1
             return self._ok("discard", f"discarded {item} (penalty)")
         return self._ok("discard", f"discarded burned {item}")
+
+    # -- replay trace (per-action snapshots for the UI) -----------------------
+    def _snapshot(self) -> dict[str, Any]:
+        """Compact full-state snapshot at the current clock — everything the replay UI needs
+        to redraw the kitchen. Unlike ``observe()`` this lists ALL orders (incl. served/expired)
+        so the ticket rail can animate status changes, and exposes the burner cook timers."""
+        return {
+            "clock_gs": round(self.clock_gs, 3),
+            "score": round(self.score, 3),
+            "combo": self.combo_count,
+            "chef_pos": list(self.chef_pos),
+            "hands": [{"ingredient": h.ingredient, "state": h.state} for h in self.hands],
+            "burners": [
+                {
+                    "index": i, "cell": list(b.cell),
+                    "status": b.job.status(self.clock_gs) if b.job else "FREE",
+                    "ingredient": b.job.ingredient if b.job else None,
+                    "start_gs": round(b.job.start_gs, 3) if b.job else None,
+                    "ready_gs": round(b.job.ready_gs, 3) if b.job else None,
+                    "burn_gs": round(b.job.burn_gs, 3) if b.job else None,
+                }
+                for i, b in enumerate(self.burners)
+            ],
+            "orders": [
+                {
+                    "order_id": o.order_id, "dish": o.dish, "status": o.status,
+                    "arrival_gs": o.arrival_gs, "deadline_gs": o.deadline_gs,
+                    "base_value": o.base_value,
+                }
+                for o in self._order_list
+            ],
+        }
+
+    def _emit_frame(self, kind: str, *, think_gs: float | None = None,
+                    action: dict | None = None) -> None:
+        """Append one replay frame: the current snapshot plus the passive/action events fired
+        since the previous frame (arrivals, ready, burns, expiries, serves). No-op unless
+        ``record_trace`` is on."""
+        if not self.record_trace:
+            return
+        new_events = [
+            {"type": e.type, "clock_gs": e.clock_gs, "detail": e.detail}
+            for e in self.events[self._frame_cursor:]
+        ]
+        self._frame_cursor = len(self.events)
+        frame: dict[str, Any] = {"kind": kind, "turn": self.turn_count,
+                                 **self._snapshot(), "events": new_events}
+        if think_gs is not None:
+            frame["think_gs"] = round(think_gs, 4)
+        if action is not None:
+            frame["action"] = action
+        self.trace.append(frame)
+
+    def emit_end_frame(self) -> None:
+        """Emit the terminal frame after ``final_report`` (captures end-of-game force-expiries
+        and the final score). Called by the runner once, after the episode is finalized."""
+        self._emit_frame("end")
 
     # -- observation (RULES §8) ----------------------------------------------
     def _record(self, type_: str, detail: dict) -> None:

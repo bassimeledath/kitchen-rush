@@ -107,6 +107,43 @@ def _cmd_bench(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_replay(args: argparse.Namespace) -> int:
+    """Export a self-contained replay JSON for the UI (per-action timeline + layout + catalog).
+
+    Use ``--oracle`` for a deterministic, API-key-free full game (great for building/testing the
+    viewer); otherwise the usual --baseline/--model policy applies."""
+    config.B_SECONDS = _resolve_b(args)
+    spec = generate(args.seed, args.tier)
+    if args.oracle:
+        from .oracle import OracleAgent
+        policy = OracleAgent(latency=args.latency)
+        label = f"oracle@{args.latency:g}s"
+    else:
+        policy = _policy_factory(args)(args.seed, 0)
+        label = f"model={args.model}" if args.model else f"baseline={args.baseline}"
+
+    result = run_episode(spec, policy, max_turns=args.max_turns, record_trace=True)
+    from .runner import anchors_for
+    from .report import write_replay
+    result.s_null, result.s_ref = anchors_for(spec)
+
+    out = args.out or f"ui/replays/{args.tier}_seed{args.seed}.json"
+    write_replay(result, spec, out)
+    rep = result.report
+    c = rep["counters"]
+    print(f"wrote replay ({len(result.trace)} frames) -> {out}")
+    print(f"  {label}  B={config.B_SECONDS:g}s  score={rep['score_raw']}  "
+          f"served={c['orders_served']}/{c['orders_total']}  "
+          f"KR~{_kr(rep['score_raw'], result.s_null, result.s_ref)}")
+    return 0
+
+
+def _kr(score: float, s_null: float | None, s_ref: float | None) -> str:
+    if s_null is None or s_ref is None or s_ref <= s_null:
+        return "n/a"
+    return f"{100.0 * max(0.0, min(1.0, (score - s_null) / (s_ref - s_null))):.1f}"
+
+
 def _cmd_calibrate(args: argparse.Namespace) -> int:
     """Sweep the greedy-EDF reference at injected latencies and print KR(EDF@l) — the
     calibration shape used to choose final parameter values (METHODOLOGY §5)."""
@@ -179,6 +216,15 @@ def main(argv: list[str] | None = None) -> int:
     bench.add_argument("--start", type=int, default=0, help="first seed")
     bench.add_argument("--trials", type=int, default=config.PASS_K)
     bench.set_defaults(func=_cmd_bench)
+
+    replay = sub.add_parser("replay", help="export a self-contained replay JSON for the UI")
+    _add_policy_args(replay)
+    replay.add_argument("--seed", type=int, default=0)
+    replay.add_argument("--oracle", action="store_true",
+                        help="use the deterministic greedy-EDF oracle (no API key needed)")
+    replay.add_argument("--out", type=str, default=None,
+                        help="output path (default ui/replays/<tier>_seed<seed>.json)")
+    replay.set_defaults(func=_cmd_replay)
 
     seeds = sub.add_parser("seeds", help="preview generated instances")
     seeds.add_argument("--tier", choices=sorted(config.TIERS), default="easy")
