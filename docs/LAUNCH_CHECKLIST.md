@@ -23,8 +23,8 @@ Legend: `[ ]` todo · `[~]` partial · `[x]` done.
   exist yet — either build them (P1) or stop documenting them.
 
 **Reproducibility & versioning**
-- [ ] Implement version/hash stamping: `RULESET_VERSION` (hash of constants+recipes+scoring+tiers),
-  `SCHEMA_VERSION`, `GENERATOR_VERSION`, `TOKENIZER_ID`. Today `version.py` only has `__version__`.
+- [x] Implement version/hash stamping: `ruleset_hash()` (over constants+catalog+recipes+tiers) +
+  `versions()` {package, ruleset, schema, generator, tokenizer}, stamped into report/replay/aggregate.
 - [ ] Freeze official **seed manifests / splits** (train/dev/test + maintainer-only challenge),
   with a manifest hash and a legality/feasibility check.
 - [ ] **RP credibility:** replace the `char4-v0` placeholder tokenizer with a pinned real tokenizer,
@@ -42,7 +42,7 @@ Legend: `[ ]` todo · `[~]` partial · `[x]` done.
   and stamp `RULESET_VERSION`.
 
 **Code health**
-- [~] Remove dead counters (`overshoot`, `timeouts`) — done. (`observe_calls` is live via the oracle.)
+- [x] Remove dead counters (`overshoot`, `timeouts`). (`observe_calls` is live via the oracle.)
 - [ ] Decide legacy `MAX_STEPS_PER_MOVE` / `SCHEMA_MAX_STEPS` (unused) — keep documented or remove.
 - [ ] Typed report schema (dataclass/Pydantic) instead of loose dicts, so malformed runs can't look
   valid.
@@ -51,7 +51,7 @@ Legend: `[ ]` todo · `[~]` partial · `[x]` done.
 - [ ] Move the global `litellm.drop_params = True` side-effect out of the per-call path.
 - [ ] Tests for the new mechanics (auto-burn, walled layout, exact-match plate, `--no-reasoning`),
   RP determinism, and procgen feasibility.
-- [ ] CI: pytest + ruff + mypy on every PR.
+- [~] CI: pytest on every PR (`.github/workflows/ci.yml`, done); ruff + mypy pending.
 
 ---
 
