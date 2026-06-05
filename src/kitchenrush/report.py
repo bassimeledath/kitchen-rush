@@ -54,8 +54,7 @@ def build_replay(result: EpisodeResult, spec: Any) -> dict[str, Any]:
     logic: a static ``layout`` (grid + station cells), a ``catalog`` (which ingredient states /
     dishes exist, so the UI knows which sprites to show), the per-action ``frames`` timeline, and
     the final ``report``. Requires ``result.trace`` (run the episode with ``record_trace=True``)."""
-    from . import config
-    from .version import __version__
+    from . import config, version
 
     ingredients: dict[str, Any] = {}
     for name, ing in config.INGREDIENTS.items():
@@ -96,7 +95,8 @@ def build_replay(result: EpisodeResult, spec: Any) -> dict[str, Any]:
     }
     return {
         "meta": {
-            "generator": "kitchenrush", "version": __version__,
+            "generator": "kitchenrush", "version": version.__version__,
+            "versions": version.versions(),
             "seed": result.seed, "tier": result.tier, "trial": result.trial,
             "s_ref": result.s_ref, "s_null": result.s_null,
             "score_raw": result.report.get("score_raw"),

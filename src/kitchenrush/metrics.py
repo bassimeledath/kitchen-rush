@@ -14,6 +14,7 @@ from typing import Any
 
 from . import config
 from .report import EpisodeResult
+from .version import versions
 
 
 def _clamp01(x: float) -> float:
@@ -95,6 +96,7 @@ def aggregate(episodes: list[EpisodeResult], *, k: int = config.PASS_K) -> dict[
     return {
         "episodes": n,
         "seeds": len({m["seed"] for m in ems}),
+        "versions": versions(),
         "degenerate_instances": degenerate,
         "KR": round(kr_headline, 2),               # <-- headline (0-100)
         "kr_std": round(100.0 * kr_std, 2),

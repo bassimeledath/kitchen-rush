@@ -16,6 +16,7 @@ from typing import Any
 from . import config, scoring
 from .procgen import KitchenSpec
 from .tools import ToolCall
+from .version import versions
 
 
 @dataclass
@@ -775,6 +776,7 @@ class KitchenRushEngine:
         return {
             "seed": self.spec.seed,
             "tier": self.spec.tier,
+            "versions": versions(),
             "score_raw": round(self.score, 4),
             "score_display": round(max(0.0, self.score), 4),
             "clock_gs": round(self.clock_gs, 4),
