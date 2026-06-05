@@ -44,5 +44,8 @@
   "station:STOVE": "station_stove.png",
   "tile:floor": "tile_floor.png",
   "tile:counter": "tile_counter.png",
-  "tile:wall": "tile_wall.png"
+  "tile:wall": "tile_wall.png",
+  "fx:flame": "fx_flame.png",
+  "fx:smoke": "fx_smoke.png",
+  "fx:burst": "fx_burst.png"
 }

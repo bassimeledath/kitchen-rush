@@ -48,6 +48,14 @@ SHEET_PROMPT = (
 
 # Each sheet: name -> (cols, rows, [ (manifest_key, filename, subject), ... ])
 SHEETS: dict[str, tuple[int, int, list[tuple[str, str, str]]]] = {
+    "stove_fx": (2, 2, [
+        ("station:STOVE", "station_stove.png",
+         "a flat TOP-DOWN kitchen cooktop tile seen straight from above: a dark metal counter surface "
+         "with one round recessed burner ring in the centre, unlit, NO oven door, NO side perspective box"),
+        ("fx:flame",  "fx_flame.png",  "a small stylized cooking flame, blue base fading to orange tip, single flame"),
+        ("fx:smoke",  "fx_smoke.png",  "a small puff of dark grey smoke cloud"),
+        ("fx:burst",  "fx_burst.png",  "a bright yellow four-point sparkle star burst"),
+    ]),
     "stations": (3, 2, [
         ("station:ING",   "station_ing.png",   "a wooden pantry shelf stacked with ingredient crates"),
         ("station:BOARD", "station_board.png", "a wooden cutting board with a chef's knife"),

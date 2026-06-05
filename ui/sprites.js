@@ -40,6 +40,7 @@ KR.sprites = (() => {
     "dish:burger": "🍔", "dish:soup": "🥣", "dish:salad": "🥗",
     "dish:mushroom_cheeseburger": "🍔", "dish:veggie_ramen": "🍲",
     "plate": "🍽️",
+    "fx:flame": "🔥", "fx:smoke": "💨", "fx:burst": "✨",
   };
 
   // Human labels for station types (used under each tile).

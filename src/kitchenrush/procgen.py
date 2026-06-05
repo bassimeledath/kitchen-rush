@@ -132,7 +132,10 @@ def _build_kitchen(tier: config.Tier):
     if len(ordered) > len(path):
         raise ValueError(f"grid {n}x{n} too small for {len(ordered)} stations")
 
-    stations = [StationSpec(path[i], typ, ing) for i, (typ, ing) in enumerate(ordered)]
+    # spread stations EVENLY around the whole perimeter (all four walls) rather than packing them
+    # contiguously from the top-left, so the kitchen reads as balanced.
+    step = len(path) / len(ordered)
+    stations = [StationSpec(path[int(i * step)], typ, ing) for i, (typ, ing) in enumerate(ordered)]
     station_cells = {s.cell for s in stations}
     border = {(r, c) for r in range(n) for c in range(n) if r in (0, n - 1) or c in (0, n - 1)}
     blocked = border - station_cells                             # empty counters + corners + door

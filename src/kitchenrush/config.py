@@ -14,7 +14,7 @@ BURNER_COUNT = 2
 HAND_SLOTS = 4
 LATENCY_SCALE = 1.0          # latency_seconds -> game-seconds (the one knob, open-q #1)
 
-MOVE_GS_PER_STEP = 1.0
+MOVE_GS_PER_STEP = 0.25      # 4x faster walking (travel is flat overhead, not a tested skill)
 COLLECT_GS = 2.0
 CHOP_GS = 4.0
 PREP_GS = 4.0

@@ -4,80 +4,40 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Kitchen Rush — Replay</title>
-<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="styles.css?v=2" />
 </head>
 <body>
 <div id="app">
-  <!-- Top bar -------------------------------------------------------------- -->
-  <header class="topbar">
-    <div class="brand"><span class="logo">🍳</span> Kitchen&nbsp;Rush <span class="sub">replay</span></div>
-    <div class="run-meta" id="runMeta">no run loaded</div>
-    <div class="topbar-controls">
-      <select id="runSelect" title="built-in replays"></select>
-      <label class="filebtn">load JSON<input type="file" id="fileInput" accept=".json,application/json" hidden /></label>
-    </div>
-  </header>
-
   <main class="layout">
-    <!-- Kitchen grid ----------------------------------------------------- -->
-    <section class="stage-wrap">
-      <div class="stage" id="stage">
-        <div class="grid" id="grid"></div>
-        <div class="fx-layer" id="fxLayer"></div>
-        <div class="chef" id="chef"></div>
-        <div class="think-bubble" id="thinkBubble" hidden>🤔 thinking… <b id="thinkAmt"></b></div>
-      </div>
-      <div class="caption" id="caption">&nbsp;</div>
-    </section>
+    <!-- compact order rack (tickets at the pass) -->
+    <div class="orders-rack" id="orders"></div>
 
-    <!-- Side panels ------------------------------------------------------ -->
-    <aside class="panels">
-      <div class="scorecard">
-        <div class="score"><span class="k">score</span><b id="score">0</b><span class="delta" id="scoreDelta"></span></div>
-        <div class="clockbox">
-          <span class="k">clock</span>
-          <b><span id="clock">0</span> / <span id="horizon">0</span> s</b>
-          <div class="clockbar"><i id="clockFill"></i></div>
-        </div>
-        <div class="meta-row">
-          <span title="latency budget the deadlines were priced at">B=<b id="bbudget">–</b>s</span>
-          <span title="normalized Kitchen Rush score for this run">KR <b id="krVal">–</b></span>
-          <span title="combo streak">combo ×<b id="combo">0</b></span>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h3>Orders</h3>
-        <div class="tickets" id="tickets"></div>
-      </div>
-
-      <div class="panel">
-        <h3>Hands <small id="handsFree"></small></h3>
-        <div class="hands" id="hands"></div>
-      </div>
-
-      <div class="panel">
-        <h3>Stoves</h3>
-        <div class="burners" id="burners"></div>
-      </div>
-    </aside>
+    <!-- the kitchen, centered; score/time overlaid on its corners -->
+    <div class="stage" id="stage">
+      <div class="hud hud-left"><span class="k">score</span><b id="score">0</b><i class="delta" id="scoreDelta"></i></div>
+      <div class="hud hud-right"><b id="clock">0</b><span class="k">/<span id="horizon">0</span>s</span><i class="combo" id="combo"></i></div>
+      <div class="grid" id="grid"></div>
+      <div class="fx-layer" id="fxLayer"></div>
+      <div class="chef" id="chef"></div>
+      <div class="think-bubble" id="thinkBubble" hidden>🤔 <b id="thinkAmt"></b></div>
+    </div>
+    <div class="caption" id="caption">&nbsp;</div>
   </main>
 
-  <!-- Transport -------------------------------------------------------------- -->
   <footer class="transport">
     <div class="buttons">
       <button id="btnRestart" title="restart (Home)">↺</button>
-      <button id="btnStepBack" title="step back one action (←)">⏮</button>
+      <button id="btnStepBack" title="step back (←)">⏮</button>
       <button id="btnPlay" class="primary" title="play / pause (space)">▶</button>
-      <button id="btnStepFwd" title="step forward one action (→)">⏭</button>
+      <button id="btnStepFwd" title="step forward (→)">⏭</button>
       <button id="btnSpeed" title="cycle speed">1×</button>
     </div>
     <input type="range" id="scrub" class="scrub" min="0" max="1000" value="0" />
-    <div class="timelabel"><span id="tNow">0.0</span> / <span id="tEnd">0.0</span> s &nbsp;·&nbsp; frame <span id="frameIdx">0</span>/<span id="frameTot">0</span></div>
+    <label class="filebtn" title="load a replay JSON">load<input type="file" id="fileInput" accept=".json,application/json" hidden /></label>
   </footer>
 </div>
 
-<script src="sprites.js"></script>
-<script src="app.js"></script>
+<script src="sprites.js?v=2"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>
