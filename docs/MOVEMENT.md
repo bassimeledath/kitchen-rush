@@ -1,3 +1,6 @@
+> ⚠️ **Design history — not the current spec.** Parts of this document describe an earlier or
+> aspirational design and may not match the implementation. The authoritative, code-verified spec
+> is **[RULES.md](RULES.md)**; release tracking is in **[LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)**.
 # Kitchen Rush v2 — MOVEMENT, GRID & CHAINED TOOL CALLING
 
 This is the action/tool space and grid mechanics. It is consistent with the **hands-only, ingredient/order-keyed** world model (RULES §2–§7) and the canonical schemas in `tools/schemas.py`. The legacy `pick_up`/`place`/`station_id` vocabulary is NOT used; items live in hands (RULES §2.5.3), cook items live on burners.

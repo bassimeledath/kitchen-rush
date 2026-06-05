@@ -1,3 +1,6 @@
+> ⚠️ **Design history — not the current spec.** Parts of this document describe an earlier or
+> aspirational design and may not match the implementation. The authoritative, code-verified spec
+> is **[RULES.md](RULES.md)**; release tracking is in **[LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)**.
 # Kitchen Rush v2 — SCORING
 
 This is the mathematical core. It owns the score *formulas*; RULES.md owns the state machine and lists the identical numeric constants (§16 there ↔ §7 here). Every constant cited here is the canonical value from `config/constants.py`.

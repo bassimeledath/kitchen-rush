@@ -1,3 +1,6 @@
+> ⚠️ **Design history — not the current spec.** Parts of this document describe an earlier or
+> aspirational design and may not match the implementation. The authoritative, code-verified spec
+> is **[RULES.md](RULES.md)**; release tracking is in **[LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)**.
 # Kitchen Rush v2 — PROCEDURAL GENERATION
 
 A single `(seed, tier)` deterministically produces one `KitchenSpec`: grid, station placement, the full order stream (dishes, arrivals, deadlines), and all per-instance jittered timers. Re-running `generate_spec(seed, tier)` reproduces it byte-for-byte. The spec — not the generator — is the engine's source of truth; it carries `generator_version` so locked test specs pin `(seed, tier, generator_version)`.

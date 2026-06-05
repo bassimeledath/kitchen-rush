@@ -1,3 +1,6 @@
+> ⚠️ **Design history — not the current spec.** Parts of this document describe an earlier or
+> aspirational design and may not match the implementation. The authoritative, code-verified spec
+> is **[RULES.md](RULES.md)**; release tracking is in **[LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)**.
 # Kitchen Rush v2 — DESIGN
 
 This document ties the subsystems together. The crown-jewel specifications are [RULES.md](RULES.md) (deterministic state machine) and [SCORING.md](SCORING.md) (math); this is the architectural glue.

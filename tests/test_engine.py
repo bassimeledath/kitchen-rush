@@ -1,4 +1,4 @@
-"""Engine mechanics (RULES §4–§9): full recipe completion + scoring, movement/overshoot,
+"""Engine mechanics (RULES §4–§9): full recipe completion + scoring, movement,
 station gating, chained calls, and the latency-burns-food core mechanic.
 
 These tests teleport the chef (set ``engine.chef_pos``) between stations to exercise the

@@ -1,3 +1,6 @@
+> ⚠️ **Design history — not the current spec.** Parts of this document describe an earlier or
+> aspirational design and may not match the implementation. The authoritative, code-verified spec
+> is **[RULES.md](RULES.md)**; release tracking is in **[LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)**.
 # Kitchen Rush v2 — INTERFACE
 
 The public contract third parties code against: model adapters, registry, CLI, JSON schemas, reproducibility. Mirrors BFCL's handler registry and tau-bench's agent factory, with latency as a first-class graded axis.

@@ -86,9 +86,9 @@ INV_CATEGORIES = (INV_EARLY_PICKUP, INV_WRONG_INVENTORY, INV_BURNER_FULL, INV_EX
 def _new_counters() -> dict[str, Any]:
     return {
         "serves_ok": 0, "invalid_actions": 0, "burns": 0, "expiries": 0, "drops": 0,
-        "overshoot": 0, "observe_calls": 0, "total_tool_calls": 0, "chained_turns": 0,
+        "observe_calls": 0, "total_tool_calls": 0, "chained_turns": 0,
         "chain_partial_failures": 0, "total_think_gs": 0.0, "total_action_gs": 0.0,
-        "timeouts": 0, "empty_turns": 0, "max_combo": 0,
+        "empty_turns": 0, "max_combo": 0,
         "orders_total": 0, "orders_served": 0, "orders_expired": 0,
         "overflow_calls": 0,                       # calls past MAX_CALLS_PER_RESPONSE (dropped)
         "invalid_by_reason": {c: 0 for c in INV_CATEGORIES},
