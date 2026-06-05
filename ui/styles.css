@@ -51,43 +51,30 @@ select:hover, .filebtn:hover, button:hover { border-color: var(--accent); }
 .stage-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .stage {
   position: relative;
-  background:
-    repeating-linear-gradient(45deg, #00000018 0 10px, #00000000 10px 20px),
-    linear-gradient(var(--floor2), var(--floor));
-  border: 2px solid var(--line); border-radius: 14px; padding: 10px;
-  box-shadow: 0 20px 50px #0008, inset 0 0 60px #0006;
+  background: #5a3f2c;                 /* brick frame (overridden by the wall tile via JS) */
+  image-rendering: pixelated;
+  border: 3px solid #1c140d; border-radius: 12px; padding: 16px;
+  box-shadow: 0 20px 50px #0009, inset 0 0 40px #0007;
 }
 .grid {
   display: grid;
   grid-template-columns: repeat(var(--n), var(--cell));
   grid-template-rows: repeat(var(--n), var(--cell));
-  gap: 2px;
+  gap: 0;
+  box-shadow: 0 0 0 3px #1c140d;       /* thin wall line where the frame meets the cells */
 }
+/* tiles abut edge-to-edge and use the generated textures (CSS colors are the fallback) */
 .tile {
-  position: relative; border-radius: 8px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  background: #ffffff06; border: 1px solid #ffffff08;
+  position: relative; display: flex; align-items: center; justify-content: center;
+  background-color: var(--floor); background-size: cover; background-position: center;
+  image-rendering: pixelated;
 }
-.tile.floor { background: #ffffff05; }
-.tile.station {
-  background: linear-gradient(#7a5a40, #5e4530);
-  border: 1px solid #00000040; box-shadow: inset 0 -3px 0 #00000035, 0 2px 0 #00000040;
-}
-.tile.station.STOVE { background: linear-gradient(#5a5050, #3f3838); }
-.tile.station.PASS { background: linear-gradient(#7a6a36, #5c4f28); }
-.tile.station.BIN  { background: linear-gradient(#4a4a4a, #343434); }
-.tile .kr-icon { font-size: calc(var(--cell) * .5); line-height: 1; }
-.tile .label {
-  position: absolute; bottom: 2px; font-size: 9px; color: #ffffffb0;
-  text-transform: uppercase; letter-spacing: .5px; pointer-events: none;
-}
-.tile .ing-label {
-  position: absolute; top: 2px; font-size: 8.5px; color: #ffe9c9; background: #00000050;
-  padding: 0 4px; border-radius: 6px; max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.tile.burner-cell .burner-mini {
-  position: absolute; inset: auto 3px 3px auto; font-size: 10px;
-}
+.tile.floor   { background-color: #5b6b4a; }
+.tile.counter { background-color: #7a5a3c; }
+.tile.wall    { background-color: #5a3f2c; }
+.tile.door    { background-color: #5b6b4a; box-shadow: inset 0 0 0 4px #00000035; }
+.tile.station .kr-icon { font-size: calc(var(--cell) * .74); line-height: 1; }
+.tile.station.ING .kr-icon { font-size: calc(var(--cell) * .6); }   /* the ingredient on the counter */
 
 /* chef: outer box is positioned by JS-set transform; inner body does the walk-bob so the two
    transforms never fight. */

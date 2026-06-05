@@ -57,6 +57,7 @@ class LiteLLMClient:
                 "litellm is required for model runs: pip install 'kitchenrush[providers]'"
             ) from exc
 
+        litellm.drop_params = True   # silently ignore params a given provider doesn't support
         full_messages = [{"role": "system", "content": system}, *messages]
         params = dict(
             model=self.litellm_model,

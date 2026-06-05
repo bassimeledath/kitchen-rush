@@ -28,19 +28,24 @@ def test_spec_valid(tier, seed):
     spec = procgen.generate(seed, tier)
     cells = [s.cell for s in spec.stations]
     station_cells = set(cells)
+    blocked = set(spec.blocked)
+    non_walkable = station_cells | blocked      # stations + counters/walls = everything impassable
     n = spec.grid_n
 
-    assert len(cells) == len(station_cells)  # all distinct
+    assert len(cells) == len(station_cells)      # all distinct
+    assert station_cells.isdisjoint(blocked)     # a station is never also a plain counter cell
     for s in spec.stations:
         assert 0 <= s.cell[0] < n and 0 <= s.cell[1] < n
         has_access = any(
-            (s.cell[0] + dr, s.cell[1] + dc) not in station_cells
+            (s.cell[0] + dr, s.cell[1] + dc) not in non_walkable
             and 0 <= s.cell[0] + dr < n and 0 <= s.cell[1] + dc < n
             for dr, dc in config.DIRECTIONS.values()
         )
         assert has_access, f"{s} has no floor access cell"
-    assert _floor_connected(n, station_cells)
-    assert spec.chef_start not in station_cells
+    assert _floor_connected(n, non_walkable)
+    assert spec.chef_start not in non_walkable   # chef starts on a walkable floor cell
+    if spec.door is not None:
+        assert tuple(spec.door) in blocked       # the doorway is a wall cell, not floor/station
 
     types = [s.type for s in spec.stations]
     for required in (config.BOARD, config.PLATE, config.PASS, config.BIN):

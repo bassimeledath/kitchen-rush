@@ -41,5 +41,8 @@
   "station:ING": "station_ing.png",
   "station:PASS": "station_pass.png",
   "station:PLATE": "station_plate.png",
-  "station:STOVE": "station_stove.png"
+  "station:STOVE": "station_stove.png",
+  "tile:floor": "tile_floor.png",
+  "tile:counter": "tile_counter.png",
+  "tile:wall": "tile_wall.png"
 }

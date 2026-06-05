@@ -93,9 +93,14 @@ def render_observation(obs: dict) -> str:
     if obs.get("last_turn"):
         results = obs["last_turn"].get("calls", [])
         if results:
-            lines.append("last turn: " + "; ".join(
-                f"{c.get('action', '?')}:{'ok' if c['ok'] else 'INVALID'}({c.get('note', '')})"
-                for c in results))
+            parts = []
+            for c in results:
+                name = c.get("call", c.get("action", "?"))
+                if c.get("ok"):
+                    parts.append(f"{name}: ok")
+                else:
+                    parts.append(f"{name}: INVALID [{c.get('category', 'invalid')}] — {c.get('note', '')}")
+            lines.append("RESULT of your last response: " + "; ".join(parts))
     if obs.get("events_since_last"):
         lines.append("events: " + "; ".join(f"{e['type']}@{e['clock_gs']}" for e in obs["events_since_last"]))
     return "\n".join(lines)

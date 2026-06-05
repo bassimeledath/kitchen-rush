@@ -8,10 +8,10 @@
  */
 (() => {
   const S = KR.sprites;
-  const GAP = 2;                  // grid gap px (matches CSS)
-  const MS_PER_GS = 140;         // wall-ms per game-second at 1x
-  const SPEEDS = [0.5, 1, 2, 4];
-  const BUILTIN = ["replays/easy_seed0_oracle.json"];
+  const GAP = 0;                  // grid gap px (tiles abut for a seamless kitchen; matches CSS)
+  const MS_PER_GS = 1000;        // 1x = real time (1 game-second = 1 real second); speed up to taste
+  const SPEEDS = [1, 2, 4, 8, 0.5];
+  const BUILTIN = ["replays/easy_seed0_gemini35flash.json", "replays/easy_seed0_oracle.json"];
 
   // ---- state --------------------------------------------------------------
   const st = {
@@ -62,9 +62,14 @@
       el.runSelect.appendChild(o);
     }
     el.runSelect.onchange = () => loadUrl(el.runSelect.value);
-    try {
-      await loadUrl(BUILTIN[0]);
-    } catch (e) {
+    let loaded = null;
+    for (const url of BUILTIN) {                 // prefer the first that exists (gemini, else oracle)
+      try { await loadUrl(url); loaded = url; break; } catch (e) { /* try next */ }
+    }
+    if (loaded) {
+      el.runSelect.value = loaded;
+      if (new URLSearchParams(location.search).has("autoplay")) play();
+    } else {
       el.runMeta.textContent = "open a replay JSON →  (or serve this folder: python3 -m http.server)";
     }
   }
@@ -122,28 +127,45 @@
       .sort((a, b) => (a[0] - b[0]) || (a[1] - b[1]));
 
     // grid tiles
+    // surfaces from the layout: stations + counters line the walls, interior is floor, one wall
+    // cell is a doorway. Tiles abut and use the generated floor/counter/wall textures (or CSS
+    // fallback colors). No labels — dispensers show their actual ingredient instead.
+    const L = st.data.layout;
+    const blocked = new Set((L.blocked || []).map((c) => key(c[0], c[1])));
+    const door = L.door ? key(L.door[0], L.door[1]) : null;
+    const corners = new Set([key(0, 0), key(0, n - 1), key(n - 1, 0), key(n - 1, n - 1)]);
+    const bg = { floor: S.path("tile:floor"), counter: S.path("tile:counter"), wall: S.path("tile:wall") };
+    if (bg.wall) {
+      el.stage.style.backgroundImage = `url(${bg.wall})`;
+      el.stage.style.backgroundRepeat = "repeat";
+      el.stage.style.backgroundSize = "48px";
+    }
+    const surface = (tile, kind) => {
+      tile.classList.add(kind);
+      const img = bg[kind === "door" ? "floor" : kind];
+      if (img) tile.style.backgroundImage = `url(${img})`;
+    };
+
     el.grid.innerHTML = "";
     st.gridEl = el.grid;
     for (let r = 0; r < n; r++) {
       for (let c = 0; c < n; c++) {
         const tile = document.createElement("div");
-        const s = st.stationByCell.get(key(r, c));
+        tile.className = "tile";
+        const ck = key(r, c);
+        const s = st.stationByCell.get(ck);
         if (s) {
-          tile.className = `tile station ${s.type}`;
-          tile.appendChild(S.stationIcon(s.type));
-          const lab = document.createElement("span");
-          lab.className = "label";
-          lab.textContent = S.STATION_LABEL[s.type] || s.type.toLowerCase();
-          tile.appendChild(lab);
-          if (s.type === "ING" && s.ingredient) {
-            const il = document.createElement("span");
-            il.className = "ing-label"; il.textContent = s.ingredient;
-            tile.appendChild(il);
-          }
-          const bi = st.burnerCells.findIndex((bc) => bc[0] === r && bc[1] === c);
-          if (bi >= 0) tile.classList.add("burner-cell");
+          surface(tile, "counter");
+          tile.classList.add("station", s.type);
+          tile.appendChild(s.type === "ING" && s.ingredient
+            ? S.componentIcon(s.ingredient, "RAW") : S.stationIcon(s.type));
+          if (st.burnerCells.some((bc) => bc[0] === r && bc[1] === c)) tile.classList.add("burner-cell");
+        } else if (door && ck === door) {
+          surface(tile, "door");
+        } else if (blocked.has(ck)) {
+          surface(tile, corners.has(ck) ? "wall" : "counter");
         } else {
-          tile.className = "tile floor";
+          surface(tile, "floor");
         }
         el.grid.appendChild(tile);
       }
@@ -207,7 +229,7 @@
     const thinking = nxt && nxt.kind === "think";
     if (thinking) {
       el.think.hidden = false;
-      el.thinkAmt.textContent = "+" + (nxt.think_gs ?? (nxt.clock_gs - cur.clock_gs)).toFixed(1) + "gs";
+      el.thinkAmt.textContent = "+" + (nxt.think_gs ?? (nxt.clock_gs - cur.clock_gs)).toFixed(1) + "s";
       const tp = cellCenter(cur.chef_pos[0], cur.chef_pos[1]);
       el.think.style.left = (tp.x + st.cellPx / 2) + "px";
       el.think.style.top = tp.y + "px";

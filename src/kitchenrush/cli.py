@@ -38,8 +38,14 @@ def _policy_factory(args: argparse.Namespace):
         from .adapter import resolve_model
         from .agent import ModelAgent
 
+        extra: dict = {}
+        if getattr(args, "no_reasoning", False):
+            # Gemini: thinkingBudget=0 truly disables reasoning (verified). Harmless on other
+            # providers (drop_params ignores it).
+            extra["thinkingConfig"] = {"thinkingBudget": 0}
+
         def factory(seed: int, trial: int):
-            return ModelAgent(resolve_model(args.model), track=args.track,
+            return ModelAgent(resolve_model(args.model, **extra), track=args.track,
                               temperature=args.temperature)
         return factory
 
@@ -55,7 +61,7 @@ def _print_report(rep: dict, label: str, track: str) -> None:
     c = rep["counters"]
     print(f"Kitchen Rush — tier={rep['tier']} seed={rep['seed']} {label} track={track}")
     print(f"  score (raw/display): {rep['score_raw']} / {rep['score_display']}")
-    print(f"  game time: {rep['clock_gs']}/{rep['horizon_gs']} gs over {rep['turns']} turns")
+    print(f"  game time: {rep['clock_gs']}/{rep['horizon_gs']} s over {rep['turns']} turns")
     print(f"  orders: {c['orders_served']} served, {c['orders_expired']} expired of {c['orders_total']}")
     print(f"  burns={c['burns']} invalid={c['invalid_actions']} drops={c['drops']} max_combo={c['max_combo']}")
 
@@ -190,6 +196,8 @@ def _add_policy_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--tier", choices=sorted(config.TIERS), default="easy")
     p.add_argument("--track", choices=["rt", "rp"], default="rp")
     p.add_argument("--temperature", type=float, default=config.DEFAULT_TEMPERATURE)
+    p.add_argument("--no-reasoning", action="store_true",
+                   help="disable model thinking/reasoning (faster decisions; thinking-capable models)")
     p.add_argument("--latency", type=float, default=0.5, help="baseline seconds/response (-> game-time)")
     p.add_argument("--max-turns", type=int, default=None)
     p.add_argument("--latency-budget", type=float, default=None,

@@ -81,6 +81,8 @@ def build_replay(result: EpisodeResult, spec: Any) -> dict[str, Any]:
             {"type": s.type, "ingredient": s.ingredient, "cell": list(s.cell)}
             for s in spec.stations
         ],
+        "blocked": [list(c) for c in sorted(spec.blocked)],   # non-walkable counter/wall cells
+        "door": list(spec.door) if spec.door else None,
     }
     catalog = {
         "ingredients": ingredients,

@@ -45,6 +45,8 @@ class KitchenSpec:
     chef_start: tuple[int, int]
     orders: list[OrderSpec]
     latency_budget: float = 1.0   # B: seconds/decision the deadlines were priced at
+    blocked: frozenset = field(default_factory=frozenset)   # non-walkable counter / wall cells
+    door: tuple[int, int] | None = None                     # decorative doorway cell (in the wall)
 
 
 def _substreams(seed: int) -> tuple[random.Random, random.Random]:
@@ -101,48 +103,50 @@ def _floor_connected(grid_n: int, station_cells: set[tuple[int, int]]) -> bool:
     return len(seen) == len(floor)
 
 
-def _build_layout(rng: random.Random, tier: config.Tier) -> tuple[list[StationSpec], tuple[int, int]]:
+def _build_kitchen(tier: config.Tier):
+    """Fixed, workflow-ordered kitchen: stations line the walls in a sensible order (ingredient
+    dispensers, then prep, cook, plate, pass, bin), the interior is open floor, and the
+    bottom-centre wall cell is the doorway.
+
+    The layout is DETERMINISTIC per tier. With auto-navigation the model never reasons about
+    coordinates (it calls ``cook(patty)``; the engine walks there), so randomizing station
+    positions would only add travel-time noise, not test anything — only the order stream is
+    randomized, which is what actually tests planning under latency.
+
+    Returns (stations, chef_start, blocked, door); ``blocked`` is every non-walkable counter/wall
+    cell that is not a station (empty counters + corners + the doorway)."""
     n = tier.grid_n
     ingredients = config.recipe_ingredients(tier.recipes)
-    # Needed stations: one dispenser per ingredient + board, stoves, plate, pass, bin.
-    needed: list[tuple[str, str | None]] = [(config.ING, ing) for ing in ingredients]
-    needed.append((config.BOARD, None))
-    needed.extend((config.STOVE, None) for _ in range(tier.burner_count))
-    needed.extend([(config.PLATE, None), (config.PASS, None), (config.BIN, None)])
+    # workflow order along the counter: dispensers -> board -> stoves -> plate -> pass -> bin
+    ordered: list[tuple[str, str | None]] = [(config.ING, ing) for ing in ingredients]
+    ordered.append((config.BOARD, None))
+    ordered.extend((config.STOVE, None) for _ in range(tier.burner_count))
+    ordered.extend([(config.PLATE, None), (config.PASS, None), (config.BIN, None)])
 
-    lattice = [(r, c) for r in range(0, n, 2) for c in range(0, n, 2)]
-    if len(lattice) < len(needed):
-        raise ValueError(f"grid {n}x{n} too small for {len(needed)} stations")
+    # perimeter cells, clockwise from the top-left, skipping corners (corners stay walls)
+    top = [(0, c) for c in range(1, n - 1)]
+    right = [(r, n - 1) for r in range(1, n - 1)]
+    bottom = [(n - 1, c) for c in range(n - 2, 0, -1)]
+    left = [(r, 0) for r in range(n - 2, 0, -1)]
+    path = top + right + bottom + left
+    if len(ordered) > len(path):
+        raise ValueError(f"grid {n}x{n} too small for {len(ordered)} stations")
 
-    for _attempt in range(50):
-        cells = lattice[:]
-        rng.shuffle(cells)
-        chosen = cells[: len(needed)]
-        stations = [StationSpec(cell, typ, ing) for cell, (typ, ing) in zip(chosen, needed)]
-        station_cells = {s.cell for s in stations}
-        # chef spawns on a floor cell with a walkable neighbor (odd cells are always floor)
-        floor = [
-            (r, c)
-            for r in range(n)
-            for c in range(n)
-            if (r, c) not in station_cells
-        ]
-        if not _floor_connected(n, station_cells):
-            continue
-        rng.shuffle(floor)
-        chef_start = None
-        for cell in floor:
-            r, c = cell
-            for dr, dc in config.DIRECTIONS.values():
-                nb = (r + dr, c + dc)
-                if 0 <= nb[0] < n and 0 <= nb[1] < n and nb not in station_cells:
-                    chef_start = cell
-                    break
-            if chef_start:
-                break
-        if chef_start is not None:
-            return stations, chef_start
-    raise RuntimeError("failed to generate a valid layout")
+    stations = [StationSpec(path[i], typ, ing) for i, (typ, ing) in enumerate(ordered)]
+    station_cells = {s.cell for s in stations}
+    border = {(r, c) for r in range(n) for c in range(n) if r in (0, n - 1) or c in (0, n - 1)}
+    blocked = border - station_cells                             # empty counters + corners + door
+
+    # doorway: bottom-centre if free, else the free bottom-edge cell nearest centre
+    mid_c = n // 2
+    free_bottom = [(n - 1, c) for c in range(1, n - 1) if (n - 1, c) not in station_cells]
+    door = ((n - 1, mid_c) if (n - 1, mid_c) in free_bottom
+            else min(free_bottom, key=lambda cell: abs(cell[1] - mid_c)) if free_bottom else None)
+
+    interior = [(r, c) for r in range(1, n - 1) for c in range(1, n - 1)]   # all open floor
+    ref = door if door else (n - 1, mid_c)
+    chef_start = min(interior, key=lambda c: abs(c[0] - ref[0]) + abs(c[1] - ref[1]))
+    return stations, chef_start, frozenset(blocked), door
 
 
 def _build_orders(rng: random.Random, tier: config.Tier, b: float) -> list[OrderSpec]:
@@ -200,8 +204,8 @@ def generate(seed: int, tier: str = "easy", b: float | None = None) -> KitchenSp
     if b is None:
         b = config.B_SECONDS
     t = config.TIERS[tier]
-    rng_grid, rng_orders = _substreams(seed)
-    stations, chef_start = _build_layout(rng_grid, t)
+    _rng_grid, rng_orders = _substreams(seed)   # layout is fixed per tier; only orders are seeded
+    stations, chef_start, blocked, door = _build_kitchen(t)
     orders = _build_orders(rng_orders, t, b)
     # Horizon scales to fit the (B-priced) schedule so a loose budget isn't clipped, while
     # keeping the RULES invariant "every deadline <= horizon" (§13.1).
@@ -219,4 +223,6 @@ def generate(seed: int, tier: str = "easy", b: float | None = None) -> KitchenSp
         chef_start=chef_start,
         orders=orders,
         latency_budget=b,
+        blocked=blocked,
+        door=door,
     )

@@ -106,6 +106,8 @@ class KitchenRushEngine:
         self.active_ingredients = set(config.recipe_ingredients(self.active_recipes))
 
         self.stations = {s.cell: s for s in spec.stations}
+        self.blocked: set[tuple[int, int]] = set(spec.blocked)   # non-walkable counters / walls
+        self.door: tuple[int, int] | None = tuple(spec.door) if spec.door else None
         self.burners: list[Burner] = [
             Burner(cell) for cell in sorted(s.cell for s in spec.stations if s.type == config.STOVE)
         ]
@@ -151,7 +153,7 @@ class KitchenRushEngine:
         return 0 <= r < self.grid_n and 0 <= c < self.grid_n
 
     def _is_floor(self, cell: tuple[int, int]) -> bool:
-        return self._in_bounds(cell) and cell not in self.stations
+        return self._in_bounds(cell) and cell not in self.stations and cell not in self.blocked
 
     def _adjacent_stations(self, type_: str, ingredient: str | None = None) -> list[tuple[int, int]]:
         r, c = self.chef_pos
@@ -206,11 +208,11 @@ class KitchenRushEngine:
             elif kind == "burn":
                 b = self.burners[ref]
                 if b.job and not b.job.burned:
-                    b.job.burned = True
                     self.score += config.BURN_PENALTY
                     self.combo_count = 0
                     self.counters["burns"] += 1
                     self._record("burned", {"burner_index": ref, "ingredient": b.job.ingredient})
+                    b.job = None   # auto-free: the burnt item is binned automatically, burner reopens
             elif kind == "ready":
                 b = self.burners[ref]
                 if b.job:
@@ -265,6 +267,7 @@ class KitchenRushEngine:
                     break
                 self.counters["total_tool_calls"] += 1
                 res = self._exec(call)
+                res["call"] = call.name          # keep the attempted tool name (esp. for invalids)
                 results.append(res)
                 self._emit_frame("action", action={
                     "name": call.name, "arguments": call.arguments,
@@ -540,7 +543,8 @@ class KitchenRushEngine:
             have[(c.ingredient, c.state)] = have.get((c.ingredient, c.state), 0) + 1
         need = {(i, s): 1 for i, s in required.items()}
         if have != need:
-            return self._invalid("held components do not exactly match the recipe", INV_WRONG_INVENTORY)
+            return self._invalid(f"held items don't exactly match {recipe} (no extra/missing components allowed)",
+                                 INV_WRONG_INVENTORY)
         if not self._walk_to(config.PLATE):
             return self._invalid("cannot reach a plating counter", INV_UNREACHABLE)
         self._charge(config.PLATE_GS)
@@ -673,6 +677,10 @@ class KitchenRushEngine:
                     line.append("@")
                 elif (r, c) in self.stations:
                     line.append(sym[self.stations[(r, c)].type])
+                elif self.door and (r, c) == self.door:
+                    line.append("D")
+                elif (r, c) in self.blocked:
+                    line.append("#")
                 else:
                     line.append(".")
             rows.append("".join(line))
@@ -707,7 +715,7 @@ class KitchenRushEngine:
             "remaining_gs": round(self.spec.horizon_gs - self.clock_gs, 4),
             "chef_pos": list(self.chef_pos),
             "grid_ascii": self._grid_ascii(),
-            "grid_legend": "@=you I=dispenser B=board S=stove P=plate R=pass X=bin .=floor",
+            "grid_legend": "@=you I=dispenser B=board S=stove P=plate R=pass X=bin #=wall/counter D=door .=floor",
             "hands": [{"ingredient": h.ingredient, "state": h.state} for h in self.hands],
             "hand_slots_free": config.HAND_SLOTS - len(self.hands),
             "stations": [
