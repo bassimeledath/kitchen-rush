@@ -11,7 +11,7 @@
   const GAP = 0;
   const MS_PER_GS = 1000;        // 1x = real time
   const SPEEDS = [1, 2, 4, 8, 0.5];
-  const BUILTIN = ["replays/easy_seed0_gemini35flash.json", "replays/easy_seed0_oracle.json"];
+  const BUILTIN = ["replays/easy_seed1_gemini35flash.json", "replays/easy_seed0_oracle.json"];
   const WORK_ACTIONS = new Set(["chop", "prep", "cook", "collect", "collect_cooked", "plate", "serve", "discard"]);
 
   const st = {

@@ -30,3 +30,6 @@ runs/
 .DS_Store
 .idea/
 .vscode/
+
+# Claude subagent worktrees (ephemeral)
+.claude/worktrees/

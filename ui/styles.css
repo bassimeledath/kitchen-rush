@@ -14,11 +14,12 @@ body {
 }
 #app { min-height: 100vh; display: flex; flex-direction: column; }
 
-/* centered kitchen column */
-.layout { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 18px; }
+/* kitchen + a vertical order rail on its right, top-aligned so the transport stays on-screen */
+.layout { flex: 1; display: flex; flex-direction: row; align-items: flex-start; justify-content: center; gap: 18px; padding: 12px 18px; }
+.stage-col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 
-/* ---- compact order rack ---- */
-.orders-rack { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; max-width: 70vw; min-height: 56px; }
+/* ---- order rack (vertical, right of the kitchen) ---- */
+.orders-rack { display: flex; flex-direction: column; gap: 8px; align-items: stretch; width: 78px; }
 .ticket {
   width: 60px; background: #0004; border: 1px solid var(--line); border-top: 3px solid var(--muted);
   border-radius: 8px; padding: 5px 4px 4px; display: flex; flex-direction: column; align-items: center; gap: 2px;

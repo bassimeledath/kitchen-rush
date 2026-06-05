@@ -14,7 +14,7 @@ BURNER_COUNT = 2
 HAND_SLOTS = 4
 LATENCY_SCALE = 1.0          # latency_seconds -> game-seconds (the one knob, open-q #1)
 
-MOVE_GS_PER_STEP = 0.25      # 4x faster walking (travel is flat overhead, not a tested skill)
+MOVE_GS_PER_STEP = 0.15      # walking cost (flat overhead, not a tested skill); tuned for feel + relief
 COLLECT_GS = 2.0
 CHOP_GS = 4.0
 PREP_GS = 4.0
@@ -41,9 +41,9 @@ DECAY_RATE = 0.6
 FLOOR_FACTOR = 0.4
 V0, V1, V2 = 6.0, 2.0, 0.5   # base_value = V0 + V1*n + V2*n^2
 EXPIRY_FRACTION = 0.5
-BURN_PENALTY = -8.0
-INVALID_PENALTY = -5.0
-DROP_PENALTY = -6.0
+BURN_PENALTY = -5.0          # softened from -8 to lift the floor (provisional, under calibration)
+INVALID_PENALTY = -3.0       # softened from -5 (keeps teeth: spam still tanks; trying clears 0)
+DROP_PENALTY = -4.0          # softened from -6
 COMBO_STEP = 0.25
 COMBO_CAP = 2.0
 COMBO_MIN_STEPS = 4          # min recipe steps to advance the combo streak
