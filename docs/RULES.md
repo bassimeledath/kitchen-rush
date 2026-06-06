@@ -108,7 +108,11 @@ There MUST be no hidden state outside `S`.
 - **Real-millisecond (ms):** wall-clock latency measured by the harness per response.
 
 ### 3.2 Latency → game-time (THE core mechanic; single definition)
-3.2.1 Per response the harness produces `latency_seconds`. Two tracks: **RT** = measured wall-clock of the response; **RP** = reproducible token proxy `β₀ + β_in·n_in + β_out·n_out` (`RP_BETA0/RP_BETA_IN/RP_BETA_OUT`, §SCORING §1.2). The in-process runner passes a policy-supplied `latency_s` (baselines inject a fixed value).
+3.2.1 Per response the harness produces `latency_seconds` via one of two tracks:
+- **RP** (reproducible; the intended ranked headline) = a token proxy `β₀ + β_in·n_in + β_out·n_out` (`RP_BETA0/RP_BETA_IN/RP_BETA_OUT`). `n_in` counts ALL model-visible request content (system prompt + observation + **tool schemas**); `n_out` counts the canonical assistant output (each tool call's **name** + arguments + any text) **plus provider-reported reasoning tokens**. Tokens use ONE pinned tokenizer applied to every model — `cl100k_base` via tiktoken (stamped `TOKENIZER_ID`), with a char/4 fallback when tiktoken is absent (stdlib-only core); the active id is recorded in every output so RP is never silently compared across tokenizers. RP is provider-independent and recomputable from a trajectory log. *(β coefficients are provisional pending a published calibration.)*
+- **RT** (real; diagnostic) = measured wall-clock of the response — ecologically real but provider/region/load-dependent, so it is reported alongside, **not** the cross-model rank.
+
+The in-process runner passes a policy-supplied `latency_s` (baselines inject a fixed value); `think_gs = LATENCY_SCALE · latency_s`. Setting `LATENCY_SCALE = 0` (CLI `--no-latency`) gives **KR-0** — thinking costs no game-time — isolating decision quality; the **latency tax** is `KR-0 − KR-RP`.
 3.2.2 The conversion is a single multiply (`runner.run_episode`):
 ```
 think_gs = LATENCY_SCALE * latency_seconds      # LATENCY_SCALE = 1.0; float; NO ceil/round
@@ -328,7 +332,7 @@ From `engine._new_counters()`:
 11.1 **Contract.** Given `(seed, tier, sequence_of(action|chain), sequence_of(latency_seconds))` the engine produces identical `S`, `score`, event log, and per-turn observations everywhere. No wall-clock, no unseeded RNG, no reliance on `set`/insertion-`dict` iteration for normative behavior.
 11.2 **Seeded generation** uses stdlib `random.Random` with two named sub-streams derived from the seed (`procgen._substreams(seed)` → `(rng_grid, rng_orders)`). The **layout is deterministic per tier** (`rng_grid` is currently unused — see §3 of the design stance and §PROCEDURAL), so only `rng_orders` drives variation. The single-`Generator` model is NOT used.
 11.3 **Seeded order stream** (arrivals + dishes) is computed at reset from `rng_orders` and fixed for the episode; only fulfillment depends on agent choices.
-11.4 **Latency replay.** `think_gs` is a pure function of `latency_seconds` (§3.2.2). RT replays from logged `wall_ms`; RP replays from recomputed token counts (pinned tokenizer, §SCORING). Both are pure and fully specified. Tests MAY inject a fixed latency trace (e.g., all-zero) to isolate decision quality.
+11.4 **Latency replay.** `think_gs` is a pure function of `latency_seconds` (§3.2.2). RT replays from logged `wall_ms`; RP replays from recomputed token counts (pinned tokenizer, §3.2.1). Both are pure and fully specified. A fixed all-zero latency trace (CLI `--no-latency`, the **KR-0** mode, §3.2.1) isolates decision quality; the latency tax is `KR-0 − KR-RP`.
 11.5 **Tie-break (fixed priority).** Events in one advance are sorted by `(time, category, id_key)` with category numbers **(1) order expiries, (2) cook burns, (3) order arrivals, (4) cook ready**; the **action effect** is applied last, after the advance returns. Within a category, sort by ascending id (`order_id` lexicographic for orders, zero-padded `burner_index` for cooks). This applies at every clock advance, including each intra-chain advance.
 11.6 **Score arithmetic.** Clock is float64. The ONLY rounding in the score path: `earned = floor(base_value·time_factor·combo·q + 0.5)`, computed left-to-right in float64, once per serve. Python `round()`/banker's rounding is FORBIDDEN. Penalties (`BURN_PENALTY`, `EXPIRY_FRACTION·base_value`, `INVALID_PENALTY`, `DROP_PENALTY`) are exact; expiry is `floor(EXPIRY_FRACTION·base_value + 0.5)` as a magnitude. Normalized display metrics (KR and rates, §9.8) are reported to 4 decimal places; leaderboard ties break on the next reported metric, never on float noise.
 11.7 **Versions** `RULESET_VERSION` (hash of constants+recipes+scoring+tiers), `SCHEMA_VERSION`, `GENERATOR_VERSION` stamp every output and are validator-checked.
@@ -449,7 +453,8 @@ Authoritative schemas live in `src/kitchenrush/tools.py` (`TOOL_SCHEMAS`, expose
 | `COMBO_MIN_STEPS` | 4 | min recipe steps to advance combo |
 | `SHOW_READY_ACTIONS` | true | difficulty aid (false on hard tier) |
 | `B_SECONDS` | 1.0 | per-decision latency the deadlines are priced at (METHODOLOGY §2) |
-| `RP_BETA0`/`RP_BETA_IN`/`RP_BETA_OUT` | 0.30 / 0.0002 / 0.006 | RP token-proxy latency model (SCORING §1.2) |
+| `RP_BETA0`/`RP_BETA_IN`/`RP_BETA_OUT` *‡* | 0.30 / 0.0002 / 0.006 | RP token-proxy latency model (§3.2.1; coefficients provisional) |
+| `TOKENIZER_ID` | `tiktoken-cl100k_base-v1` (`char4-v0` fallback) | pinned RP tokenizer, stamped in every output |
 | `THETA_PASS` | 0.6 | episode passes a seed iff `score_raw ≥ THETA_PASS·S_ref` |
 | `PASS_K` | 4 | trials per seed for Pass^k |
 | `DEFAULT_TEMPERATURE` | 0.2 | sampling temperature for trials |
