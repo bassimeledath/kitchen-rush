@@ -136,6 +136,38 @@ def test_burn_auto_frees_burner():
     assert all(b["status"] == "FREE" for b in eng.observe()["burners"])
 
 
+def test_no_progress_stall_guard_ends_episode():
+    # Anti-loop: a model that only emits invalid actions makes no productive progress; after
+    # STALL_TURNS consecutive dead turns the episode terminates ("stalled"), and final_report
+    # force-expires the unserved order so the score reflects giving up (not a free truncation).
+    eng = KitchenRushEngine(make_spec())
+    bad = ToolCall("collect", {"ingredient": "nonexistent"})   # always invalid
+    for _ in range(config.STALL_TURNS + 5):
+        if eng.terminated:
+            break
+        eng.step([bad], 0.0)
+    assert eng.terminated
+    assert eng.turn_count == config.STALL_TURNS          # ended exactly on the threshold
+    rep = eng.final_report()
+    assert rep["counters"]["orders_served"] == 0
+    assert rep["counters"]["orders_expired"] == 1        # the live order force-expired at end
+
+
+def test_productive_action_resets_stall_counter():
+    # A single successful action mid-stall resets the no-progress counter, so an agent that makes
+    # occasional progress is never cut by the guard.
+    eng = KitchenRushEngine(make_spec())
+    bad = ToolCall("collect", {"ingredient": "nonexistent"})
+    for _ in range(config.STALL_TURNS - 1):
+        eng.step([bad], 0.0)
+    assert not eng.terminated
+    eng.chef_pos = (1, 1)
+    assert _do(eng, "collect", ingredient="bun")["ok"]   # productive -> resets counter
+    for _ in range(config.STALL_TURNS - 1):
+        eng.step([bad], 0.0)
+    assert not eng.terminated                              # still alive thanks to the reset
+
+
 def test_plate_rejects_extra_component():
     # Exact-match plating: a full burger PLUS an extra bun must be rejected (no duplicates).
     eng = KitchenRushEngine(make_spec())

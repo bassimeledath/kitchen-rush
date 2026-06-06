@@ -31,7 +31,7 @@ HORIZON_GS = 300.0
 # anti-runaway ceiling that never binds for a model making progress; STALL_TURNS ends an
 # episode that does no productive work for that many consecutive turns (the true safety net).
 MAX_TURNS = 500
-STALL_TURNS = 50
+STALL_TURNS = 12   # consecutive no-progress turns before the stall guard ends the episode
 REFERENCE_MAX_TURNS = 20000   # the scripted oracle's turns are free; let game-time bound it
 MAX_STEPS_PER_MOVE = 8       # single-leg cap
 SCHEMA_MAX_STEPS = 12        # hard schema cap before clamping

@@ -20,15 +20,10 @@ from .runner import run_episode, run_suite
 from .version import __version__
 
 
-_PROFILES = {"voice": 1.0, "chat": 5.0, "quality": 20.0}   # latency budget B (s/decision)
-
-
 def _resolve_b(args: argparse.Namespace) -> float:
-    """Latency budget B from --latency-budget (wins), else --profile preset, else default."""
+    """Latency budget B (seconds/decision) from --latency-budget, else the default."""
     if getattr(args, "latency_budget", None) is not None:
         return float(args.latency_budget)
-    if getattr(args, "profile", None):
-        return _PROFILES[args.profile]
     return config.B_SECONDS
 
 
@@ -212,8 +207,6 @@ def _add_policy_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--max-turns", type=int, default=None)
     p.add_argument("--latency-budget", type=float, default=None,
                    help="B: seconds/decision the deadlines are priced at (default 1.0)")
-    p.add_argument("--profile", choices=sorted(_PROFILES), default=None,
-                   help="latency preset: voice=1s, chat=5s, quality=20s (sets --latency-budget)")
     p.add_argument("--json", action="store_true")
 
 
@@ -256,8 +249,6 @@ def main(argv: list[str] | None = None) -> int:
     cal.add_argument("--seeds", type=int, default=12)
     cal.add_argument("--latency-budget", type=float, default=None,
                      help="B: seconds/decision the deadlines are priced at (default 1.0)")
-    cal.add_argument("--profile", choices=sorted(_PROFILES), default=None,
-                     help="latency preset: voice=1s, chat=5s, quality=20s")
     cal.set_defaults(func=_cmd_calibrate)
 
     args = parser.parse_args(argv)

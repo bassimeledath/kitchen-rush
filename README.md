@@ -50,14 +50,14 @@ KR = 100 · mean over (seeds × trials) of  clip( (S_model − S_null) / (S_ref 
 
 where `S_null` is the do-nothing floor (serve nothing → everything expires) and `S_ref` is a
 deterministic greedy-EDF reference run at **zero latency**. **Reported per latency budget B**
-(voice=1s, chat=5s, quality=20s) — never averaged into one number. Tokens, $ cost, Pass^k, and a
+(e.g. B=1s, B=5s) — never averaged into one number. Tokens, $ cost, Pass^k, and a
 failure-type breakdown are reported alongside.
 
 ## Two latency tracks
 
 | Track | Source | Use |
 |---|---|---|
-| **RP** (reproducible) | token proxy `β₀ + β_in·n_in + β_out·n_out` (incl. reasoning tokens) | intended ranking track — provider-independent, recomputable. *The tokenizer is currently a placeholder, so RP is **experimental** until a real one is pinned.* |
+| **RP** (reproducible) | token proxy `β₀ + β_in·n_in + β_out·n_out` (incl. reasoning tokens) | intended ranking track — provider-independent, recomputable. *Tokenizer pinned (cl100k via tiktoken, char/4 fallback); the β-coefficients are still provisional pending the calibration study, so RP is **experimental** until they're frozen.* |
 | **RT** (real-latency) | measured wall-clock | realism diagnostic; disclose hardware/region |
 
 ## Quickstart
@@ -65,10 +65,10 @@ failure-type breakdown are reported alongside.
 ```bash
 pip install -e .                          # core is stdlib-only
 kitchenrush bench --baseline random --tier easy --seeds 12 --trials 2
-kitchenrush calibrate --tier easy --profile voice    # voice=1s | chat=5s | quality=20s
+kitchenrush calibrate --tier easy --latency-budget 1    # B = seconds/decision the deadlines are priced at
 
 pip install -e '.[providers]'             # real models (needs provider API keys)
-kitchenrush bench --model gemini:gemini-3.5-flash --no-reasoning --tier easy --profile chat --track rt
+kitchenrush bench --model gemini:gemini-3.5-flash --no-reasoning --tier easy --latency-budget 5 --track rt
 
 # watch a game in the browser:
 kitchenrush replay --oracle --tier easy --seed 0     # writes ui/replays/easy_seed0_oracle.json
@@ -83,8 +83,8 @@ leaderboard are coming — see the checklist.)
 Native function calling via LiteLLM — just pass `provider:model`:
 
 ```bash
-kitchenrush bench --model anthropic:claude-sonnet-4-6 --tier easy --profile chat
-kitchenrush bench --model vllm:Qwen/Qwen3-32B         --tier easy --profile chat
+kitchenrush bench --model anthropic:claude-sonnet-4-6 --tier easy --latency-budget 5
+kitchenrush bench --model vllm:Qwen/Qwen3-32B         --tier easy --latency-budget 5
 ```
 
 Or register a custom client (only needs `name` + `generate(system, messages, tools) -> ModelResponse`):
