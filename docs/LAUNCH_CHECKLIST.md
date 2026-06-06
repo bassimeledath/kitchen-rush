@@ -27,9 +27,10 @@ Legend: `[ ]` todo · `[~]` partial · `[x]` done.
   `versions()` {package, ruleset, schema, generator, tokenizer}, stamped into report/replay/aggregate.
 - [ ] Freeze official **seed manifests / splits** (train/dev/test + maintainer-only challenge),
   with a manifest hash and a legality/feasibility check.
-- [ ] **RP credibility:** replace the `char4-v0` placeholder tokenizer with a pinned real tokenizer,
-  OR label RP "experimental" and headline RT (disclosed) until then. *(RP is the intended ranked
-  track and the basis for verifiable submissions — this is load-bearing.)*
+- [x] **RP credibility:** pinned tokenizer (`cl100k` via tiktoken, char/4 fallback for the
+  stdlib-only core), versioned `TOKENIZER_ID` stamped in outputs; RP now counts the tool schemas
+  (`n_in`) + each tool call's name (`n_out`) + reasoning tokens. *(β-coefficients still need the
+  calibration study; ranked vs experimental is decided: headline RP, RT diagnostic — pending lock.)*
 - [ ] Fatten the trajectory log so RP can be **recomputed from it** (full model-facing prompt, tool
   schemas, raw tool calls, usage incl. reasoning tokens, latency samples). Current `steps` are too
   thin for audit/recompute — which is what makes "verify-in-CI" possible.
@@ -84,7 +85,9 @@ Legend: `[ ]` todo · `[~]` partial · `[x]` done.
 
 ## P2 — the differentiators
 
-- [ ] **KR-INT (time-agnostic intelligence) track** — separate from the realtime board. Zero
+- [~] **KR-INT (time-agnostic intelligence) track** — separate from the realtime board. The
+  zero-latency mode is implemented (`--no-latency` → KR-0: thinking costs no game-time; gives the
+  "latency tax" = KR-0 − KR-RP). Still to build: the complexity ladder K (below). Zero
   latency (`latency_s=0`), keep intrinsic durations/burn timers, relax deadlines so they never bind.
   A complexity vector `K` (recipe-DAG depth, menu size + shared ingredients, concurrency, decoys,
   memory/horizon, precision); presets K0…K5; per-model **staircase** to report `K50` (highest K with

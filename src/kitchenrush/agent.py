@@ -145,8 +145,13 @@ class ModelAgent:
         if self.track == "rt":
             latency_s = resp.latency_s
         else:
-            n_in = count_tokens(self.system) + count_tokens(user)
-            out_text = (resp.text or "") + "".join(json.dumps(c.arguments) for c in resp.tool_calls)
+            # RP counts ALL model-visible request content (system + observation + tool schemas) and
+            # the canonical assistant output (text + each tool call's NAME and arguments), plus the
+            # provider-reported reasoning tokens. sort_keys keeps it deterministic/recomputable.
+            n_in = (count_tokens(self.system) + count_tokens(user)
+                    + count_tokens(json.dumps(tools, sort_keys=True)))
+            out_text = (resp.text or "") + "".join(
+                c.name + json.dumps(c.arguments, sort_keys=True) for c in resp.tool_calls)
             n_out = count_tokens(out_text) + int(resp.usage.get("reasoning_tokens", 0) or 0)
             latency_s = rp_latency_seconds(n_in, n_out)
         return resp.tool_calls, latency_s

@@ -120,3 +120,31 @@ def test_latency_burns_food_and_breaks_combo():
     assert eng.counters["burns"] == 1
     assert eng.combo_count == 0
     assert eng.score <= config.BURN_PENALTY
+
+
+def test_burn_auto_frees_burner():
+    # On burn the cook-job is auto-binned and the burner reopens (no manual collect/discard).
+    eng = KitchenRushEngine(make_spec())
+    eng.chef_pos = (1, 3)
+    _do(eng, "collect", ingredient="patty")
+    eng.chef_pos = (2, 0)
+    _do(eng, "cook", ingredient="patty")
+    assert eng.burners[0].job is not None
+    eng.step([ToolCall("observe", {})], 30.0)        # long think -> the patty burns
+    assert eng.counters["burns"] == 1
+    assert eng.burners[0].job is None                # auto-freed; nothing left to collect
+    assert all(b["status"] == "FREE" for b in eng.observe()["burners"])
+
+
+def test_plate_rejects_extra_component():
+    # Exact-match plating: a full burger PLUS an extra bun must be rejected (no duplicates).
+    eng = KitchenRushEngine(make_spec())
+    eng.chef_pos = (1, 1); _do(eng, "collect", ingredient="bun")
+    eng.chef_pos = (1, 3); _do(eng, "collect", ingredient="patty")
+    eng.chef_pos = (2, 0); _do(eng, "cook", ingredient="patty")
+    eng.step([ToolCall("observe", {})], 8.0)         # patty becomes READY (cook_time 8 < burn 14)
+    eng.chef_pos = (2, 0); _do(eng, "collect_cooked", ingredient="patty")
+    eng.chef_pos = (1, 1); _do(eng, "collect", ingredient="bun")   # one bun too many
+    eng.chef_pos = (2, 2)
+    res = _do(eng, "plate", recipe="burger")
+    assert not res["ok"] and res["category"] == "wrong_inventory"

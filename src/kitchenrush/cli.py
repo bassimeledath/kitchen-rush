@@ -68,6 +68,8 @@ def _print_report(rep: dict, label: str, track: str) -> None:
 
 def _cmd_run(args: argparse.Namespace) -> int:
     config.B_SECONDS = _resolve_b(args)
+    if getattr(args, "no_latency", False):
+        config.LATENCY_SCALE = 0.0   # KR-0: thinking time costs no game-seconds
     spec = generate(args.seed, args.tier)
     policy = _policy_factory(args)(args.seed, 0)
     result = run_episode(spec, policy, max_turns=args.max_turns)
@@ -88,6 +90,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
 def _cmd_bench(args: argparse.Namespace) -> int:
     config.B_SECONDS = _resolve_b(args)
+    if getattr(args, "no_latency", False):
+        config.LATENCY_SCALE = 0.0   # KR-0: thinking time costs no game-seconds
     seeds = range(args.start, args.start + args.seeds)
     episodes = run_suite(seeds, args.tier, _policy_factory(args),
                          trials=args.trials, max_turns=args.max_turns)
@@ -119,6 +123,8 @@ def _cmd_replay(args: argparse.Namespace) -> int:
     Use ``--oracle`` for a deterministic, API-key-free full game (great for building/testing the
     viewer); otherwise the usual --baseline/--model policy applies."""
     config.B_SECONDS = _resolve_b(args)
+    if getattr(args, "no_latency", False):
+        config.LATENCY_SCALE = 0.0   # KR-0: thinking time costs no game-seconds
     spec = generate(args.seed, args.tier)
     if args.oracle:
         from .oracle import OracleAgent
@@ -157,6 +163,8 @@ def _cmd_calibrate(args: argparse.Namespace) -> int:
     from .runner import run_episode
 
     config.B_SECONDS = _resolve_b(args)
+    if getattr(args, "no_latency", False):
+        config.LATENCY_SCALE = 0.0   # KR-0: thinking time costs no game-seconds
     seeds = range(args.start, args.start + args.seeds)
     specs = [generate(s, args.tier) for s in seeds]
     completed = served = orders = 0
@@ -198,6 +206,8 @@ def _add_policy_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--temperature", type=float, default=config.DEFAULT_TEMPERATURE)
     p.add_argument("--no-reasoning", action="store_true",
                    help="disable model thinking/reasoning (faster decisions; thinking-capable models)")
+    p.add_argument("--no-latency", action="store_true",
+                   help="zero-latency mode (KR-0): thinking costs no game-time — pure decision quality")
     p.add_argument("--latency", type=float, default=0.5, help="baseline seconds/response (-> game-time)")
     p.add_argument("--max-turns", type=int, default=None)
     p.add_argument("--latency-budget", type=float, default=None,
