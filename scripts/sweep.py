@@ -19,7 +19,9 @@ import argparse
 import json
 import os
 import sys
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
@@ -53,7 +55,6 @@ PANEL = [
     ('meta-llama/llama-4-scout', 'off', 'llama-4-scout'),
     ('deepseek/deepseek-v4-flash', 'off', 'deepseek-v4-flash'),
     ('openai/gpt-oss-120b', 'on', 'gpt-oss-120b·think'),
-    ('qwen/qwen3-235b-a22b-thinking-2507', 'on', 'qwen3-235b·think'),
     ('mistralai/mistral-small-2603', 'off', 'mistral-small'),
     ('deepseek/deepseek-v4-flash', 'on', 'deepseek-v4-flash·think'),
     ('google/gemini-3.1-flash-lite', 'off', 'gemini-3.1-flash-lite'),
@@ -110,6 +111,7 @@ def main() -> int:
     ap.add_argument('--tiers', type=str, default='medium,hard')
     ap.add_argument('--budgets', type=str, default='1,5')
     ap.add_argument('--temperature', type=float, default=0.2)
+    ap.add_argument('--workers', type=int, default=10, help='concurrent episodes per model batch')
     args = ap.parse_args()
 
     if not os.environ.get('OPENROUTER_API_KEY'):
@@ -136,61 +138,65 @@ def main() -> int:
 
     grand = {'cost': 0.0}
     groups: dict[tuple, list] = {}
+    write_lock = threading.Lock()
     log(f"sweep '{name}' mode={args.mode} cap=${args.cap} seeds={seeds} trials={trials} "
-        f"tiers={tiers} budgets={budgets} ruleset={ruleset_hash()}")
+        f"tiers={tiers} budgets={budgets} workers={args.workers} ruleset={ruleset_hash()}")
+
+    def run_one(mid, mode, label, B, tier, seed, trial):
+        # Pass b explicitly so deadlines are baked into the spec — no global config.B_SECONDS read,
+        # so concurrent tasks at different B don't race. Anchors derive purely from the spec.
+        spec = procgen.generate(seed, tier, b=float(B))
+        s_null, s_ref = anchors_for(spec)
+        mt = {'in': 0, 'out': 0, 'reason': 0, 'cost': 0.0, 'calls': 0}
+        client = TallyClient(f"openrouter:{mid}", mt, PRICES[mid], **client_extra(mode))
+        agent = ModelAgent(client, track='rp', temperature=args.temperature)
+        t0 = time.time()
+        res = run_episode(spec, agent)
+        res.s_null, res.s_ref, res.trial = s_null, s_ref, trial
+        rep = res.report
+        rec = {
+            'model': label, 'model_id': mid, 'mode': mode, 'B': B, 'tier': tier,
+            'seed': seed, 'trial': trial,
+            'kr': kr_of(rep['score_raw'], s_null, s_ref), 'score_raw': rep['score_raw'],
+            's_null': round(s_null, 2), 's_ref': round(s_ref, 2),
+            'served': rep['counters']['orders_served'], 'total': rep['counters']['orders_total'],
+            'turns': rep['turns'], 'terminated': rep['terminated'],
+            'invalid': rep['counters']['invalid_actions'], 'burns': rep['counters']['burns'],
+            'ep_tokens_in': mt['in'], 'ep_tokens_out': mt['out'], 'ep_reason': mt['reason'],
+            'ep_cost': round(mt['cost'], 5), 'wall_s': round(time.time() - t0, 1),
+        }
+        return res, rec
 
     halted = False
     for mid, mode, label in PANEL:
         if halted:
             log(f"SKIP {label} — budget cap reached")
             continue
-        price = PRICES[mid]
-        mt = {'in': 0, 'out': 0, 'reason': 0, 'cost': 0.0, 'calls': 0}
-        m_eps = 0
-        for B in budgets:
-            config.B_SECONDS = float(B)
-            for tier in tiers:
-                for seed in range(seeds):
-                    spec = procgen.generate(seed, tier)
-                    s_null, s_ref = anchors_for(spec)
-                    for trial in range(trials):
-                        if grand['cost'] + mt['cost'] >= args.cap:
-                            halted = True
-                            break
-                        client = TallyClient(f"openrouter:{mid}", mt, price, **client_extra(mode))
-                        agent = ModelAgent(client, track='rp', temperature=args.temperature)
-                        t0 = time.time()
-                        try:
-                            res = run_episode(spec, agent)
-                        except Exception as exc:  # noqa: BLE001
-                            log(f"  ERR {label} B={B} {tier} s{seed} t{trial}: "
-                                f"{type(exc).__name__}: {str(exc)[:80]}")
-                            continue
-                        res.s_null, res.s_ref, res.trial = s_null, s_ref, trial
-                        rep = res.report
-                        groups.setdefault((label, B, tier), []).append(res)
-                        m_eps += 1
-                        rec = {
-                            'model': label, 'model_id': mid, 'mode': mode, 'B': B, 'tier': tier,
-                            'seed': seed, 'trial': trial,
-                            'kr': kr_of(rep['score_raw'], s_null, s_ref), 'score_raw': rep['score_raw'],
-                            's_null': round(s_null, 2), 's_ref': round(s_ref, 2),
-                            'served': rep['counters']['orders_served'], 'total': rep['counters']['orders_total'],
-                            'turns': rep['turns'], 'terminated': rep['terminated'],
-                            'invalid': rep['counters']['invalid_actions'], 'burns': rep['counters']['burns'],
-                            'cum_tokens_in': mt['in'], 'cum_tokens_out': mt['out'], 'cum_reason': mt['reason'],
-                            'cum_model_cost': round(mt['cost'], 4), 'wall_s': round(time.time() - t0, 1),
-                        }
-                        epfile.write(json.dumps(rec) + "\n"); epfile.flush()
-                    if halted:
-                        break
-                if halted:
-                    break
-            if halted:
-                break
-        grand['cost'] += mt['cost']
-        log(f"DONE {label}: {m_eps} ep  spend=${mt['cost']:.2f}  cum=${grand['cost']:.2f}  "
-            f"in={mt['in']} out={mt['out']} reason={mt['reason']}")
+        # Each model's 48 episodes run concurrently; cap is checked at model boundaries (a single
+        # model's spend is bounded, and the panel is cheapest-first so the costly tail trims last).
+        tasks = [(mid, mode, label, B, tier, seed, trial)
+                 for B in budgets for tier in tiers for seed in range(seeds) for trial in range(trials)]
+        m = {'eps': 0, 'in': 0, 'out': 0, 'reason': 0, 'cost': 0.0}
+        with ThreadPoolExecutor(max_workers=args.workers) as ex:
+            futs = {ex.submit(run_one, *t): t for t in tasks}
+            for fut in as_completed(futs):
+                t = futs[fut]
+                try:
+                    res, rec = fut.result()
+                except Exception as exc:  # noqa: BLE001
+                    log(f"  ERR {t[2]} B={t[3]} {t[4]} s{t[5]} t{t[6]}: {type(exc).__name__}: {str(exc)[:80]}")
+                    continue
+                with write_lock:
+                    groups.setdefault((label, rec['B'], rec['tier']), []).append(res)
+                    m['eps'] += 1; m['in'] += rec['ep_tokens_in']; m['out'] += rec['ep_tokens_out']
+                    m['reason'] += rec['ep_reason']; m['cost'] += rec['ep_cost']
+                    epfile.write(json.dumps(rec) + "\n"); epfile.flush()
+        grand['cost'] += m['cost']
+        log(f"DONE {label}: {m['eps']} ep  spend=${m['cost']:.2f}  cum=${grand['cost']:.2f}  "
+            f"in={m['in']} out={m['out']} reason={m['reason']}")
+        if grand['cost'] >= args.cap:
+            halted = True
+            log(f"BUDGET CAP ${args.cap} reached after {label} (cum ${grand['cost']:.2f}) — stopping")
 
     board = []
     for (label, B, tier), eps in groups.items():
