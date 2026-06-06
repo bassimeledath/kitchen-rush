@@ -2,7 +2,9 @@
 
 > **Status:** Normative game specification. Kitchen Rush is a deterministic discrete-event simulation. All numeric values are the canonical defaults from §16 (mirrored in `src/kitchenrush/config.py`); SCORING.md owns the scoring *formulas* and cites these same constants. Language is MUST / MUST NOT / SHALL. Time is in **game-seconds (gs)**, a **float** quantity (see §3.1).
 >
-> **Not yet locked (1.0.0).** Movement cost (`MOVE_GS_PER_STEP`) and the penalty magnitudes (`INVALID_PENALTY`, `BURN_PENALTY`, `DROP_PENALTY`) are under active recalibration. §16 reflects the **current** `config.py` values, but these particular numbers are provisional and SHOULD NOT be treated as final.
+> **Ruleset frozen — generation 1.0** (`ruleset_hash = 33034952fa7f`, frozen 2026-06-06 after the calibration panel; see docs/CALIBRATION.md). §16 mirrors the frozen `config.py` values. Note: the RP β-coefficients are part of the hash but remain **provisional** — a future β-calibration will bump the generation, and RP stays labelled *experimental* until then.
+>
+> **Known limitations** (read before citing results): RP standardizes speed and does **not** credit a genuinely faster model; see docs/LIMITATIONS.md (incl. how this compares to Artificial Analysis).
 >
 > **Design stance — the benchmark tests action sequencing, not pathfinding.** Navigation is automatic: every station action walks the chef to the nearest appropriate station and charges the travel game-time inside the action (§4). The model never reasons about coordinates; it chooses the right ACTION SEQUENCE under latency. Consequently the kitchen layout is **deterministic** per tier (only the order stream is randomized, §PROCEDURAL).
 

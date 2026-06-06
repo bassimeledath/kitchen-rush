@@ -60,6 +60,11 @@ failure-type breakdown are reported alongside.
 | **RP** (reproducible) | token proxy `β₀ + β_in·n_in + β_out·n_out` (incl. reasoning tokens) | intended ranking track — provider-independent, recomputable. *Tokenizer pinned (cl100k via tiktoken, char/4 fallback); the β-coefficients are still provisional pending the calibration study, so RP is **experimental** until they're frozen.* |
 | **RT** (real-latency) | measured wall-clock | realism diagnostic; disclose hardware/region |
 
+> **Important:** RP standardizes speed — it rewards *token economy + decision quality at a fixed
+> speed*, and does **not** credit a model for genuinely running faster (that's a deployment
+> property). See [docs/LIMITATIONS.md](docs/LIMITATIONS.md) for why, and how this compares to
+> Artificial Analysis.
+
 ## Quickstart
 
 ```bash
