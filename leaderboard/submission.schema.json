@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/bassimeledath/kitchen-rush/leaderboard/submission.schema.json",
+  "title": "Kitchen Rush leaderboard submission",
+  "description": "DRAFT. One submission file = one model/harness evaluated on the frozen split, with results per (tier, profile, track). Authoritative field list; the submit/validate CLI is pending.",
+  "type": "object",
+  "required": ["schema_version", "versions", "submission_type", "model", "harness", "cells"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string", "description": "this submission schema version" },
+    "versions": {
+      "type": "object",
+      "description": "must match the current generation (from any output artifact's `versions`)",
+      "required": ["ruleset", "schema", "generator", "tokenizer"],
+      "properties": {
+        "package": { "type": "string" },
+        "ruleset": { "type": "string" },
+        "schema": { "type": "string" },
+        "generator": { "type": "string" },
+        "tokenizer": { "type": "string" }
+      }
+    },
+    "submission_type": { "enum": ["standard", "custom"] },
+    "model": {
+      "type": "object",
+      "required": ["display_name", "id", "provider"],
+      "properties": {
+        "display_name": { "type": "string" },
+        "id": { "type": "string", "description": "exact pinned model id used" },
+        "provider": { "type": "string" },
+        "organization": { "type": "string" },
+        "url": { "type": "string", "description": "model card / API docs (public-accessibility rule)" },
+        "release_date": { "type": "string" },
+        "open_weights": { "type": "boolean" }
+      }
+    },
+    "harness": {
+      "type": "object",
+      "description": "for `standard` these must equal the official defaults; for `custom`, describe the changes",
+      "properties": {
+        "command": { "type": "string" },
+        "temperature": { "type": "number" },
+        "max_tokens": { "type": ["integer", "null"] },
+        "tool_choice": { "type": "string" },
+        "attempts": { "type": "integer" },
+        "concurrency": { "type": "integer" },
+        "reasoning": { "type": "string", "description": "on | off | budget=N | n/a" },
+        "custom_changes": { "type": "string" }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "description": "required for RT cells (disclosed for realism)",
+      "properties": {
+        "os": { "type": "string" },
+        "python": { "type": "string" },
+        "region": { "type": "string" },
+        "hardware": { "type": "string" }
+      }
+    },
+    "cells": {
+      "type": "array",
+      "description": "one entry per (tier, profile, track) evaluated",
+      "items": {
+        "type": "object",
+        "required": ["tier", "profile", "track", "seeds", "trials", "episodes", "results"],
+        "additionalProperties": false,
+        "properties": {
+          "tier": { "enum": ["easy", "medium", "hard"] },
+          "profile": { "enum": ["voice", "chat", "quality"] },
+          "latency_budget_b": { "type": "number" },
+          "track": { "enum": ["rp", "rt"] },
+          "seeds": { "type": "string", "description": "frozen split id, e.g. test:0-49" },
+          "trials": { "type": "integer", "minimum": 1 },
+          "episodes": { "type": "integer" },
+          "results": {
+            "type": "object",
+            "required": ["KR", "pass_1"],
+            "properties": {
+              "KR": { "type": "number", "description": "0-100, headline competence" },
+              "kr_ci95": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+              "pass_1": { "type": "number" },
+              "pass_k": { "type": "number" },
+              "completion_rate": { "type": "number" },
+              "expiry_rate": { "type": "number" },
+              "invalid_rate": { "type": "number" },
+              "invalid_breakdown": { "type": "object" },
+              "burn_rate": { "type": "number" },
+              "overflow_calls": { "type": "integer" },
+              "latency_p50_s": { "type": "number", "description": "think-time per decision" },
+              "latency_p95_s": { "type": "number" },
+              "tokens_per_episode": { "type": "number" },
+              "usd_per_episode": { "type": ["number", "null"] }
+            }
+          }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "description": "trajectories hosted externally; hashes recorded so CI can verify/recompute",
+      "properties": {
+        "trajectory_url": { "type": "string" },
+        "trajectory_sha256": { "type": "string" }
+      }
+    },
+    "methodology": {
+      "type": "object",
+      "properties": {
+        "notes": { "type": "string" },
+        "cost_method": { "type": "string", "description": "pinned prices.yaml | provider usage | estimated" },
+        "contamination_declaration": { "type": "string", "description": "no training on benchmark instances / canary not present" }
+      }
+    }
+  }
+}

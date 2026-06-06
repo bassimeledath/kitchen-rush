@@ -1,0 +1,49 @@
+{
+  "schema_version": "0.1",
+  "versions": {
+    "package": "0.1.0",
+    "ruleset": "7871b2ed9f69",
+    "schema": "0.1",
+    "generator": "0.1",
+    "tokenizer": "char4-v0"
+  },
+  "submission_type": "standard",
+  "model": {
+    "display_name": "Gemini 3.5 Flash (no reasoning)",
+    "id": "gemini-3.5-flash",
+    "provider": "gemini",
+    "organization": "Google",
+    "url": "https://ai.google.dev/gemini-api/docs/models",
+    "open_weights": false
+  },
+  "harness": {
+    "command": "kitchenrush bench --model gemini:gemini-3.5-flash --no-reasoning --track rt",
+    "temperature": 0.2,
+    "tool_choice": "required",
+    "attempts": 1,
+    "concurrency": 1,
+    "reasoning": "off"
+  },
+  "environment": { "os": "macOS 14", "python": "3.12", "region": "us-east", "hardware": "n/a (hosted API)" },
+  "cells": [
+    {
+      "tier": "easy", "profile": "chat", "latency_budget_b": 5, "track": "rt",
+      "seeds": "test:0-5", "trials": 1, "episodes": 6,
+      "results": {
+        "KR": 51.2, "kr_ci95": [17.2, 85.2], "pass_1": 0.5,
+        "completion_rate": 0.93, "invalid_rate": 0.18, "burn_rate": 0.0,
+        "latency_p50_s": 1.06, "latency_p95_s": 1.42,
+        "tokens_per_episode": 38000, "usd_per_episode": null
+      }
+    }
+  ],
+  "artifacts": {
+    "trajectory_url": "https://example.com/kr/gemini35flash_easy_chat.jsonl",
+    "trajectory_sha256": "<sha256-of-trajectory-bundle>"
+  },
+  "methodology": {
+    "notes": "Illustrative example (not an official result). Single-tier, few seeds for demo only.",
+    "cost_method": "pending prices.yaml",
+    "contamination_declaration": "No training on Kitchen Rush instances; canary GUID not present in any prompt."
+  }
+}

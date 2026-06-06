@@ -59,15 +59,15 @@ Legend: `[ ]` todo · `[~]` partial · `[x]` done.
 
 - [ ] Submission CLI: `kitchenrush submit prepare` + `validate` (mirror τ²-bench), emitting a
   schema-validated `submission.json` + manifest entry.
-- [ ] Submission JSON **schema** (versions/hashes, `submission_type` standard|custom, track,
+- [~] Submission JSON **schema** drafted (`leaderboard/submission.schema.json`) (versions/hashes, `submission_type` standard|custom, track,
   profile/B, tier, seeds_hash, trials, model+harness+env, results [KR + bootstrap CI, Pass^k,
   completion/expiry/burn/invalid/overflow rates, latency p50/p95, tokens, cost], artifact hashes,
   methodology/contamination declaration).
 - [ ] CI submission flow: validate → verify artifact hashes → **recompute aggregates from
   trajectories** (and recompute RP) → rebuild leaderboard JSON → comment a summary table on the PR;
   maintainer approval gates "standard" classification.
-- [ ] `CONTRIBUTING.md` / `docs/SUBMISSIONS.md` + a PR template + `leaderboard/examples/` (one tiny
-  standard + one custom submission).
+- [~] `docs/SUBMISSIONS.md` + PR template + `leaderboard/examples/example_standard.json` + manifest
+  added (draft); `CONTRIBUTING.md` and a `custom` example still pending.
 - [ ] Standard-vs-Custom rules: fixed prompt/tool-schemas/temperature for "standard"; custom for
   modified scaffold/planner/retries/ensembles. Public-accessibility requirement (BFCL-style).
 - [ ] Minimal leaderboard (static `data.json` + simple page, or reuse the replay viewer).

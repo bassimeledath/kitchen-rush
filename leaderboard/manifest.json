@@ -1,0 +1,5 @@
+{
+  "schema": "submission.schema.json",
+  "note": "DRAFT registry of leaderboard submissions. Each entry points to a submissions/<file>.json. Empty until the submit/validate CLI + CI land.",
+  "submissions": []
+}
