@@ -16,6 +16,13 @@ __version__ = "0.1.0"
 SCHEMA_VERSION = "0.1"        # report / replay JSON schema shape
 GENERATOR_VERSION = "0.1"     # procgen instance generator
 
+# Frozen ruleset generation. The official starter leaderboard is computed against this hash;
+# any change to a load-bearing constant/recipe/tier (see _RULESET_CONSTANTS) produces a new hash
+# and a new generation. NB: the provisional RP β-coefficients are part of the hash, so a future
+# β-calibration will bump this — by design (RP is labelled experimental until then).
+RULESET_VERSION = "1.0"
+FROZEN_RULESET_HASH = "33034952fa7f"   # frozen 2026-06-06 after the calibration panel
+
 # Load-bearing scoring/timing constants — changing any of these changes the ruleset hash.
 _RULESET_CONSTANTS = (
     "GRID_N", "BURNER_COUNT", "HAND_SLOTS", "LATENCY_SCALE", "MOVE_GS_PER_STEP", "COLLECT_GS",
@@ -51,6 +58,8 @@ def versions() -> dict:
     return {
         "package": __version__,
         "ruleset": ruleset_hash(),
+        "ruleset_version": RULESET_VERSION,
+        "frozen": ruleset_hash() == FROZEN_RULESET_HASH,
         "schema": SCHEMA_VERSION,
         "generator": GENERATOR_VERSION,
         "tokenizer": TOKENIZER_ID,
