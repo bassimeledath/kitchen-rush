@@ -2,8 +2,9 @@
 
     python scripts/render_board.py --name starter
 
-Reads runs/<name>/leaderboard.json (per model×B×tier aggregates) and runs/<name>/episodes.jsonl
-(per-episode cost/tokens), prints a markdown board, and writes runs/<name>/BOARD.md.
+Computes everything from runs/<name>/episodes.jsonl — the per-episode durable log (flushed as the
+sweep runs and resume-safe), so the board is correct even after a crash/resume and never depends
+on the end-of-run summary file. Prints a markdown board and writes runs/<name>/BOARD.md.
 """
 from __future__ import annotations
 
@@ -12,44 +13,55 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+from kitchenrush.version import versions  # noqa: E402
+
 
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('--name', required=True)
     args = ap.parse_args()
     base = Path('runs') / args.name
-    lb = json.loads((base / 'leaderboard.json').read_text())
-    eps = [json.loads(l) for l in (base / 'episodes.jsonl').open()]
+    eps = [json.loads(l) for l in (base / 'episodes.jsonl').open() if l.strip()]
+    if not eps:
+        print('no episodes yet'); return 1
 
-    # per-model rollups from episodes
-    cost = defaultdict(float); reason = defaultdict(int); turns = defaultdict(list)
+    # per-model rollups
+    cost = defaultdict(float); reason = defaultdict(int)
     served = defaultdict(int); total = defaultdict(int); ne = defaultdict(int)
+    # per (model, B, tier) KR samples + completion
+    krs = defaultdict(list); compl = defaultdict(list)
     for e in eps:
         m = e['model']
-        cost[m] += e['ep_cost']; reason[m] += e['ep_reason']; turns[m].append(e['turns'])
-        served[m] += e['served']; total[m] += e['total']; ne[m] += 1
+        cost[m] += e['ep_cost']; reason[m] += e['ep_reason']; ne[m] += 1
+        served[m] += e['served']; total[m] += e['total']
+        key = (m, e['B'], e['tier'])
+        if e['kr'] is not None:                       # skip degenerate seeds (s_ref<=s_null)
+            krs[key].append(e['kr'])
+        compl[key].append(1.0 if e['served'] == e['total'] else 0.0)
 
-    # KR pivot: model -> (tier,B) -> KR
-    kr = defaultdict(dict)
-    for r in lb['board']:
-        kr[r['model']][(r['tier'], r['B'])] = r['KR']
+    def mean(xs):
+        return sum(xs) / len(xs) if xs else None
 
-    tiers = sorted({r['tier'] for r in lb['board']})
-    budgets = sorted({r['B'] for r in lb['board']})
+    kr = {k: mean(v) for k, v in krs.items()}
+    tiers = sorted({e['tier'] for e in eps})
+    budgets = sorted({e['B'] for e in eps})
     cols = [(t, b) for t in tiers for b in budgets]
+    models = sorted({e['model'] for e in eps})
 
     def overall(m):
-        vals = [kr[m].get(c) for c in cols if kr[m].get(c) is not None]
-        return sum(vals) / len(vals) if vals else -1.0
+        vals = [kr.get((m, b, t)) for t, b in cols if kr.get((m, b, t)) is not None]
+        return mean(vals) if vals else -1.0
 
     def lat_tax(m):
-        hi = [kr[m].get((t, max(budgets))) for t in tiers if kr[m].get((t, max(budgets))) is not None]
-        lo = [kr[m].get((t, min(budgets))) for t in tiers if kr[m].get((t, min(budgets))) is not None]
-        if not hi or not lo:
-            return None
-        return sum(hi) / len(hi) - sum(lo) / len(lo)
+        hi = [kr.get((m, max(budgets), t)) for t in tiers if kr.get((m, max(budgets), t)) is not None]
+        lo = [kr.get((m, min(budgets), t)) for t in tiers if kr.get((m, min(budgets), t)) is not None]
+        return (mean(hi) - mean(lo)) if hi and lo else None
 
-    models = sorted(kr, key=overall, reverse=True)
+    models.sort(key=overall, reverse=True)
+    meta_path = base / 'run_meta.json'           # accurate tokenizer/ruleset from the sweep's env
+    v = json.loads(meta_path.read_text())['versions'] if meta_path.exists() else versions()
 
     hdr = "| # | model | " + " | ".join(f"{t[:3]} B{int(b)}" for t, b in cols) + \
           " | KR̄ | Δlat | serve% | reason/ep | $ |"
@@ -57,28 +69,26 @@ def main() -> int:
     lines = [
         f"# Kitchen Rush — starter leaderboard ({args.name})",
         "",
-        f"Ruleset `{lb['ruleset']}` (gen {lb['versions'].get('ruleset_version','?')}, "
-        f"frozen={lb['versions'].get('frozen')}) · tokenizer `{lb['versions'].get('tokenizer')}` · "
-        f"track RP (experimental β) · {sum(ne.values())} episodes · total ${lb['total_cost_usd']}"
-        + ("  · **BUDGET-CAPPED (partial)**" if lb.get('halted_on_budget') else ""),
+        f"Ruleset `{v['ruleset']}` (gen {v.get('ruleset_version')}, frozen={v.get('frozen')}) · "
+        f"tokenizer `{v.get('tokenizer')}` · track RP (experimental β) · "
+        f"{len(eps)} episodes · total ${sum(cost.values()):.2f}",
         "",
-        "KR = 100·clip((S−S_null)/(S_ref−S_null)). `KR̄` = mean over tier×budget. "
-        "`Δlat` = mean KR at the loosest budget − tightest (latency head-room). "
-        "`·think` = reasoning on.",
+        "KR = 100·clip((S−S_null)/(S_ref−S_null)), mean over seeds. `KR̄` = mean over tier×budget. "
+        "`Δlat` = mean KR at the loosest budget − tightest (latency head-room). `·think` = reasoning on.",
         "",
         hdr, sep,
     ]
     for i, m in enumerate(models, 1):
         cells = []
-        for c in cols:
-            v = kr[m].get(c)
-            cells.append("—" if v is None else f"{v:.0f}")
+        for t, b in cols:
+            val = kr.get((m, b, t))
+            cells.append("—" if val is None else f"{val:.0f}")
         tax = lat_tax(m)
         spct = 100.0 * served[m] / total[m] if total[m] else 0.0
         lines.append(
             f"| {i} | {m} | " + " | ".join(cells) +
             f" | **{overall(m):.1f}** | {'—' if tax is None else f'{tax:+.0f}'} | "
-            f"{spct:.0f}% | {reason[m]//max(ne[m],1)} | {cost[m]:.2f} |")
+            f"{spct:.0f}% | {reason[m] // max(ne[m], 1)} | {cost[m]:.2f} |")
 
     md = "\n".join(lines) + "\n"
     (base / 'BOARD.md').write_text(md)

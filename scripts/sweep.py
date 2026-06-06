@@ -128,6 +128,11 @@ def main() -> int:
     name = args.name or f"{args.mode}_{int(time.time())}"
     out = Path('runs') / name
     out.mkdir(parents=True, exist_ok=True)
+    # Stamp run metadata once (records the tokenizer/ruleset the episodes were actually computed
+    # with — the renderer reads this rather than its own environment, which may lack tiktoken).
+    (out / 'run_meta.json').write_text(json.dumps(
+        {'name': name, 'versions': versions(), 'seeds': seeds, 'trials': trials,
+         'tiers': tiers, 'budgets': budgets}, indent=2))
     epfile = (out / 'episodes.jsonl').open('a')
     logfile = (out / 'progress.log').open('a')
 
@@ -141,6 +146,20 @@ def main() -> int:
     write_lock = threading.Lock()
     log(f"sweep '{name}' mode={args.mode} cap=${args.cap} seeds={seeds} trials={trials} "
         f"tiers={tiers} budgets={budgets} workers={args.workers} ruleset={ruleset_hash()}")
+
+    # Resume: episodes.jsonl is flushed per episode, so on restart we skip any (model,B,tier,seed,
+    # trial) already recorded and re-spend nothing. Also recover prior spend for the cap.
+    done: set[tuple] = set()
+    eppath = out / 'episodes.jsonl'
+    if eppath.exists():
+        for line in eppath.read_text().splitlines():
+            if not line.strip():
+                continue
+            r = json.loads(line)
+            done.add((r['model'], r['B'], r['tier'], r['seed'], r['trial']))
+            grand['cost'] += r.get('ep_cost', 0.0)
+    if done:
+        log(f"RESUME: {len(done)} episodes already done (prior spend ${grand['cost']:.2f}); skipping them")
 
     def run_one(mid, mode, label, B, tier, seed, trial):
         # Pass b explicitly so deadlines are baked into the spec — no global config.B_SECONDS read,
@@ -175,7 +194,11 @@ def main() -> int:
         # Each model's 48 episodes run concurrently; cap is checked at model boundaries (a single
         # model's spend is bounded, and the panel is cheapest-first so the costly tail trims last).
         tasks = [(mid, mode, label, B, tier, seed, trial)
-                 for B in budgets for tier in tiers for seed in range(seeds) for trial in range(trials)]
+                 for B in budgets for tier in tiers for seed in range(seeds) for trial in range(trials)
+                 if (label, B, tier, seed, trial) not in done]
+        if not tasks:
+            log(f"SKIP {label} — already complete (resumed)")
+            continue
         m = {'eps': 0, 'in': 0, 'out': 0, 'reason': 0, 'cost': 0.0}
         with ThreadPoolExecutor(max_workers=args.workers) as ex:
             futs = {ex.submit(run_one, *t): t for t in tasks}
