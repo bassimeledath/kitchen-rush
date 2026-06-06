@@ -2,14 +2,16 @@
 
 **A benchmark for FAST *and* ACCURATE native tool calling.**
 
-> **Status — alpha / pre-release.** Implemented & tested (50 tests): the deterministic engine,
-> seeded procedural generation, baselines, a native-FC multi-provider adapter (via LiteLLM), the
-> reference agent, both latency tracks (RT/RP), the KR headline metric, a greedy-EDF reference
-> oracle, a selectable latency budget, and a pixel-art **replay viewer**. In progress before a
-> public release: the leaderboard + `submit`/`validate` flow, a time-pressure-free "intelligence"
-> track, a pinned RP tokenizer, and version/seed-manifest freezing — see
-> [docs/LAUNCH_CHECKLIST.md](docs/LAUNCH_CHECKLIST.md). Some constants are still being calibrated;
-> the ruleset is **not yet locked at 1.0**.
+> **Status — beta / first results.** The **ruleset is frozen at generation 1.0**
+> (`33034952fa7f`, see [docs/CALIBRATION.md](docs/CALIBRATION.md)) and the **first 12-model sweep**
+> is in ([results below](#results--starter-board-gen-10)). Implemented & tested (55 tests): the
+> deterministic engine, seeded procedural generation, baselines, a native-FC multi-provider adapter
+> (via LiteLLM), the reference agent, both latency tracks (RT/RP), the KR headline metric, a
+> greedy-EDF reference oracle, a selectable latency budget, a pinned cl100k tokenizer, version/ruleset
+> hashing, a no-progress anti-loop guard, and a pixel-art **replay viewer**. Still before a public
+> launch: the leaderboard UI + `submit`/`validate` flow, a time-pressure-free "intelligence" track,
+> and **β-coefficient calibration** (so RP is still labelled *experimental*) — see
+> [docs/LAUNCH_CHECKLIST.md](docs/LAUNCH_CHECKLIST.md).
 
 Kitchen Rush is a text-to-text, Overcooked-inspired benchmark where a model plays a chef on a
 seeded grid kitchen, issuing **native function calls** (collect, chop, cook, plate, serve…) to
@@ -65,6 +67,26 @@ failure-type breakdown are reported alongside.
 > property). See [docs/LIMITATIONS.md](docs/LIMITATIONS.md) for why, and how this compares to
 > Artificial Analysis.
 
+## Results — starter board (gen 1.0)
+
+First sweep: 12 models (via OpenRouter) × 12 seeds × {medium, hard} × {B=1s, B=5s}, RP track,
+576 episodes. `KR̄` is the mean over tier×budget; `±` is a 95% seed-bootstrap CI. Full board with
+per-cell KR and per-budget splits: [leaderboard/results/starter.md](leaderboard/results/starter.md).
+
+| # | model | KR̄ | ± | KR @B1 | KR @B5 | $ |
+|---|---|---|---|---|---|---|
+| 1 | claude-sonnet-4.6 | **40.6** | ±5.8 | 36.7 | 44.4 | 29.45 |
+| 2 | gemini-3.1-flash-lite | **26.3** | ±9.8 | 31.6 | 21.0 | 0.79 |
+| 3 | qwen3.7-plus | 8.3 | ±4.3 | 9.9 | 6.7 | 2.32 |
+| 4 | deepseek-v4-pro | 7.8 | ±5.4 | 4.1 | 11.5 | 2.04 |
+| 5 | gpt-oss-120b·think | 7.1 | ±3.4 | 3.3 | 10.9 | 0.42 |
+
+The two-budget split is the point: `gemini-3.1-flash-lite` nearly ties for #1 under tight real-time
+pressure (B=1s) but **falls** when deliberation is cheap (B=5s), while deeper models
+(`deepseek-v4-pro`, `gpt-oss·think`) roughly **triple** with the extra slack — the latency tax, made
+visible. RP standardizes speed (see [Limitations](docs/LIMITATIONS.md)); the experimental β means
+absolute KR will shift after calibration, but the ordering is informative now.
+
 ## Quickstart
 
 ```bash
@@ -106,6 +128,8 @@ register_adapter("mycorp", lambda model, **kw: MyClient())
 
 - [docs/RULES.md](docs/RULES.md) — the **authoritative, code-verified** ruleset
 - [docs/METHODOLOGY.md](docs/METHODOLOGY.md) — scoring rationale, B profiles, statistical protocol
+- [docs/CALIBRATION.md](docs/CALIBRATION.md) — evidence behind the gen-1.0 ruleset freeze
+- [docs/LIMITATIONS.md](docs/LIMITATIONS.md) — what KR does/doesn't measure (incl. the speed caveat + AA comparison)
 - [docs/LAUNCH_CHECKLIST.md](docs/LAUNCH_CHECKLIST.md) — what's left before a public release
 - [docs/ROADMAP.md](docs/ROADMAP.md) — phased build plan
 - `SCORING.md` / `MOVEMENT.md` / `PROCEDURAL.md` / `INTERFACE.md` / `DESIGN.md` are **design

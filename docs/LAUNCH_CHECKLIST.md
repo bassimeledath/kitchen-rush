@@ -38,9 +38,14 @@ Legend: `[ ]` todo · `[~]` partial · `[x]` done.
   fixed warmup. (Adapter currently defaults `num_retries=2`.)
 
 **Ruleset lock**
-- [ ] Run a cheap calibration panel (≈6 models × 12 seeds × 2 trials × 3 tiers × 3 B), confirm
-  discrimination/saturation, then **freeze the provisional constants** (movement cost + penalties)
-  and stamp `RULESET_VERSION`.
+- [x] Ran the calibration panel (EDF discrimination sweep + 13-config conformance), confirmed
+  discrimination/no-saturation, **froze the constants as generation 1.0** (`RULESET_VERSION=1.0`,
+  `FROZEN_RULESET_HASH=33034952fa7f`). Evidence in `docs/CALIBRATION.md`. *NB: β-coefficients are
+  frozen into the hash but still provisional — a future β-calibration will bump the generation.*
+- [x] First real model sweep done: 12 models × 12 seeds × {medium,hard} × {B=1s,B=5s} = 576
+  episodes via OpenRouter, RP track, seed-bootstrap CIs, budget-capped at $80 (spent $67.68).
+  Board in `leaderboard/results/starter.{md,json}`; runner `scripts/sweep.py` (resume-safe) +
+  `scripts/render_board.py`. *Still pending: β-calibration before these are publishable as ranked.*
 
 **Code health**
 - [x] Remove dead counters (`overshoot`, `timeouts`). (`observe_calls` is live via the oracle.)
@@ -50,8 +55,9 @@ Legend: `[ ]` todo · `[~]` partial · `[x]` done.
 - [ ] Adapter conformance tests (OpenAI-compatible / Anthropic / Gemini / vLLM tool-call shapes);
   current parsing assumes OpenAI-style `tool_calls`.
 - [ ] Move the global `litellm.drop_params = True` side-effect out of the per-call path.
-- [ ] Tests for the new mechanics (auto-burn, walled layout, exact-match plate, `--no-reasoning`),
-  RP determinism, and procgen feasibility.
+- [~] Tests for the new mechanics: auto-burn, exact-match plate, KR-0, and the **no-progress stall
+  guard** (+ counter reset) are covered (55 tests). Still want: walled-layout floor model, RP
+  determinism, procgen feasibility.
 - [~] CI: pytest on every PR (`.github/workflows/ci.yml`, done); ruff + mypy pending.
 
 ---
@@ -72,14 +78,16 @@ Legend: `[ ]` todo · `[~]` partial · `[x]` done.
 - [ ] Standard-vs-Custom rules: fixed prompt/tool-schemas/temperature for "standard"; custom for
   modified scaffold/planner/retries/ensembles. Public-accessibility requirement (BFCL-style).
 - [ ] Minimal leaderboard (static `data.json` + simple page, or reuse the replay viewer).
-- [ ] **Official model panel** (≈12–15): frontier closed (OpenAI / Anthropic / Google / xAI),
-  cost-efficient + open-weight (DeepSeek / Qwen / Llama / Mistral via API or local vLLM), reasoning
-  vs no-reasoning variants. Run `medium`+`hard` × all B at ~50 seeds × 4 trials for ranking; `easy`
-  as an unranked smoke row. Budget ≈ **$2–5k minimal / $5–15k full**.
-- [ ] `prices.yaml` (per-model, date-stamped) → report `$ /episode`, `$ /successful order`,
-  `$ /100 KR`; tokens per episode/order. Cost as **Pareto metadata, never folded into KR**.
-- [ ] Statistical reporting: **seed-block bootstrap CIs** (trials within a seed are correlated),
-  Pass^1/2/4.
+- [~] **Official model panel.** Starter board done (12 models via OpenRouter, medium+hard ×
+  {B=1s,B=5s}, 12 seeds × 1 trial, RP). To upgrade to ranked-official: add trials≥4 (pass^k),
+  more seeds, β-calibration, and a frontier-reasoning tier. Budget for the cheap starter was
+  ~$68; a full ranked run is the larger spend.
+- [~] Cost reporting: per-model **$/episode** and total spend are tallied live from provider usage
+  (`scripts/sweep.py`, prices embedded, date-stamped 2026-06-06) and shown on the board. Still
+  want a standalone `prices.yaml` + `$/successful order` and `$/100 KR`. Cost stays **Pareto
+  metadata, never folded into KR**.
+- [~] Statistical reporting: **seed-block bootstrap CIs** done (`render_board.py`, 95% CI on KR̄);
+  Pass^k still needs trials≥2 (starter ran trials=1, seeds-over-trials by design).
 
 ---
 
@@ -115,8 +123,11 @@ Legend: `[ ]` todo · `[~]` partial · `[x]` done.
 ---
 
 ## Bottom line
-Don't publish public rankings until the contract + validator + RP credibility are real; but the
-first (private) model sweep can start as soon as the ruleset is frozen. The differentiator —
-**latency made load-bearing inside a deterministic, reproducible, verifiable tool-world, reported
-as a cost/latency/competence trade-off rather than one number** — is genuine; the launch just has
-to make it obvious, reproducible, and hard to game.
+Ruleset is frozen (gen 1.0) and the first private sweep is in (`leaderboard/results/starter`) — the
+benchmark discriminates and the per-budget reordering shows the latency tax working. **Before public
+rankings**, the two real gates remain: (1) **β-calibration** so RP is a grounded clock rather than an
+experimental guess, and (2) the **submission contract + validator** (recompute-from-trajectories) so
+results are verifiable and hard to game. The differentiator — **latency made load-bearing inside a
+deterministic, reproducible, verifiable tool-world, reported as a cost/latency/competence trade-off
+rather than one number** — is genuine and now demonstrated; the launch just has to make it grounded,
+verifiable, and hard to game.
