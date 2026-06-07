@@ -130,6 +130,7 @@ register_adapter("mycorp", lambda model, **kw: MyClient())
 - [docs/METHODOLOGY.md](docs/METHODOLOGY.md) — scoring rationale, B profiles, statistical protocol
 - [docs/CALIBRATION.md](docs/CALIBRATION.md) — evidence behind the gen-1.0 ruleset freeze
 - [docs/LIMITATIONS.md](docs/LIMITATIONS.md) — what KR does/doesn't measure (incl. the speed caveat + AA comparison)
+- [docs/OBJECTIONS.md](docs/OBJECTIONS.md) — anticipated critiques & responses (e.g. "why did a model score worse with more time?")
 - [docs/LAUNCH_CHECKLIST.md](docs/LAUNCH_CHECKLIST.md) — what's left before a public release
 - [docs/ROADMAP.md](docs/ROADMAP.md) — phased build plan
 - `SCORING.md` / `MOVEMENT.md` / `PROCEDURAL.md` / `INTERFACE.md` / `DESIGN.md` are **design
