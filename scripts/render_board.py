@@ -30,15 +30,16 @@ def main() -> int:
         print('no episodes yet'); return 1
 
     # per-model rollups
-    cost = defaultdict(float); reason = defaultdict(int)
+    cost = defaultdict(float); reason = defaultdict(int); modeof = {}
     served = defaultdict(int); total = defaultdict(int); ne = defaultdict(int)
+    _MODE = {'off': 'off', 'on': 'low', 'default': 'default(on)'}
     # per (model, B, tier) KR samples + completion; per-seed KR for the seed bootstrap
     krs = defaultdict(list); compl = defaultdict(list)
     seedkr: dict = defaultdict(lambda: defaultdict(dict))   # model -> seed -> {(B,tier): kr}
     for e in eps:
         m = e['model']
         cost[m] += e['ep_cost']; reason[m] += e['ep_reason']; ne[m] += 1
-        served[m] += e['served']; total[m] += e['total']
+        served[m] += e['served']; total[m] += e['total']; modeof[m] = e.get('mode', '?')
         key = (m, e['B'], e['tier'])
         if e['kr'] is not None:                       # skip degenerate seeds (s_ref<=s_null)
             krs[key].append(e['kr'])
@@ -91,7 +92,7 @@ def main() -> int:
     meta_path = base / 'run_meta.json'           # accurate tokenizer/ruleset from the sweep's env
     v = json.loads(meta_path.read_text())['versions'] if meta_path.exists() else versions()
 
-    hdr = "| # | model | " + " | ".join(f"{t[:3]} B{int(b)}" for t, b in cols) + \
+    hdr = "| # | model | reason | " + " | ".join(f"{t[:3]} B{int(b)}" for t, b in cols) + \
           " | KR̄ | ±95%CI | Δlat | serve% | reason/ep | $ |"
     sep = "|" + "|".join(["---"] * (hdr.count("|") - 1)) + "|"
     lines = [
@@ -115,7 +116,7 @@ def main() -> int:
         ci = ci95(m)
         spct = 100.0 * served[m] / total[m] if total[m] else 0.0
         lines.append(
-            f"| {i} | {m} | " + " | ".join(cells) +
+            f"| {i} | {m} | {_MODE.get(modeof[m], modeof[m])} | " + " | ".join(cells) +
             f" | **{overall(m):.1f}** | {'—' if ci is None else f'±{ci:.1f}'} | "
             f"{'—' if tax is None else f'{tax:+.0f}'} | "
             f"{spct:.0f}% | {reason[m] // max(ne[m], 1)} | {cost[m]:.2f} |")

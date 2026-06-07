@@ -73,18 +73,24 @@ First sweep: 12 models (via OpenRouter) × 12 seeds × {medium, hard} × {B=1s, 
 576 episodes. `KR̄` is the mean over tier×budget; `±` is a 95% seed-bootstrap CI. Full board with
 per-cell KR and per-budget splits: [leaderboard/results/starter.md](leaderboard/results/starter.md).
 
-| # | model | KR̄ | ± | KR @B1 | KR @B5 | $ |
-|---|---|---|---|---|---|---|
-| 1 | claude-sonnet-4.6 | **40.6** | ±5.8 | 36.7 | 44.4 | 29.45 |
-| 2 | gemini-3.1-flash-lite | **26.3** | ±9.8 | 31.6 | 21.0 | 0.79 |
-| 3 | qwen3.7-plus | 8.3 | ±4.3 | 9.9 | 6.7 | 2.32 |
-| 4 | deepseek-v4-pro | 7.8 | ±5.4 | 4.1 | 11.5 | 2.04 |
-| 5 | gpt-oss-120b·think | 7.1 | ±3.4 | 3.3 | 10.9 | 0.42 |
+| # | model | reasoning | KR̄ | ± | KR @B1 | KR @B5 | $ |
+|---|---|---|---|---|---|---|---|
+| 1 | claude-sonnet-4.6 | off | **40.6** | ±5.8 | 36.7 | 44.4 | 29.45 |
+| 2 | gemini-3.1-flash-lite | off | **26.3** | ±9.8 | 31.6 | 21.0 | 0.79 |
+| 3 | qwen3.7-plus | off | 8.3 | ±4.3 | 9.9 | 6.7 | 2.32 |
+| 4 | deepseek-v4-pro | off | 7.8 | ±5.4 | 4.1 | 11.5 | 2.04 |
+| 5 | gpt-oss-120b | on (low) | 7.1 | ±3.4 | 3.3 | 10.9 | 0.42 |
+
+Most of the panel ran **reasoning off** — this is a *fast* tool-calling benchmark, so no-reasoning is
+the honest default; a reasoning cohort (`·think`) ran `reasoning_effort=low`. (Two models —
+`grok-build`, `gemini-3.5-flash` — can't disable reasoning on OpenRouter, so they only have an
+on row.) The full board labels each model's reasoning state.
 
 The two-budget split is the point: `gemini-3.1-flash-lite` nearly ties for #1 under tight real-time
 pressure (B=1s) but **falls** when deliberation is cheap (B=5s), while deeper models
-(`deepseek-v4-pro`, `gpt-oss·think`) roughly **triple** with the extra slack — the latency tax, made
-visible. RP standardizes speed (see [Limitations](docs/LIMITATIONS.md)); the experimental β means
+(`deepseek-v4-pro`, `gpt-oss-120b` with reasoning) roughly **triple** with the extra slack — the
+latency tax, made visible. RP standardizes speed (see [Limitations](docs/LIMITATIONS.md)); the
+experimental β means
 absolute KR will shift after calibration, but the ordering is informative now.
 
 ## Quickstart
