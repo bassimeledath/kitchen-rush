@@ -72,3 +72,9 @@ token unit directly comparable to AA's — worth doing.)
   controlled-environment.
 - **Single-agent, text-only.** No multi-chef coordination; voice/realtime models are exercised over
   their text path, not their speech pipeline (see RULES §1.1).
+- **No prompt caching in the starter sweep.** Each turn re-sends the full prompt (system + tool
+  schemas + observation), and the static system+schema block (~1,435 tokens, identical every turn)
+  was billed at full input price on every call — there was no provider-side prompt caching. Input
+  dominates cost (~92% for the priciest model), so reported `$` figures are an **upper bound**;
+  enabling prompt caching would cut input spend roughly 40–50%. Cost is metadata only — it does not
+  affect KR or any score.
