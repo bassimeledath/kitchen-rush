@@ -19,15 +19,9 @@ const KR = window.KR || (window.KR = {});
 KR.sprites = (() => {
   const BASE = "assets/";
 
-  // Fill these with filenames (relative to assets/) as sprites are produced. null = use emoji.
-  const MANIFEST = {
-    "station:ING": null, "station:BOARD": null, "station:STOVE": null,
-    "station:PLATE": null, "station:PASS": null, "station:BIN": null,
-    "chef": null, "chef:carry": null,
-    "floor": null, "counter": null,
-    // ing:<name>:<STATE> and dish:<recipe> entries go here once generated, e.g.
-    // "ing:patty:COOKED": "patty_cooked.png", "dish:burger": "burger.png",
-  };
+  // Filled at runtime from assets/manifest.json (written by generate_sprites.py); see the
+  // key conventions in the header. Empty = pure emoji mode.
+  const MANIFEST = {};
 
   // Emoji fallbacks — chosen so every entity reads clearly without any art pipeline.
   const EMOJI = {
@@ -41,12 +35,6 @@ KR.sprites = (() => {
     "dish:mushroom_cheeseburger": "🍔", "dish:veggie_ramen": "🍲",
     "plate": "🍽️",
     "fx:flame": "🔥", "fx:smoke": "💨", "fx:burst": "✨",
-  };
-
-  // Human labels for station types (used under each tile).
-  const STATION_LABEL = {
-    ING: "ingredients", BOARD: "chop", STOVE: "stove",
-    PLATE: "plate", PASS: "pass", BIN: "bin",
   };
 
   // Resolve the best asset path for a key, walking the fallback chain. Returns null if none.
@@ -115,5 +103,5 @@ KR.sprites = (() => {
   const STATE_TAG = { RAW: "", CHOPPED: "✂", COOKED: "♨", BURNED: "✖", PLATE: "" };
 
   return { path, emoji, icon, stationIcon, chefIcon, heldIcon, componentIcon, dishIcon,
-           STATION_LABEL, MANIFEST, EMOJI };
+           MANIFEST, EMOJI };
 })();

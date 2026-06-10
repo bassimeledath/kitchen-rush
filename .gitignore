@@ -33,3 +33,6 @@ runs/
 
 # Claude subagent worktrees (ephemeral)
 .claude/worktrees/
+
+# Locally exported replays (the bundled demo replays are already tracked; new exports are yours)
+ui/replays/*.json
