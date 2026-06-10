@@ -106,6 +106,7 @@ kitchenrush calibrate --tier easy --latency-budget 1   # see how the reference c
 # watch a game in the browser (scripted chef, no key needed):
 kitchenrush replay --oracle --tier easy --seed 0       # writes ui/replays/easy_seed0.json
 cd ui && python3 -m http.server 8000                   # then open http://localhost:8000
+# ...or race up to 4 models side-by-side on one clock: ?replays=a.json,b.json (see ui/README.md)
 ```
 
 To benchmark a real model, add provider support and your API key:

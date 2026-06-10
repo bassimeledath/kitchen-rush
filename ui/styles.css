@@ -14,9 +14,40 @@ body {
 }
 #app { min-height: 100vh; display: flex; flex-direction: column; }
 
-/* kitchen + a vertical order rail on its right, top-aligned so the transport stays on-screen */
+/* kitchen pane(s) + one vertical order rail, top-aligned so the transport stays on-screen */
 .layout { flex: 1; display: flex; flex-direction: row; align-items: flex-start; justify-content: center; gap: 18px; padding: 12px 18px; }
-.stage-col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.panes { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; align-items: flex-start; }
+.pane { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.pane .caption { max-width: 100%; }
+
+/* race chrome: pane headers (label chip / rank / score) appear only with 2+ panes */
+.pane-head { display: none; width: 100%; align-items: center; gap: 8px; padding: 0 2px; }
+.panes.multi .pane-head { display: flex; }
+.panes.multi .hud { display: none; }       /* score/clock move to the header + transport */
+.panes.compact .caption { display: none; } /* 3-4 panes: captions off, think bubbles stay */
+.pane-head .plabel { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.pane-head .plabel::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--phue, var(--blue)); }
+.pane-head .rank { font-style: normal; font-weight: 800; font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
+.pane-head .rank.lead { color: #2a1500; background: var(--accent2); border-color: var(--accent2); }
+.pane-head .pcombo { color: var(--accent2); font-weight: 800; font-size: 12px; }
+.pane-head .pscore { margin-left: auto; font-weight: 800; font-size: 16px; font-variant-numeric: tabular-nums; }
+.pane-head .pscore.bump { animation: bump .45s ease-out; }
+@keyframes bump { 30% { transform: scale(1.3); color: var(--accent2); } }
+.pane.done .stage { filter: saturate(.5) brightness(.7); transition: filter .4s; }
+.pane.done .pane-head .plabel::after { content: "finished"; font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-left: 4px; }
+
+/* per-model status pips on shared race tickets */
+.tk-pips { display: flex; gap: 4px; justify-content: center; padding-top: 2px; }
+.pip { display: block; width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--muted); background: transparent; }
+.pip.served { background: var(--green); border-color: var(--green); }
+.pip.expired { background: var(--red); border-color: var(--red); }
+.ticket.settled { opacity: .45; }
+
+.warnbar { text-align: center; font-size: 12px; color: var(--accent2); background: #3a2b08; border: 1px solid #6b5210; border-radius: 8px; padding: 5px 14px; margin: 10px auto 0; width: fit-content; }
+.gclock { display: flex; align-items: baseline; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 5px 10px; font-variant-numeric: tabular-nums; }
+.gclock[hidden], .warnbar[hidden] { display: none; }
+.gclock b { font-size: 15px; }
+.gclock .k { font-size: 10px; color: var(--muted); }
 
 /* ---- order rack (vertical, right of the kitchen) ---- */
 .orders-rack { display: flex; flex-direction: column; gap: 8px; align-items: stretch; width: 78px; }

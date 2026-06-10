@@ -4,24 +4,15 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Kitchen Rush — Replay</title>
-<link rel="stylesheet" href="styles.css?v=4" />
+<link rel="stylesheet" href="styles.css?v=5" />
 </head>
 <body>
 <div id="app">
+  <div class="warnbar" id="warnbar" hidden></div>
   <main class="layout">
-    <div class="stage-col">
-    <!-- the kitchen; score/time overlaid on its corners -->
-    <div class="stage" id="stage">
-      <div class="hud hud-left"><span class="k">score</span><b id="score">0</b><i class="delta" id="scoreDelta"></i></div>
-      <div class="hud hud-right"><b id="clock">0</b><span class="k">/<span id="horizon">0</span>s</span><i class="combo" id="combo"></i></div>
-      <div class="grid" id="grid"></div>
-      <div class="fx-layer" id="fxLayer"></div>
-      <div class="chef" id="chef"></div>
-      <div class="think-bubble" id="thinkBubble" hidden>🤔 <b id="thinkAmt"></b></div>
-    </div>
-    <div class="caption" id="caption">&nbsp;</div>
-    </div>
-    <!-- order rack to the right of the kitchen -->
+    <!-- one pane per replay; ?replays=a.json,b.json races up to 4 on one shared clock -->
+    <div class="panes" id="panes"></div>
+    <!-- ticket rail: the single pane's own rack, or the shared race rail with per-model pips -->
     <div class="orders-rack" id="orders"></div>
   </main>
 
@@ -33,12 +24,13 @@
       <button id="btnStepFwd" title="step forward (→)">⏭</button>
       <button id="btnSpeed" title="cycle speed">1×</button>
     </div>
+    <span class="gclock" id="gclock" hidden><b id="gt">0</b><span class="k">/<span id="gh">0</span>s</span></span>
     <input type="range" id="scrub" class="scrub" min="0" max="1000" value="0" />
-    <label class="filebtn" title="load a replay JSON">load<input type="file" id="fileInput" accept=".json,application/json" hidden /></label>
+    <label class="filebtn" title="load replay JSON(s) — pick several to race them">load<input type="file" id="fileInput" accept=".json,application/json" multiple hidden /></label>
   </footer>
 </div>
 
-<script src="sprites.js?v=4"></script>
-<script src="app.js?v=4"></script>
+<script src="sprites.js?v=5"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>

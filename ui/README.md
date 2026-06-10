@@ -5,6 +5,26 @@ core idea: while the model "thinks", a 🤔 bubble appears, the clock keeps runn
 cooking (and burning), and order timers keep draining. No build step, no dependencies — plain
 HTML/CSS/JS.
 
+## Race mode (up to 4 models, one shared clock)
+
+Replays of the same `(seed, tier, B)` play the *identical* kitchen and order stream, so the
+viewer can run several side by side in perfect sync — you watch one model still thinking while
+another is already plating:
+
+```
+http://localhost:8000/?replays=replays/easy_seed1_gemini35flash.json,replays/easy_seed1_oracle.json&labels=gemini-3.5-flash,reference
+```
+
+- `?replays=` takes 1–4 comma-separated replay JSONs (or multi-select / drag-drop several
+  files onto the page); `?labels=` optionally names the panes; `&autoplay` starts playback.
+- With 2+ panes the order tickets merge into one **shared rail** (the orders are identical),
+  with one status pip per model on each ticket, and each pane gets a header with its label,
+  live **rank badge**, and score. Panes whose episode ends early dim and read "finished".
+- With 3–4 panes the per-pane fx floaters and captions switch off to keep it readable —
+  think bubbles always stay (they're the point). Four panes arrange as a 2×2 wall.
+- Replays from *different* instances still load, but a warning banner tells you the race
+  isn't aligned.
+
 ## Run it
 
 ```bash
