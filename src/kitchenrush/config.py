@@ -155,7 +155,7 @@ class Tier:
 
 # NOTE: arrival rates are deliberately spaced so the current *sequential* greedy-EDF
 # reference (oracle.py) can complete instances (a strong S_ref). Denser, more-overlapping
-# tiers await a parallel reference scheduler — see docs/ROADMAP.md.
+# tiers await a parallel reference scheduler — see docs/LAUNCH_CHECKLIST.md.
 TIERS: dict[str, Tier] = {
     "easy": Tier(
         "easy", grid_n=7, burner_count=2, horizon_gs=260.0,

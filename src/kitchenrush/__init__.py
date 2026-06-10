@@ -4,8 +4,8 @@ Latency costs points by construction: a model's per-response thinking time is co
 game-seconds that advance a shared world clock *before* each action resolves, so while the
 model deliberates, food burns and orders expire.
 
-Phase 1 (engine + procgen + baselines + CLI) is stdlib-only and importable here. The model
-adapter and leaderboard apparatus arrive in later phases (see docs/ROADMAP.md).
+The core (engine + procgen + baselines + CLI) is stdlib-only; the model adapter needs the
+``providers`` extra (LiteLLM).
 """
 
 from __future__ import annotations

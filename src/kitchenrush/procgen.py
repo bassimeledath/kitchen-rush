@@ -1,4 +1,4 @@
-"""Seeded procedural generation of a solvable kitchen + order stream (PROCEDURAL.md).
+"""Seeded procedural generation of a solvable kitchen + order stream (RULES §11).
 
 Lean MVP: stdlib ``random`` with four named sub-streams derived from the seed. Stations
 are placed on the even/even lattice, which guarantees (a) every station has floor access

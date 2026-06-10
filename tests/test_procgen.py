@@ -1,4 +1,4 @@
-"""Procedural generation validity (PROCEDURAL.md): distinct stations, floor connectivity,
+"""Procedural generation validity (RULES §11): distinct stations, floor connectivity,
 station access cells, required station types, and horizon-clamped deadlines."""
 
 from collections import deque

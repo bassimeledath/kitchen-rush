@@ -14,11 +14,9 @@ Legend: `[ ]` todo · `[~]` partial · `[x]` done.
 **Truthful public contract**
 - [~] `RULES.md` synced to code (done) — keep it authoritative.
 - [~] README rewritten to be accurate + short (done) — no non-existent commands, correct status.
-- [ ] Reconcile or archive the **drifted docs** (`SCORING.md`, `MOVEMENT.md`, `PROCEDURAL.md`,
-  `INTERFACE.md`, `DESIGN.md`): they still describe RTTC gates, RP-primary, manual directional
-  `move`, model-facing `observe`, timer jitter, S/S\* normalization, multi-module splits, and CLI
-  commands that don't exist. Banner added pointing to RULES.md; full rewrite/split still pending
-  (`METHODOLOGY` / `SUBMISSIONS` / `ROADMAP`).
+- [x] Drifted design-history docs (`SCORING.md`, `MOVEMENT.md`, `PROCEDURAL.md`, `INTERFACE.md`,
+  `DESIGN.md`, plus `MIGRATION.md`/`MULTI_AGENT.md`/`ROADMAP.md`) **deleted** — RULES.md is the
+  single spec, METHODOLOGY.md the justification layer; git history preserves the originals.
 - [ ] Fix CLI overclaim: docs reference `run-suite`/`aggregate`/`submit`/`validate` that don't
   exist yet — either build them (P1) or stop documenting them.
 
@@ -55,9 +53,9 @@ Legend: `[ ]` todo · `[~]` partial · `[x]` done.
 - [ ] Adapter conformance tests (OpenAI-compatible / Anthropic / Gemini / vLLM tool-call shapes);
   current parsing assumes OpenAI-style `tool_calls`.
 - [ ] Move the global `litellm.drop_params = True` side-effect out of the per-call path.
-- [~] Tests for the new mechanics: auto-burn, exact-match plate, KR-0, and the **no-progress stall
-  guard** (+ counter reset) are covered (55 tests). Still want: walled-layout floor model, RP
-  determinism, procgen feasibility.
+- [~] Tests for the new mechanics: auto-burn, exact-match plate, the latency→clock charge, and the
+  **no-progress stall guard** (+ counter reset) are covered (55 tests). Still want: walled-layout
+  floor model, RP determinism, procgen feasibility.
 - [~] CI: pytest on every PR (`.github/workflows/ci.yml`, done); ruff + mypy pending.
 
 ---
@@ -93,13 +91,9 @@ Legend: `[ ]` todo · `[~]` partial · `[x]` done.
 
 ## P2 — the differentiators
 
-- [~] **KR-INT (time-agnostic intelligence) track** — separate from the realtime board. The
-  zero-latency mode is implemented (`--no-latency` → KR-0: thinking costs no game-time; gives the
-  "latency tax" = KR-0 − KR-RP). Still to build: the complexity ladder K (below). Zero
-  latency (`latency_s=0`), keep intrinsic durations/burn timers, relax deadlines so they never bind.
-  A complexity vector `K` (recipe-DAG depth, menu size + shared ingredients, concurrency, decoys,
-  memory/horizon, precision); presets K0…K5; per-model **staircase** to report `K50` (highest K with
-  ≥50% Pass^4) + area-under-K-curve. (Needs a richer generator; bounded by the reference scheduler.)
+- ~~Time-agnostic "intelligence" track~~ — **out of scope.** Kitchen Rush is the realtime
+  benchmark; latency-free variants were explored on a side branch and deliberately cut from the
+  launch product to keep the focus single (2026-06-10 decision).
 - [ ] Failure-taxonomy view on the board (`invalid_by_reason` already exists) — a near-unique
   diagnostic.
 - [ ] Contamination defense: canary GUID embedded in generated specs + a maintainer-only hidden
@@ -118,7 +112,7 @@ Legend: `[ ]` todo · `[~]` partial · `[x]` done.
 - [ ] Independent external reproduction of one standard submission before launch (treat every
   failure as a docs/CLI bug).
 - [ ] Optional: human/expert baseline rows; Docker for a pinned environment.
-- [ ] Multiplayer (2+ chefs) — future extension (see MULTI_AGENT.md).
+- [ ] Multiplayer (2+ chefs) — future extension.
 
 ---
 

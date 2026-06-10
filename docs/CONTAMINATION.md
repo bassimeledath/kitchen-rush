@@ -2,8 +2,8 @@
 
 Kitchen Rush is procedurally generated, so there is no fixed "test set" to memorize — but a
 benchmark is only credible if models cannot be quietly tuned on the exact instances they are
-scored on. This document states the policy. See [PROCEDURAL.md](PROCEDURAL.md) for the
-generation algorithm and [SCORING.md](SCORING.md) for how scores are computed.
+scored on. This document states the policy. The generation algorithm lives in
+`src/kitchenrush/procgen.py`; scoring is specified in [RULES.md](RULES.md) §9.
 
 ## Seed bands (splits)
 
@@ -44,5 +44,5 @@ lands in the Custom track.
 
 ## Open governance questions
 
-See `open_questions` in [ROADMAP.md](ROADMAP.md) — notably whether the headline number is the
-public `test` split or the hidden `challenge` band, and the Pass^k sampling temperature.
+Open: whether the headline number is the public `test` split or the hidden `challenge` band,
+and the Pass^k sampling temperature (tracked in [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)).

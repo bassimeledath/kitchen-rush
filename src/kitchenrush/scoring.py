@@ -1,4 +1,4 @@
-"""Scoring formulas (RULES.md §9, SCORING.md). Pure functions; the single rounding rule
+"""Scoring formulas (RULES.md §9). Pure functions; the single rounding rule
 is ``floor(x + 0.5)`` applied once per serve (RULES §11.6)."""
 
 from __future__ import annotations

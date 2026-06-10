@@ -1,8 +1,8 @@
 # METHODOLOGY — how Kitchen Rush scores models, and why the parameters are defensible
 
-This document is the *justification layer*. [RULES.md](RULES.md) defines the game and
-[SCORING.md](SCORING.md) the raw point formulas; this explains the **headline metric**, how
-the **1-second realtime preference** is encoded, and how every tunable parameter is either
+This document is the *justification layer*. [RULES.md](RULES.md) defines the game and the raw
+point formulas (§9 there, mirrored in `scoring.py`); this explains the **headline metric**, how
+the **latency budget B** is encoded, and how every tunable parameter is either
 **derived**, **calibrated**, or **acknowledged-arbitrary-but-robust**.
 
 It incorporates an independent design review (gpt-5.5) that converged on the scheme below.
@@ -94,17 +94,36 @@ latency need. Two robustness facts from the same sweep:
   correct (they're equivalent on latency), and what should separate them is **quality**
   (invalids/burns) — which needs the always-on throughput/quality pressure (dense order stream
   + parallel reference oracle) to have headroom. That is the documented fix for the high-B end
-  (see ROADMAP), not a patch to the metric.
+  (tracked in [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)), not a patch to the metric.
+
+### 2.2 Reading a B-board in deployment terms
+
+"Model X is best at B" means: X is the most reliable kitchen operator *when the world is priced
+for B seconds per decision* — the per-decision latency regime its deployment imposes. Two
+mathematically grounded translations:
+
+- **Where slow breaks.** For per-decision latency ℓ > B, each order loses `K_o·(ℓ − B)` seconds
+  of margin against a slack reserve of `(σ−1)·C_o(B)`; hard misses begin near
+  `ℓ* = B + (σ−1)·C_o(B)/K_o`. On the current tiers at B=1 that is ≈3–4 s/decision (e.g. a
+  medium burger: C_o(1) ≈ 32 gs, K_o = 6, σ = 1.5 → ℓ* ≈ 3.7 s) — matching the measured EDF
+  collapse between ℓ=2 s and ℓ=4 s in [CALIBRATION.md](CALIBRATION.md). Value decay starts
+  charging well before ℓ*, so the score gradient is smooth, not a cliff.
+- **What B buys in tokens (RP clock).** With `ℓ = 0.30 + 0.0002·n_in + 0.006·n_out`, at a
+  representative ~1.5k-token observation the fixed+input cost is ≈0.6 s, so **B=1 s affords
+  ≈65 output tokens per decision** (terse single-shot tool dispatch — the voice-agent regime)
+  and **B=5 s affords ≈730** (a short reasoning burst — the interactive-assistant regime).
+  This is why reasoning-heavy models reorder upward between the B=1 and B=5 boards.
 
 ## 3. Latency tracks
 
 | Track | `latency_seconds` | Role |
 |---|---|---|
-| **RT (primary)** | measured wall-clock | the realtime claim; standardized harness (fixed region, concurrency=1, disclosed) |
-| **RP (shadow)** | `0.30 + 0.0002·n_in + 0.006·n_out` (reasoning tokens incl.) | reproducible / cross-hardware audit |
+| **RP (ranked)** | `0.30 + 0.0002·n_in + 0.006·n_out` (reasoning tokens incl.) | the reproducible headline — provider-independent, recomputable from logs; *experimental* until the β-calibration study freezes the coefficients |
+| **RT (diagnostic)** | measured wall-clock | the realism check; requires disclosed hardware/region, concurrency=1, fixed warmup |
 
-The leaderboard ranks by **RT**; RP is published adjacent for reproducibility. (Earlier docs
-called RP canonical; we follow the realtime thesis and make RT primary.)
+The leaderboard ranks by **RP**; RT is published adjacent as the realism diagnostic. RP
+standardizes speed — what that does and doesn't credit is spelled out in
+[LIMITATIONS.md](LIMITATIONS.md) §1.
 
 ## 4. Parameter taxonomy
 

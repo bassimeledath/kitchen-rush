@@ -1,145 +1,118 @@
 # Kitchen Rush
 
-**A benchmark for FAST *and* ACCURATE native tool calling.**
+**The realtime tool-calling benchmark: thinking time costs points.**
 
-> **Status — beta / first results.** The **ruleset is frozen at generation 1.0**
-> (`33034952fa7f`, see [docs/CALIBRATION.md](docs/CALIBRATION.md)) and the **first 12-model sweep**
-> is in ([results below](#results--starter-board-gen-10)). Implemented & tested (55 tests): the
-> deterministic engine, seeded procedural generation, baselines, a native-FC multi-provider adapter
-> (via LiteLLM), the reference agent, both latency tracks (RT/RP), the KR headline metric, a
-> greedy-EDF reference oracle, a selectable latency budget, a pinned cl100k tokenizer, version/ruleset
-> hashing, a no-progress anti-loop guard, and a pixel-art **replay viewer**. Still before a public
-> launch: the leaderboard UI + `submit`/`validate` flow, a time-pressure-free "intelligence" track,
-> and **β-coefficient calibration** (so RP is still labelled *experimental*) — see
-> [docs/LAUNCH_CHECKLIST.md](docs/LAUNCH_CHECKLIST.md).
+> **Status — beta.** Ruleset frozen at **generation 1.0** (`33034952fa7f`,
+> [docs/CALIBRATION.md](docs/CALIBRATION.md)). The starter board below ran the reproducible (RP)
+> latency track, whose β-coefficients are still experimental — absolute KR will shift after β
+> calibration, but the ordering is informative now.
 
-Kitchen Rush is a text-to-text, Overcooked-inspired benchmark where a model plays a chef on a
-seeded grid kitchen, issuing **native function calls** (collect, chop, cook, plate, serve…) to
-fulfil arriving orders before they expire and before food burns. Its defining feature: **latency
-costs points by construction** — the model's per-response thinking time is converted to
-game-seconds that advance one shared world clock *before* each action resolves, so while it
-deliberates, food burns and deadlines pass.
+## Why
 
-## The gap it fills
+Tool-calling benchmarks (BFCL, τ-bench/τ², ToolSandbox, AppWorld) grade *what* a model calls,
+never *how long it took to decide* — the world politely waits while the model thinks. Realtime
+agents (voice, live ops, games, robotics) don't get that luxury, and a model that needs 30
+seconds of reasoning to make the right call is the wrong model for them no matter how right it
+is. Kitchen Rush makes latency a scored axis **by construction**: the model's per-response
+thinking time is converted to game-seconds that advance one shared world clock *before* its
+actions resolve. While the model deliberates, food burns and orders expire — so speed and
+accuracy are measured fused, as one number, the way deployment actually experiences them.
 
-Tool-calling benchmarks (BFCL, τ-bench/τ², ToolSandbox, AppWorld) measure accuracy and treat
-latency at best as a turn-count proxy; **none grade latency as a scored axis.** Realtime agents
-(voice, robotics, live ops) need *both*. Kitchen Rush makes the speed–accuracy tradeoff the object
-of measurement: the scoring is constructed so the point-maximizing policy is *interior* — neither
-reckless-fast nor careful-slow.
+## What it is
 
-## Inspired by Overcooked, but different
+An [Overcooked](https://github.com/HumanCompatibleAI/overcooked_ai)-inspired kitchen: the model
+is a chef on a seeded grid, fulfilling a randomized order stream (burgers, soups, ramen…) via
+**native function calls** — `collect`, `chop`, `cook`, `plate`, `serve` — against order
+deadlines, burn timers, and a combo multiplier. Three deliberate rule changes from Overcooked:
 
-Same cooking / deadline pressure, but it strips what *isn't* about tool use: there is **no manual
-pathfinding or dexterity** — station actions auto-navigate, so the measured skill is **choosing
-the right action sequence under latency**, not steering a sprite. The kitchen layout is fixed per
-tier (only the order stream is randomized), because with auto-navigation the model never reasons
-about coordinates.
+1. **Latency is the mechanic.** Every response charges its latency to the world clock first
+   (measured wall-clock on the RT track; a deterministic token-price on the reproducible RP
+   track). Chaining several calls in one response pays the latency once — decisiveness is a
+   skill.
+2. **No pathfinding, no dexterity.** Station actions auto-navigate and charge travel time
+   inside the action. The measured skill is *choosing the right action sequence under time
+   pressure*, not steering a sprite.
+3. **Deterministic and replayable.** Same seed, actions, and latencies → bit-identical episode,
+   with a browser replay viewer for auditing any run.
 
-## What it measures
+Score is normalized per instance: `KR = 100 · (S_model − S_null) / (S_ref − S_null)`, where
+`S_null` is doing nothing and `S_ref` is a scripted greedy-EDF reference at zero latency.
+KR 0 = no better than letting the kitchen fail; KR 100 = matched the reference.
 
-- **Speed** — per-response latency → game-time → decays order value and risks burns/expiry.
-- **Accuracy** — correct, well-sequenced tool calls; mistakes, burns, and expiries cost points.
-- **Planning under contention** — concurrent orders, shared burners, chained calls (one latency
-  charge, N action durations).
-- **Reliability** — Pass^k over repeated trials of the same seed.
+## The latency budget B
 
-## Headline metric (KR)
+Every instance is generated **at a latency budget `B`** (`--latency-budget`, in seconds per
+decision), and each B is its own leaderboard — never averaged together. B has an exact meaning:
+**deadlines are priced so that a chef who spends exactly B seconds deciding each action finishes
+every order with σ ≈ 1.4–1.6× headroom**:
 
 ```
-KR = 100 · mean over (seeds × trials) of  clip( (S_model − S_null) / (S_ref − S_null), 0, 1 )
+deadline = arrival + ⌈σ · C(B)⌉,   C(B) = A + K·B
 ```
 
-where `S_null` is the do-nothing floor (serve nothing → everything expires) and `S_ref` is a
-deterministic greedy-EDF reference run at **zero latency**. **Reported per latency budget B**
-(e.g. B=1s, B=5s) — never averaged into one number. Tokens, $ cost, Pass^k, and a
-failure-type breakdown are reported alongside.
+where `A` is the order's intrinsic cook/travel/action time and `K` the number of decisions a
+competent plan needs. A model deciding in ℓ seconds therefore gains or loses `K·(B − ℓ)` seconds
+of margin per order: **faster than B banks slack and serves at higher value (order value decays
+linearly toward the deadline); slower than B burns through the σ-headroom and starts missing
+orders outright near ℓ ≈ B + (σ−1)·C(B)/K** — about 3–4 s/decision at B=1 on the current tiers,
+which is exactly where the calibration sweep shows the reference scheduler collapsing
+([docs/METHODOLOGY.md §2](docs/METHODOLOGY.md), [docs/CALIBRATION.md](docs/CALIBRATION.md)).
 
-## Two latency tracks
-
-| Track | Source | Use |
-|---|---|---|
-| **RP** (reproducible) | token proxy `β₀ + β_in·n_in + β_out·n_out` (incl. reasoning tokens) | intended ranking track — provider-independent, recomputable. *Tokenizer pinned (cl100k via tiktoken, char/4 fallback); the β-coefficients are still provisional pending the calibration study, so RP is **experimental** until they're frozen.* |
-| **RT** (real-latency) | measured wall-clock | realism diagnostic; disclose hardware/region |
-
-> **Important:** RP standardizes speed — it rewards *token economy + decision quality at a fixed
-> speed*, and does **not** credit a model for genuinely running faster (that's a deployment
-> property). See [docs/LIMITATIONS.md](docs/LIMITATIONS.md) for why, and how this compares to
-> Artificial Analysis.
+In applied terms: **winning at B=1s means being the most reliable model when every decision must
+land in about a second** — on the RP clock (`0.30 + 0.0002·n_in + 0.006·n_out` s), that's a
+budget of roughly **65 output tokens per decision** at a typical observation, i.e. terse
+single-shot tool dispatch, the voice-agent regime. **B=5s** affords ~730 tokens — a short
+reasoning burst per decision — the interactive-assistant regime. A model can top one board and
+not the other; that reordering is the point.
 
 ## Results — starter board (gen 1.0)
 
-First sweep: 12 models (via OpenRouter) × 12 seeds × {medium, hard} × {B=1s, B=5s}, RP track,
-576 episodes. `KR̄` is the mean over tier×budget; `±` is a 95% seed-bootstrap CI. Full board with
-per-cell KR and per-budget splits: [leaderboard/results/starter.md](leaderboard/results/starter.md).
+12 models × 12 seeds × {medium, hard} × {B=1s, B=5s}, RP track, 576 episodes. Top 5 of 12 by
+overall mean (±95% seed-bootstrap CI); full board:
+[leaderboard/results/starter.md](leaderboard/results/starter.md).
 
-| # | model | KR̄ | ± | KR @B1 | KR @B5 | $ |
+| # | model | reasoning | **KR @B=1s** | **KR @B=5s** | KR̄ ± CI | $ |
 |---|---|---|---|---|---|---|
-| 1 | claude-sonnet-4.6 | **40.6** | ±5.8 | 36.7 | 44.4 | 29.45 |
-| 2 | gemini-3.1-flash-lite | **26.3** | ±9.8 | 31.6 | 21.0 | 0.79 |
-| 3 | qwen3.7-plus | 8.3 | ±4.3 | 9.9 | 6.7 | 2.32 |
-| 4 | deepseek-v4-pro | 7.8 | ±5.4 | 4.1 | 11.5 | 2.04 |
-| 5 | gpt-oss-120b·think | 7.1 | ±3.4 | 3.3 | 10.9 | 0.42 |
+| 1 | claude-sonnet-4.6 | off | **36.7** | **44.4** | 40.6 ±5.8 | 29.45 |
+| 2 | gemini-3.1-flash-lite | off | **31.6** | 21.0 | 26.3 ±9.8 | 0.79 |
+| 3 | qwen3.7-plus | off | 9.9 | 6.7 | 8.3 ±4.3 | 2.32 |
+| 4 | deepseek-v4-pro | off | 4.1 | **11.5** | 7.8 ±5.4 | 2.04 |
+| 5 | gpt-oss-120b | low | 3.3 | 10.9 | 7.1 ±3.4 | 0.42 |
 
-The two-budget split is the point: `gemini-3.1-flash-lite` nearly ties for #1 under tight real-time
-pressure (B=1s) but **falls** when deliberation is cheap (B=5s), while deeper models
-(`deepseek-v4-pro`, `gpt-oss·think`) roughly **triple** with the extra slack — the latency tax, made
-visible. RP standardizes speed (see [Limitations](docs/LIMITATIONS.md)); the experimental β means
-absolute KR will shift after calibration, but the ordering is informative now.
+The per-budget split is the product: `gemini-3.1-flash-lite` nearly ties for #1 under tight
+realtime pressure (B=1s) but **falls** when deliberation is cheap (B=5s), while deeper models
+(`deepseek-v4-pro`, `gpt-oss-120b`) roughly **triple** with the slack — the latency tax, made
+visible. Most of the panel ran reasoning **off**: this is a fast tool-calling benchmark, so
+no-reasoning is the honest default (the full board labels each model's reasoning state).
 
 ## Quickstart
 
 ```bash
 pip install -e .                          # core is stdlib-only
 kitchenrush bench --baseline random --tier easy --seeds 12 --trials 2
-kitchenrush calibrate --tier easy --latency-budget 1    # B = seconds/decision the deadlines are priced at
+kitchenrush calibrate --tier easy --latency-budget 1   # KR of the reference at injected latencies
 
 pip install -e '.[providers]'             # real models (needs provider API keys)
-kitchenrush bench --model gemini:gemini-3.5-flash --no-reasoning --tier easy --latency-budget 5 --track rt
+kitchenrush bench --model anthropic:claude-sonnet-4-6 --tier medium --latency-budget 1
 
 # watch a game in the browser:
 kitchenrush replay --oracle --tier easy --seed 0     # writes ui/replays/easy_seed0_oracle.json
 cd ui && python3 -m http.server 8000                 # then open http://localhost:8000
 ```
 
-CLI today: `run`, `bench`, `replay`, `seeds`, `calibrate`. (`submit` / `validate` + the
-leaderboard are coming — see the checklist.)
-
-## Add your own model
-
-Native function calling via LiteLLM — just pass `provider:model`:
-
-```bash
-kitchenrush bench --model anthropic:claude-sonnet-4-6 --tier easy --latency-budget 5
-kitchenrush bench --model vllm:Qwen/Qwen3-32B         --tier easy --latency-budget 5
-```
-
-Or register a custom client (only needs `name` + `generate(system, messages, tools) -> ModelResponse`):
-
-```python
-from kitchenrush import register_adapter, ModelResponse
-class MyClient:
-    name = "mycorp:my-7b"
-    def generate(self, *, system, messages, tools, **kw) -> ModelResponse: ...
-register_adapter("mycorp", lambda model, **kw: MyClient())
-```
+CLI: `run`, `bench`, `replay`, `seeds`, `calibrate`. Any LiteLLM-routable model works via
+`provider:model`; or register a custom client (`name` +
+`generate(system, messages, tools) -> ModelResponse`) with `register_adapter`.
 
 ## Docs
 
-- [docs/RULES.md](docs/RULES.md) — the **authoritative, code-verified** ruleset
-- [docs/METHODOLOGY.md](docs/METHODOLOGY.md) — scoring rationale, B profiles, statistical protocol
-- [docs/CALIBRATION.md](docs/CALIBRATION.md) — evidence behind the gen-1.0 ruleset freeze
-- [docs/LIMITATIONS.md](docs/LIMITATIONS.md) — what KR does/doesn't measure (incl. the speed caveat + AA comparison)
-- [docs/OBJECTIONS.md](docs/OBJECTIONS.md) — anticipated critiques & responses (e.g. "why did a model score worse with more time?")
-- [docs/LAUNCH_CHECKLIST.md](docs/LAUNCH_CHECKLIST.md) — what's left before a public release
-- [docs/ROADMAP.md](docs/ROADMAP.md) — phased build plan
-- `SCORING.md` / `MOVEMENT.md` / `PROCEDURAL.md` / `INTERFACE.md` / `DESIGN.md` are **design
-  history** pending rewrite — defer to `RULES.md` where they differ.
-
-## Related work
-
-BFCL (Berkeley) · τ-bench / τ² (Sierra) · ToolSandbox · AppWorld · BALROG · overcooked_ai.
-Kitchen Rush adds the missing **graded latency axis** inside a deterministic tool-world.
+- [docs/RULES.md](docs/RULES.md) — the authoritative, code-verified ruleset
+- [docs/METHODOLOGY.md](docs/METHODOLOGY.md) — the KR metric, the math of B, statistical protocol
+- [docs/CALIBRATION.md](docs/CALIBRATION.md) — evidence behind the gen-1.0 freeze
+- [docs/LIMITATIONS.md](docs/LIMITATIONS.md) — what KR does/doesn't measure (read before citing)
+- [docs/OBJECTIONS.md](docs/OBJECTIONS.md) — anticipated critiques & responses
+- [docs/SUBMISSIONS.md](docs/SUBMISSIONS.md) · [docs/CONTAMINATION.md](docs/CONTAMINATION.md) —
+  leaderboard contract & data hygiene
 
 ## License
 

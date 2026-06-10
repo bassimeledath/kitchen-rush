@@ -1,5 +1,5 @@
 """Native function-calling tool schemas and the provider-neutral ToolCall type
-(RULES.md §15, MOVEMENT.md §1). These schemas are passed to the model as ``tools``;
+(RULES.md §15). These schemas are passed to the model as ``tools``;
 the engine dispatches a parsed ToolCall in ``engine.step``."""
 
 from __future__ import annotations

@@ -1,12 +1,12 @@
 # Kitchen Rush — RULES.md (v2, authoritative)
 
-> **Status:** Normative game specification. Kitchen Rush is a deterministic discrete-event simulation. All numeric values are the canonical defaults from §16 (mirrored in `src/kitchenrush/config.py`); SCORING.md owns the scoring *formulas* and cites these same constants. Language is MUST / MUST NOT / SHALL. Time is in **game-seconds (gs)**, a **float** quantity (see §3.1).
+> **Status:** Normative game specification. Kitchen Rush is a deterministic discrete-event simulation. All numeric values are the canonical defaults from §16 (mirrored in `src/kitchenrush/config.py`); the scoring formulas are normative in §9 (mirrored in `src/kitchenrush/scoring.py`). Language is MUST / MUST NOT / SHALL. Time is in **game-seconds (gs)**, a **float** quantity (see §3.1).
 >
 > **Ruleset frozen — generation 1.0** (`ruleset_hash = 33034952fa7f`, frozen 2026-06-06 after the calibration panel; see docs/CALIBRATION.md). §16 mirrors the frozen `config.py` values. Note: the RP β-coefficients are part of the hash but remain **provisional** — a future β-calibration will bump the generation, and RP stays labelled *experimental* until then.
 >
 > **Known limitations** (read before citing results): RP standardizes speed and does **not** credit a genuinely faster model; see docs/LIMITATIONS.md (incl. how this compares to Artificial Analysis).
 >
-> **Design stance — the benchmark tests action sequencing, not pathfinding.** Navigation is automatic: every station action walks the chef to the nearest appropriate station and charges the travel game-time inside the action (§4). The model never reasons about coordinates; it chooses the right ACTION SEQUENCE under latency. Consequently the kitchen layout is **deterministic** per tier (only the order stream is randomized, §PROCEDURAL).
+> **Design stance — the benchmark tests action sequencing, not pathfinding.** Navigation is automatic: every station action walks the chef to the nearest appropriate station and charges the travel game-time inside the action (§4). The model never reasons about coordinates; it chooses the right ACTION SEQUENCE under latency. Consequently the kitchen layout is **deterministic** per tier (only the order stream is randomized; see `src/kitchenrush/procgen.py`).
 
 ---
 
@@ -29,7 +29,7 @@
 ## 2. Entities
 
 ### 2.1 Grid, coordinates & the walled room
-- Kitchen is an `N×N` grid; `N = GRID_N` (default 7; per tier: easy/medium 7, hard 9 — §16, §PROCEDURAL).
+- Kitchen is an `N×N` grid; `N = GRID_N` (default 7; per tier: easy/medium 7, hard 9 — §16).
 - Cell `(row, col)`, zero-indexed, `row` increases **south**, `col` increases **east**; `(0,0)` is north-west.
 - Directions (canonical tokens, full words): `north`(-1,0), `south`(+1,0), `east`(0,+1), `west`(0,-1). Used internally for adjacency/BFS; the model never issues directional moves (§4).
 - **The kitchen is a walled room.** The grid has a non-walkable perimeter band of counters/walls with the stations embedded in it, an open interior floor, and one doorway cell. The `KitchenSpec` carries `blocked` (a `frozenset` of non-walkable counter/wall cells that are not stations) and `door` (a single decorative doorway cell in the wall).
@@ -65,14 +65,14 @@ A recipe is a partially-ordered bill of steps producing a named **dish**. Step v
 
 2.4.1 **Ordering** is enforced by preconditions (§5): `chop`/`cook` require the named ingredient held in the correct prior state; `plate` requires all named components present in terminal state. `collect` for distinct ingredients may occur in any order. Cooking a non-cookable or chopping a non-choppable ingredient is invalid (§5.9).
 
-2.4.2 **Hand-capacity feasibility (design guarantee).** With `HAND_SLOTS=4` and cook items occupying burners (not hands), every recipe R1–R5 is completable hands-only: each recipe's terminal component count is ≤4 (R4 and R5 are exactly 4). Because all components must be in hands at `plate` time, the chef MUST NOT hold a finished plate concurrently while assembling a 4-component dish; `plate` then consumes the 4 components and produces 1 plate in their place, so capacity holds. *(This is a static property of the fixed recipe catalog — verified by inspection, not enforced at generation time: the current procgen does **not** run a feasibility oracle or fail-generate, so the §PROCEDURAL "oracle MUST fail-generate" guarantee is aspirational, not implemented.)*
+2.4.2 **Hand-capacity feasibility (design guarantee).** With `HAND_SLOTS=4` and cook items occupying burners (not hands), every recipe R1–R5 is completable hands-only: each recipe's terminal component count is ≤4 (R4 and R5 are exactly 4). Because all components must be in hands at `plate` time, the chef MUST NOT hold a finished plate concurrently while assembling a 4-component dish; `plate` then consumes the 4 components and produces 1 plate in their place, so capacity holds. *(This is a static property of the fixed recipe catalog — verified by inspection, not enforced at generation time: the current procgen does **not** run a feasibility oracle or fail-generate, so a generation-time feasibility oracle remains aspirational, not implemented.)*
 
 ### 2.5 Dishes & plates
 - An in-progress dish is just the multiset of components in hands. A `plate` action consumes the exact required components and produces one **finished plate** (`PlatedDish(recipe)`), occupying 1 hand slot.
 - **Binding is at serve time, not plate time** (a finished plate is generic for its recipe). This eliminates stranded-plate/re-bind edge cases. `plate` takes only `recipe`; `serve` takes only `order_id`.
 
 ### 2.6 Orders (tickets)
-Fields: `order_id` (`O1…`), `dish` (one recipe per order), `arrival_gs`, `deadline_gs` (single deadline; see §3.4.4), `base_value` (§9.1), `status ∈ {PENDING → ACTIVE → SERVED | EXPIRED}`. Orders are procedurally generated from the seeded order stream (§PROCEDURAL); the full schedule is fixed at reset.
+Fields: `order_id` (`O1…`), `dish` (one recipe per order), `arrival_gs`, `deadline_gs` (single deadline; see §3.4.4), `base_value` (§9.1), `status ∈ {PENDING → ACTIVE → SERVED | EXPIRED}`. Orders are procedurally generated from the seeded order stream (`procgen.py`); the full schedule is fixed at reset.
 
 2.6.1 **Progressive release (`procgen._build_orders`).** The **first 2 orders are ACTIVE at `t=0`**; each remaining order arrives later, with inter-arrival gaps drawn `Poisson` (`rng.expovariate(tier.arrival_rate)`), up to `tier.max_orders` (or the horizon). Orders are PENDING before their `arrival_gs` and become ACTIVE when the clock reaches it.
 
@@ -114,7 +114,7 @@ There MUST be no hidden state outside `S`.
 - **RP** (reproducible; the intended ranked headline) = a token proxy `β₀ + β_in·n_in + β_out·n_out` (`RP_BETA0/RP_BETA_IN/RP_BETA_OUT`). `n_in` counts ALL model-visible request content (system prompt + observation + **tool schemas**); `n_out` counts the canonical assistant output (each tool call's **name** + arguments + any text) **plus provider-reported reasoning tokens**. Tokens use ONE pinned tokenizer applied to every model — `cl100k_base` via tiktoken (stamped `TOKENIZER_ID`), with a char/4 fallback when tiktoken is absent (stdlib-only core); the active id is recorded in every output so RP is never silently compared across tokenizers. RP is provider-independent and recomputable from a trajectory log. *(β coefficients are provisional pending a published calibration.)*
 - **RT** (real; diagnostic) = measured wall-clock of the response — ecologically real but provider/region/load-dependent, so it is reported alongside, **not** the cross-model rank.
 
-The in-process runner passes a policy-supplied `latency_s` (baselines inject a fixed value); `think_gs = LATENCY_SCALE · latency_s`. Setting `LATENCY_SCALE = 0` (CLI `--no-latency`) gives **KR-0** — thinking costs no game-time — isolating decision quality; the **latency tax** is `KR-0 − KR-RP`.
+The in-process runner passes a policy-supplied `latency_s` (baselines inject a fixed value); `think_gs = LATENCY_SCALE · latency_s`.
 3.2.2 The conversion is a single multiply (`runner.run_episode`):
 ```
 think_gs = LATENCY_SCALE * latency_seconds      # LATENCY_SCALE = 1.0; float; NO ceil/round
@@ -267,7 +267,7 @@ Every turn returns the **full** observation (no partial/withheld-map mode — fu
 
 ---
 
-## 9. Scoring (events & values; SCORING.md owns the formulas — values are identical)
+## 9. Scoring (events, values & formulas — mirrored in `src/kitchenrush/scoring.py`)
 Score is a `float` accumulator; the single rounding rule (`floor(x+0.5)`) is applied once per serve (§11.6). Final reported score is raw (ranking) and `max(0, score)` (display).
 
 ### 9.1 Base value (superlinear in steps, prevents cheap-dish farming)
@@ -332,9 +332,9 @@ From `engine._new_counters()`:
 
 ## 11. Determinism guarantees
 11.1 **Contract.** Given `(seed, tier, sequence_of(action|chain), sequence_of(latency_seconds))` the engine produces identical `S`, `score`, event log, and per-turn observations everywhere. No wall-clock, no unseeded RNG, no reliance on `set`/insertion-`dict` iteration for normative behavior.
-11.2 **Seeded generation** uses stdlib `random.Random` with two named sub-streams derived from the seed (`procgen._substreams(seed)` → `(rng_grid, rng_orders)`). The **layout is deterministic per tier** (`rng_grid` is currently unused — see §3 of the design stance and §PROCEDURAL), so only `rng_orders` drives variation. The single-`Generator` model is NOT used.
+11.2 **Seeded generation** uses stdlib `random.Random` with two named sub-streams derived from the seed (`procgen._substreams(seed)` → `(rng_grid, rng_orders)`). The **layout is deterministic per tier** (`rng_grid` is currently unused — see the design stance above), so only `rng_orders` drives variation. The single-`Generator` model is NOT used.
 11.3 **Seeded order stream** (arrivals + dishes) is computed at reset from `rng_orders` and fixed for the episode; only fulfillment depends on agent choices.
-11.4 **Latency replay.** `think_gs` is a pure function of `latency_seconds` (§3.2.2). RT replays from logged `wall_ms`; RP replays from recomputed token counts (pinned tokenizer, §3.2.1). Both are pure and fully specified. A fixed all-zero latency trace (CLI `--no-latency`, the **KR-0** mode, §3.2.1) isolates decision quality; the latency tax is `KR-0 − KR-RP`.
+11.4 **Latency replay.** `think_gs` is a pure function of `latency_seconds` (§3.2.2). RT replays from logged `wall_ms`; RP replays from recomputed token counts (pinned tokenizer, §3.2.1). Both are pure and fully specified.
 11.5 **Tie-break (fixed priority).** Events in one advance are sorted by `(time, category, id_key)` with category numbers **(1) order expiries, (2) cook burns, (3) order arrivals, (4) cook ready**; the **action effect** is applied last, after the advance returns. Within a category, sort by ascending id (`order_id` lexicographic for orders, zero-padded `burner_index` for cooks). This applies at every clock advance, including each intra-chain advance.
 11.6 **Score arithmetic.** Clock is float64. The ONLY rounding in the score path: `earned = floor(base_value·time_factor·combo·q + 0.5)`, computed left-to-right in float64, once per serve. Python `round()`/banker's rounding is FORBIDDEN. Penalties (`BURN_PENALTY`, `EXPIRY_FRACTION·base_value`, `INVALID_PENALTY`, `DROP_PENALTY`) are exact; expiry is `floor(EXPIRY_FRACTION·base_value + 0.5)` as a magnitude. Normalized display metrics (KR and rates, §9.8) are reported to 4 decimal places; leaderboard ties break on the next reported metric, never on float noise.
 11.7 **Versions** `RULESET_VERSION` (hash of constants+recipes+scoring+tiers), `SCHEMA_VERSION`, `GENERATOR_VERSION` stamp every output and are validator-checked.
