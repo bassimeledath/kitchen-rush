@@ -48,7 +48,7 @@
     wireControls();
     try {
       const r = await fetch("assets/manifest.json", { cache: "no-store" });
-      if (r.ok) Object.assign(S.MANIFEST, await r.json());
+      if (r.ok) { Object.assign(S.MANIFEST, await r.json()); await S.preload(); }
     } catch { /* emoji fallbacks */ }
     let loaded = null;
     for (const url of BUILTIN) { try { await loadUrl(url); loaded = url; break; } catch (e) { /* next */ } }
@@ -123,6 +123,11 @@
     const body = document.createElement("div"); body.className = "chef-body"; body.appendChild(S.chefIcon("front"));
     const hold = document.createElement("div"); hold.className = "chef-hold";
     el.chef.append(body, hold); st.facing = "front";
+
+    // reset the change-detection caches (we only touch DOM when these keys change — rebuilding
+    // <img> nodes every animation frame makes sprites blink while the new image decodes)
+    st.pose = "front"; st.handsKey = ""; st.rackOrder = "";
+    st.orderChips = new Map(); el.orders.innerHTML = "";
   }
 
   // ---- frame lookup -------------------------------------------------------
@@ -156,12 +161,22 @@
     el.chef.classList.toggle("walking", walking);
     el.chef.classList.toggle("idle", !walking);
 
-    // carried items on the chef (kills the hands panel)
+    // carried items on the chef (kills the hands panel); swap nodes only when the pose or
+    // the held items actually change
     const hands = cur.hands || [];
-    el.chef.querySelector(".chef-body").firstChild.replaceWith(S.chefIcon(st.facing, hands.length > 0));
+    const pose = st.facing + (hands.length > 0 ? ":carry" : "");
+    if (st.pose !== pose) {
+      st.pose = pose;
+      el.chef.querySelector(".chef-body").firstChild.replaceWith(S.chefIcon(st.facing, hands.length > 0));
+    }
     const hold = el.chef.querySelector(".chef-hold");
-    hold.innerHTML = ""; hold.dataset.facing = st.facing; hold.classList.toggle("multi", hands.length > 1);
-    for (const h of hands.slice(0, 4)) hold.appendChild(S.heldIcon(h));
+    hold.dataset.facing = st.facing;
+    const handsKey = hands.map((h) => h.ingredient + ":" + h.state).join(",");
+    if (st.handsKey !== handsKey) {
+      st.handsKey = handsKey;
+      hold.innerHTML = ""; hold.classList.toggle("multi", hands.length > 1);
+      for (const h of hands.slice(0, 4)) hold.appendChild(S.heldIcon(h));
+    }
 
     // thinking pause (deliberation gap before a `think` frame)
     const thinking = nxt && nxt.kind === "think";
@@ -190,58 +205,78 @@
     st.curIdx = i;
   }
 
-  // cooking state ON the stove tiles (the lively-kitchen core)
+  // cooking state ON the stove tiles (the lively-kitchen core). Tile contents are rebuilt only
+  // when the burner's (status, ingredient) changes; the cook ring and burn glow are cheap style
+  // updates that do run every frame.
   function renderStoves(cur) {
     for (const b of (cur.burners || [])) {
       const tile = st.stoveTileByIndex[b.index]; if (!tile) continue;
       const fx = tile.querySelector(".stove-fx");
-      tile.classList.remove("cooking", "ready", "burned");
-      tile.style.removeProperty("--burn"); fx.innerHTML = "";
-      if (b.status === "FREE" || !b.ingredient) continue;
-      if (b.status === "COOKING") {
-        tile.classList.add("cooking");
+      const sig = b.status + "|" + (b.ingredient || "");
+      if (tile.dataset.sig !== sig) {
+        tile.dataset.sig = sig;
+        tile.classList.remove("cooking", "ready", "burned");
+        tile.style.removeProperty("--burn"); fx.innerHTML = "";
+        if (b.status === "COOKING" && b.ingredient) {
+          tile.classList.add("cooking");
+          const ring = document.createElement("div"); ring.className = "cook-ring";
+          fx.append(ring, S.icon(["fx:flame"], { extraClass: "flame" }), S.componentIcon(b.ingredient, "RAW"));
+        } else if (b.status === "READY" && b.ingredient) {
+          tile.classList.add("ready");
+          fx.append(S.icon(["fx:flame"], { extraClass: "flame" }), S.componentIcon(b.ingredient, "COOKED"));
+        } else if (b.status === "BURNED" && b.ingredient) {
+          tile.classList.add("burned");
+          fx.appendChild(S.componentIcon(b.ingredient, "BURNED"));
+        }
+      }
+      if (b.status === "COOKING" && b.ingredient) {
         const pct = Math.max(0, Math.min(1, (st.t - b.start_gs) / Math.max(1e-6, b.ready_gs - b.start_gs)));
-        const ring = document.createElement("div"); ring.className = "cook-ring";
-        ring.style.background = `conic-gradient(var(--accent2) ${pct * 360}deg, #0006 0deg)`;
-        fx.append(ring, S.icon(["fx:flame"], { extraClass: "flame" }), S.componentIcon(b.ingredient, "RAW"));
-      } else if (b.status === "READY") {
-        tile.classList.add("ready");
+        const ring = fx.querySelector(".cook-ring");
+        if (ring) ring.style.background = `conic-gradient(var(--accent2) ${pct * 360}deg, #0006 0deg)`;
+      } else if (b.status === "READY" && b.ingredient) {
         const togo = Math.max(0, Math.min(1, (b.burn_gs - st.t) / Math.max(1e-6, b.burn_gs - b.ready_gs)));
         tile.style.setProperty("--burn", (1 - togo).toFixed(2));   // 0 fresh -> 1 about to burn
-        fx.append(S.icon(["fx:flame"], { extraClass: "flame" }), S.componentIcon(b.ingredient, "COOKED"));
-      } else if (b.status === "BURNED") {
-        tile.classList.add("burned");
-        fx.appendChild(S.componentIcon(b.ingredient, "BURNED"));
       }
     }
   }
 
-  // compact order rack (tickets at the pass)
+  // compact order rack (tickets at the pass). One persistent chip per order — recreated chips
+  // restart CSS animations and re-decode dish icons; we update text/bar/class in place and only
+  // re-append when the sort order itself changes.
   const orderRank = (o) => ({ ACTIVE: 0, PENDING: 1, SERVED: 2, EXPIRED: 2 }[o.status] ?? 3);
   function renderOrders(cur) {
     const orders = (cur.orders || []).slice().sort((a, b) =>
       (orderRank(a) - orderRank(b)) || (a.deadline_gs - b.deadline_gs) || a.order_id.localeCompare(b.order_id));
-    el.orders.innerHTML = "";
     for (const o of orders) {
+      let chip = st.orderChips.get(o.order_id);
+      if (!chip) {
+        chip = document.createElement("div");
+        chip.appendChild(S.dishIcon(o.dish));
+        const t = document.createElement("span"); t.className = "tk-t";
+        const bar = document.createElement("i"); bar.className = "tk-bar";
+        chip.append(t, bar);
+        st.orderChips.set(o.order_id, chip);
+      }
       const arrived = st.t >= o.arrival_gs && o.status !== "PENDING";
       const remaining = o.deadline_gs - st.t;
       const win = Math.max(1e-6, o.deadline_gs - o.arrival_gs);
       const frac = Math.max(0, Math.min(1, remaining / win));
-      const chip = document.createElement("div");
       let cls = "ticket";
       if (o.status === "SERVED") cls += " served";
       else if (o.status === "EXPIRED") cls += " expired";
       else if (!arrived) cls += " pending";
       else if (frac > 0.5) cls += " ok"; else if (frac > 0.22) cls += " warn"; else cls += " urgent";
-      chip.className = cls;
-      chip.appendChild(S.dishIcon(o.dish));
-      const t = document.createElement("span"); t.className = "tk-t";
-      t.textContent = (o.status === "ACTIVE" && arrived) ? Math.max(0, remaining).toFixed(0) : "";
-      const bar = document.createElement("i"); bar.className = "tk-bar";
+      if (chip.className !== cls) chip.className = cls;
+      chip.querySelector(".tk-t").textContent =
+        (o.status === "ACTIVE" && arrived) ? Math.max(0, remaining).toFixed(0) : "";
+      const bar = chip.querySelector(".tk-bar");
       bar.style.width = (arrived && o.status === "ACTIVE" ? frac * 100 : (o.status === "SERVED" ? 100 : 0)) + "%";
       bar.style.background = frac > 0.5 ? "var(--green)" : frac > 0.22 ? "var(--accent2)" : "var(--red)";
-      chip.append(t, bar);
-      el.orders.appendChild(chip);
+    }
+    const rackOrder = orders.map((o) => o.order_id).join(",");
+    if (st.rackOrder !== rackOrder) {
+      st.rackOrder = rackOrder;
+      for (const o of orders) el.orders.appendChild(st.orderChips.get(o.order_id));
     }
   }
 

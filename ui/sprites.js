@@ -37,6 +37,17 @@ KR.sprites = (() => {
     "fx:flame": "🔥", "fx:smoke": "💨", "fx:burst": "✨",
   };
 
+  /* Decode every manifest sprite once up front. Without this, a freshly created <img> can hit
+   * a paint before its (cached but undecoded) bitmap is ready — a blank flash — and a transient
+   * load failure trips the emoji fallback. After this resolves, sprites paint instantly. */
+  async function preload() {
+    await Promise.allSettled(Object.values(MANIFEST).map((f) => {
+      const img = new Image();
+      img.src = BASE + f;
+      return img.decode();
+    }));
+  }
+
   // Resolve the best asset path for a key, walking the fallback chain. Returns null if none.
   function path(...keys) {
     for (const k of keys) {
@@ -103,5 +114,5 @@ KR.sprites = (() => {
   const STATE_TAG = { RAW: "", CHOPPED: "✂", COOKED: "♨", BURNED: "✖", PLATE: "" };
 
   return { path, emoji, icon, stationIcon, chefIcon, heldIcon, componentIcon, dishIcon,
-           MANIFEST, EMOJI };
+           preload, MANIFEST, EMOJI };
 })();
