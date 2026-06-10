@@ -88,6 +88,18 @@ def main() -> int:
 
     grand = {'cost': 0.0}
     per_k: dict[int, list[float]] = {k: [] for k in range(kr_int.N_RUNGS)}
+    # Resume: replay prior episodes (per-episode flushed), skip done (k,seed), recover spend.
+    done: set[tuple] = set()
+    eppath = out / 'episodes.jsonl'
+    if eppath.exists():
+        for line in eppath.read_text().splitlines():
+            if not line.strip():
+                continue
+            r = json.loads(line)
+            done.add((r['k'], r['seed'])); grand['cost'] += r.get('ep_cost', 0.0)
+            per_k[r['k']].append(r['completion'])
+    if done:
+        log(f"RESUME: {len(done)} episodes done (prior spend ${grand['cost']:.2f}); skipping them")
     log(f"KR-INT '{name}' model={args.model} reasoning={args.reasoning} seeds={args.seeds} cap=${args.cap}")
 
     def run_one(k, seed):
@@ -104,7 +116,10 @@ def main() -> int:
     for k in range(kr_int.N_RUNGS):
         if halted:
             log(f"SKIP K{k} — budget cap"); continue
-        tasks = [(k, s) for s in range(args.seeds)]
+        tasks = [(k, s) for s in range(args.seeds) if (k, s) not in done]
+        if not tasks:
+            vals = per_k[k]
+            log(f"K{k}: completion {sum(vals)/len(vals):.2f} (resumed, n={len(vals)})"); continue
         with ThreadPoolExecutor(max_workers=args.workers) as ex:
             futs = [ex.submit(run_one, *t) for t in tasks]
             for fut in as_completed(futs):
