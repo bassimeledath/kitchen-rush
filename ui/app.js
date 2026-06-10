@@ -557,5 +557,15 @@
     window.addEventListener("resize", () => render());
   }
 
+  // Tooling hook (offline clip rendering / tests): drive the conductor from outside.
+  // `step(t)` advances the clock WITHOUT resetting frame-crossing state, so serve bursts,
+  // smoke, and work pulses fire exactly as they would during live playback.
+  window.KRplayer = {
+    seek, play, pause,
+    duration: () => C.tEnd,
+    ready: () => C.views.length > 0,
+    step: (t) => { C.t = Math.max(0, Math.min(C.tEnd, t)); render(); },
+  };
+
   init();
 })();
