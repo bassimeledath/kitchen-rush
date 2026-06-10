@@ -135,6 +135,7 @@ register_adapter("mycorp", lambda model, **kw: MyClient())
 - [docs/RULES.md](docs/RULES.md) — the **authoritative, code-verified** ruleset
 - [docs/METHODOLOGY.md](docs/METHODOLOGY.md) — scoring rationale, B profiles, statistical protocol
 - [docs/CALIBRATION.md](docs/CALIBRATION.md) — evidence behind the gen-1.0 ruleset freeze
+- [docs/KR_INT.md](docs/KR_INT.md) — the time-agnostic "intelligence" track (complexity ladder K0..K5)
 - [docs/LIMITATIONS.md](docs/LIMITATIONS.md) — what KR does/doesn't measure (incl. the speed caveat + AA comparison)
 - [docs/OBJECTIONS.md](docs/OBJECTIONS.md) — anticipated critiques & responses (e.g. "why did a model score worse with more time?")
 - [docs/LAUNCH_CHECKLIST.md](docs/LAUNCH_CHECKLIST.md) — what's left before a public release
