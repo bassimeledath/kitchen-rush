@@ -8,6 +8,15 @@ leaderboard generation. See [docs/RULES.md](docs/RULES.md).
 
 ## [Unreleased]
 
+### Added — board patch (2026-06-11)
+- Five new leaderboard rows via direct OpenAI/Anthropic keys + OpenRouter: `gpt-5.4`,
+  `gpt-5.4-mini·think` (ties sonnet at B=5 for ~1/5 the cost), `claude-haiku-4.5`,
+  `nemotron-3-super`, `nemotron-3-nano`; combined board at
+  `leaderboard/results/board.{md,json}` (`scripts/build_board.py`); sweep runner grew
+  `--panel` + direct-provider specs + `reasoning_effort none/minimal` modes.
+- Documented unrunnable configs: gpt-oss-120b reasoning-off (provider: mandatory),
+  nemotron-3-ultra (no `tool_choice:required` endpoint on OpenRouter).
+
 ### Changed — launch polish (2026-06-10)
 - README leaderboard is now two charts (one per latency budget, 95% CIs —
   `scripts/plot_board.py` → `docs/assets/leaderboard_b*.png`) instead of a table, with a

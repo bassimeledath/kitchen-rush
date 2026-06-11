@@ -1,17 +1,21 @@
-"""Budget-aware OpenRouter sweep runner for Kitchen Rush.
+"""Budget-aware model sweep runner for Kitchen Rush.
 
 Runs a panel of models through the benchmark, tallying REAL token spend per episode from
 provider usage and halting before a hard USD cap. Logs every episode as it completes so a
 long unattended run is always inspectable mid-flight.
 
-Usage (key via env, never written to disk):
-    OPENROUTER_API_KEY=... python scripts/sweep.py --mode smoke
-    OPENROUTER_API_KEY=... python scripts/sweep.py --mode full --cap 85 --name starter
+Usage (keys via env, never written to disk):
+    python scripts/sweep.py --mode smoke                       # starter panel, OpenRouter
+    python scripts/sweep.py --mode full --cap 85 --name starter
+    python scripts/sweep.py --panel openai --mode full --cap 44 --name openai_patch
 
-Reasoning control on OpenRouter (probed empirically):
-    off     -> extra_body={"reasoning":{"enabled":False}}   (most models; a few reject it)
+Panel specs are either bare OpenRouter ids ('openai/gpt-oss-120b') or full provider specs
+('openai:gpt-5.4-mini', billed direct). Reasoning control (probed empirically):
+    off     -> extra_body={"reasoning":{"enabled":False}}   (OpenRouter; a few models reject it)
+    none / minimal -> reasoning_effort=<mode>   (OpenAI direct no-reasoning; gpt-5.4 takes 'none',
+                                                 the mini accepts either)
     on      -> reasoning_effort="low"
-    default -> no param (model's shipped behavior)
+    default -> no param (model's shipped behavior; Anthropic ships thinking off)
 """
 from __future__ import annotations
 
@@ -47,6 +51,14 @@ PRICES = {
     'google/gemini-3.5-flash': (0.0000015, 0.000009),
     'qwen/qwen3-235b-a22b-thinking-2507': (0.0000001, 0.0000001),
     'openai/gpt-oss-120b': (0.000000039, 0.00000018),
+    # direct-provider specs (per-token USD, provider list prices, stamped 2026-06-11)
+    'openai:gpt-5.4-mini': (0.00000075, 0.0000045),
+    'openai:gpt-5.4': (0.0000025, 0.000015),
+    'anthropic:claude-haiku-4-5-20251001': (0.000001, 0.000005),
+    # OpenRouter nemotron-3 family (prices from openrouter.ai/api/v1/models, 2026-06-11)
+    'nvidia/nemotron-3-nano-30b-a3b': (0.00000005, 0.0000002),
+    'nvidia/nemotron-3-super-120b-a12b': (0.00000009, 0.00000045),
+    'nvidia/nemotron-3-ultra-550b-a55b': (0.0000005, 0.0000025),
 }
 
 # Panel, ordered cheapest-first so the budget cap trims the most expensive tail if it binds.
@@ -66,10 +78,35 @@ PANEL = [
     ('google/gemini-3.5-flash', 'default', 'gemini-3.5-flash·think'),  # cannot disable reasoning
 ]
 
+# Patch panels (2026-06-11): direct OpenAI/Anthropic keys + the OpenRouter top-up.
+# Cheapest-first within each panel so the budget cap trims the expensive tail.
+PANELS = {
+    'starter': PANEL,
+    'openai': [
+        ('openai:gpt-5.4-mini', 'none', 'gpt-5.4-mini'),
+        ('openai:gpt-5.4-mini', 'on', 'gpt-5.4-mini·think'),
+        ('openai:gpt-5.4', 'none', 'gpt-5.4'),
+        ('openai:gpt-5.4', 'on', 'gpt-5.4·think'),
+    ],
+    'anthropic': [
+        ('anthropic:claude-haiku-4-5-20251001', 'default', 'claude-haiku-4.5'),
+    ],
+    'openrouter2': [
+        # NB: gpt-oss-120b@off is impossible — OpenRouter: "Reasoning is mandatory for this endpoint"
+        ('nvidia/nemotron-3-nano-30b-a3b', 'off', 'nemotron-3-nano'),
+        ('nvidia/nemotron-3-super-120b-a12b', 'off', 'nemotron-3-super'),
+        ('nvidia/nemotron-3-ultra-550b-a55b', 'off', 'nemotron-3-ultra'),
+    ],
+}
+
+KEY_FOR_PROVIDER = {'openai': 'OPENAI_API_KEY', 'anthropic': 'ANTHROPIC_API_KEY'}
+
 
 def client_extra(mode: str) -> dict:
     if mode == 'off':
         return {"extra_body": {"reasoning": {"enabled": False}}}
+    if mode in ('minimal', 'none'):                 # OpenAI: gpt-5.4 takes 'none', mini takes both
+        return {"reasoning_effort": mode}
     if mode == 'on':
         return {"reasoning_effort": "low"}
     return {}
@@ -112,10 +149,15 @@ def main() -> int:
     ap.add_argument('--budgets', type=str, default='1,5')
     ap.add_argument('--temperature', type=float, default=0.2)
     ap.add_argument('--workers', type=int, default=10, help='concurrent episodes per model batch')
+    ap.add_argument('--panel', choices=sorted(PANELS), default='starter')
     args = ap.parse_args()
 
-    if not os.environ.get('OPENROUTER_API_KEY'):
-        print('error: OPENROUTER_API_KEY not set in env', file=sys.stderr)
+    panel = PANELS[args.panel]
+    needed_keys = {KEY_FOR_PROVIDER.get(mid.split(':', 1)[0], 'OPENROUTER_API_KEY')
+                   if ':' in mid else 'OPENROUTER_API_KEY' for mid, _, _ in panel}
+    missing = [k for k in needed_keys if not os.environ.get(k)]
+    if missing:
+        print(f"error: {', '.join(missing)} not set in env", file=sys.stderr)
         return 1
 
     if args.mode == 'smoke':
@@ -167,7 +209,8 @@ def main() -> int:
         spec = procgen.generate(seed, tier, b=float(B))
         s_null, s_ref = anchors_for(spec)
         mt = {'in': 0, 'out': 0, 'reason': 0, 'cost': 0.0, 'calls': 0}
-        client = TallyClient(f"openrouter:{mid}", mt, PRICES[mid], **client_extra(mode))
+        model_spec = mid if ':' in mid else f"openrouter:{mid}"   # bare ids route via OpenRouter
+        client = TallyClient(model_spec, mt, PRICES[mid], **client_extra(mode))
         agent = ModelAgent(client, track='rp', temperature=args.temperature)
         t0 = time.time()
         res = run_episode(spec, agent)
@@ -187,7 +230,7 @@ def main() -> int:
         return res, rec
 
     halted = False
-    for mid, mode, label in PANEL:
+    for mid, mode, label in panel:
         if halted:
             log(f"SKIP {label} — budget cap reached")
             continue

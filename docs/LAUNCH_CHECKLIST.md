@@ -76,7 +76,11 @@ Legend: `[ ]` todo · `[~]` partial · `[x]` done.
 - [ ] Standard-vs-Custom rules: fixed prompt/tool-schemas/temperature for "standard"; custom for
   modified scaffold/planner/retries/ensembles. Public-accessibility requirement (BFCL-style).
 - [ ] Minimal leaderboard (static `data.json` + simple page, or reuse the replay viewer).
-- [~] **Official model panel.** Starter board done (12 models via OpenRouter, medium+hard ×
+- [~] **Official model panel.** 2026-06-11 patch added gpt-5.4 / gpt-5.4-mini (direct OpenAI,
+  reasoning none+low), claude-haiku-4.5 (direct Anthropic), nemotron-3 nano/super (OpenRouter)
+  — combined board in `leaderboard/results/board.{md,json}` (`scripts/build_board.py`).
+  Pending: gpt-5.4·think rerun (OpenAI quota died mid-config; episodes quarantined in
+  `runs/openai_patch/`). Starter board done (12 models via OpenRouter, medium+hard ×
   {B=1s,B=5s}, 12 seeds × 1 trial, RP). To upgrade to ranked-official: add trials≥4 (pass^k),
   more seeds, β-calibration, and a frontier-reasoning tier. Budget for the cheap starter was
   ~$68; a full ranked run is the larger spend.

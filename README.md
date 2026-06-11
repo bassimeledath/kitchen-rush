@@ -88,12 +88,12 @@ voice-agent regime. **B=5s** buys about 730 tokens per decision — enough for a
 reasoning — the interactive-assistant regime. The same model can rank very differently on the
 two boards, and that reordering is precisely what the benchmark is for.
 
-## Leaderboard (gen 1.0 starter run)
+## Leaderboard (gen 1.0)
 
-First sweep: 12 models × 12 seeds × {medium, hard} kitchens × two latency budgets — 576
-episodes. Each chart is one latency budget; bars are mean KR, whiskers are 95% confidence
-intervals. The full per-tier table (with costs, reasoning tokens, and serve rates) is at
-[leaderboard/results/starter.md](leaderboard/results/starter.md).
+17 model configurations × 12 seeds × {medium, hard} kitchens × two latency budgets — 816
+episodes so far. Each chart is one latency budget; bars are mean KR, whiskers are 95%
+confidence intervals. The full per-tier table (with costs, reasoning tokens, and serve rates)
+is at [leaderboard/results/board.md](leaderboard/results/board.md).
 
 <p align="center">
   <img src="docs/assets/leaderboard_b1.png" width="49%" alt="Leaderboard at latency budget B=1s">
@@ -106,12 +106,15 @@ dispatch. Winning here means "the model I'd trust to drive a voice agent or a li
 **The right board (B=5s)** prices the same kitchens for five seconds per decision (~730
 tokens — room for a short burst of reasoning), the interactive-assistant regime.
 
-Read them side by side — that contrast is the product. `gemini-3.1-flash-lite` is nearly even
-with `claude-sonnet-4.6` under tight realtime pressure (32 vs 37) but *drops* to half its
-score when deliberation gets cheap, while deeper models like `deepseek-v4-pro` and
-`gpt-oss-120b` roughly triple with the extra slack (4→12 and 3→11). That's the latency tax,
-made visible. (Most of the panel ran with reasoning off — this is a benchmark for *fast* tool
-calling, so no-reasoning is the honest default; `·think` rows ran with reasoning on.)
+Read them side by side — that contrast is the product. Under tight realtime pressure (B=1s)
+the fast no-reasoning models hold the podium: `gemini-3.1-flash-lite` runs nearly even with
+`claude-sonnet-4.6` (32 vs 37). Give every decision five seconds instead and the board
+reorders: `gpt-5.4-mini` with low reasoning rockets from near-zero to a **dead heat with
+sonnet (44 vs 44) at about a fifth of the cost**, while flash-lite *drops* to half its B=1
+standing. The same mini with reasoning fully off scores 0.0 at both budgets — reasoning it
+can't afford at B=1 is exactly what makes it a frontier-level tool caller at B=5. That's the
+latency tax, made visible. (`·think` rows ran with reasoning on at low effort; everything
+else with reasoning off — fast single-shot dispatch is the honest realtime default.)
 
 ## Try it
 
