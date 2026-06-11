@@ -9,6 +9,15 @@
   <img alt="Core dependencies: zero" src="https://img.shields.io/badge/core_deps-zero-success.svg">
 </p>
 
+<p align="center">
+  <img src="docs/assets/duel_b5.gif" width="85%"
+       alt="claude-sonnet-4.6 and gpt-5.4-mini (low reasoning) racing the same kitchen at a 5-second latency budget">
+</p>
+<p align="center"><em>Same kitchen, same orders, one shared clock (latency budget B=5s):
+<code>gpt-5.4-mini</code> with a short reasoning burst finishes every order at <b>99</b> while
+<code>claude-sonnet-4.6</code> is still cooking at 40. The 🤔 pauses are real, charged thinking
+time. <a href="ui/README.md">Race any replays yourself in the viewer.</a></em></p>
+
 > **Heads-up before quoting numbers:** Kitchen Rush is in beta. The game rules are frozen
 > (generation 1.0, hash `33034952fa7f` — see [docs/CALIBRATION.md](docs/CALIBRATION.md)), but the
 > token→seconds coefficients behind the reproducible clock are still being calibrated, so
