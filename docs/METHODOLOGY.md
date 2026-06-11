@@ -1,22 +1,33 @@
 # METHODOLOGY — how Kitchen Rush scores models, and why the parameters are defensible
 
 This document is the *justification layer*. [RULES.md](RULES.md) defines the game and the raw
-point formulas (§9 there, mirrored in `scoring.py`); this explains the **headline metric**, how
+point formulas (§9 there, mirrored in `scoring.py`); this explains **KR, the Kitchen Rush
+score** (the one number the leaderboard reports), how
 the **latency budget B** is encoded, and how every tunable parameter is either
 **derived**, **calibrated**, or **acknowledged-arbitrary-but-robust**.
 
 It incorporates an independent design review (gpt-5.5) that converged on the scheme below.
 
-## 1. One headline number (no tradeoff plot)
+## 1. One reported score — KR, the Kitchen Rush score (no tradeoff plot)
 
 Kitchen Rush is a **realtime** benchmark: speed and accuracy are fused *by construction*
 (the world clock advances while the model thinks). We therefore refuse to present a
 latency-vs-accuracy Pareto plot as the primary view — that would imply you trade one for the
-other, which is the opposite of the point. The headline is a single 0–100 score:
+other, which is the opposite of the point. The leaderboard reports a single 0–100 score:
 
 ```
 KR = 100 · mean_{seed,trial}  clip( (S_model − S_null) / (S_ref − S_null), 0, 1 )
 ```
+
+In words: take the model's raw game score, place it on the line between "did nothing" and
+"played like the zero-latency reference chef", and report how far along that line it got, as
+a percentage, averaged over episodes (each episode clipped to [0, 1] first).
+
+**Worked example.** On one seed, the do-nothing floor is `S_null = −60` (every order expires
+and costs points), the reference chef scores `S_ref = 140`, and the model scores
+`S_model = 40`. The span between the anchors is `140 − (−60) = 200` points, and the model
+covered `40 − (−60) = 100` of them, so `KR = 100 · 100/200 = 50` — it closed exactly half the
+gap to the reference. A model at `S_model = −60` gets 0; one at `140` (or above) gets 100.
 
 - **`S_model`** — raw game score with the model's latency charged into the world clock.
 - **`S_null(seed)`** — a "do nothing, let every order expire" policy: no deliveries, no
@@ -28,10 +39,10 @@ KR = 100 · mean_{seed,trial}  clip( (S_model − S_null) / (S_ref − S_null), 
 **Why null→reference** (not `clip(S / S_ref, 0, 1)`): the bare ratio collapses every
 weak-but-nonzero model to ~0; anchoring the floor at the null policy keeps the low end
 interpretable and discriminative while still not pretending failure is success. Raw signed
-`S_model` is always reported alongside (for audit), but it is **not** the headline.
+`S_model` is always reported alongside (for audit), but it is **not** the reported score.
 
 Everything else — RT latency distribution, RP score, completion / on-time / invalid / burn
-rates, Pass^k — is a **diagnostic**, never multiplied into the headline. (This drops the
+rates, Pass^k — is a **diagnostic**, never multiplied into KR. (This drops the
 `√OnTime · √(1−Invalid) · √Pass^k` gates from the older RTTC: they double-count behavior the
 game already prices and add arbitrary exponents.) Reliability enters only as a tie-breaker:
 
@@ -118,7 +129,7 @@ mathematically grounded translations:
 
 | Track | `latency_seconds` | Role |
 |---|---|---|
-| **RP (ranked)** | `0.30 + 0.0002·n_in + 0.006·n_out` (reasoning tokens incl.) | the reproducible headline — provider-independent, recomputable from logs; *experimental* until the β-calibration study freezes the coefficients |
+| **RP (ranked)** | `0.30 + 0.0002·n_in + 0.006·n_out` (reasoning tokens incl.) | the clock used for ranked results — provider-independent, recomputable from logs; *experimental* until the β-calibration study freezes the coefficients |
 | **RT (diagnostic)** | measured wall-clock | the realism check; requires disclosed hardware/region, concurrency=1, fixed warmup |
 
 The leaderboard ranks by **RP**; RT is published adjacent as the realism diagnostic. RP
@@ -166,10 +177,10 @@ today's models (which overfits to the current zoo).
   freeze as a versioned ruleset and publish the sweep, rank-stability heatmaps, score-vs-
   injected-latency curves, and raw-score distributions.
 
-## 6. Partial credit (deliberately *not* in the headline)
+## 6. Partial credit (deliberately *not* in KR)
 
 A model that does valid work but completes no order scores ≈ `S_null` ≈ 0 — by design. We do
-**not** add per-move or per-milestone credit to the headline: it invites farming safe
+**not** add per-move or per-milestone credit to KR: it invites farming safe
 subgoals and turns an outcome benchmark into trace-matching. The *first* lever for low-end
 discrimination is **calibration** (make instances solvable so capable models actually
 complete orders). If, after calibration, the low end is still flat and we want

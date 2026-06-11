@@ -8,6 +8,15 @@ leaderboard generation. See [docs/RULES.md](docs/RULES.md).
 
 ## [Unreleased]
 
+### Changed — launch polish (2026-06-10)
+- README leaderboard is now two charts (one per latency budget, 95% CIs —
+  `scripts/plot_board.py` → `docs/assets/leaderboard_b*.png`) instead of a table, with a
+  plain-language reading of what each budget means in deployment.
+- KR is consistently spelled out as the **Kitchen Rush score**, introduced with a worked
+  toy example (README + METHODOLOGY §1); "headline metric" jargon removed.
+- Tagline order flipped to **accurate AND fast** (pyproject, package docstring, CITATION,
+  repo description).
+
 ### Changed — realtime focus (2026-06-10)
 - Kitchen Rush is now **one benchmark**: realtime tool calling under a user-selectable
   latency budget B. README rewritten around the why, the math of B (deadlines priced at
@@ -24,8 +33,8 @@ leaderboard generation. See [docs/RULES.md](docs/RULES.md).
   single spec and git history preserves the originals.
 
 ### Added
-- Initial design and repository scaffold for Kitchen Rush v2 — a benchmark for **fast
-  AND accurate** native tool calling, where **latency costs points by construction**.
+- Initial design and repository scaffold for Kitchen Rush v2 — a benchmark for **accurate
+  AND fast** native tool calling, where **latency costs points by construction**.
 - Full design docs: `RULES.md` (airtight deterministic ruleset) plus the original design
   suite (`SCORING`/`INTERFACE`/`PROCEDURAL`/`MOVEMENT`/`DESIGN`/`MIGRATION`/`ROADMAP`,
   since removed — see above) and `CONTAMINATION.md`.

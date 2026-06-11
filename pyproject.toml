@@ -1,7 +1,7 @@
 [project]
 name = "kitchenrush"
 version = "0.1.0"
-description = "A benchmark for fast AND accurate native tool calling (latency costs points by construction)."
+description = "A benchmark for accurate AND fast native tool calling (latency costs points by construction)."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }

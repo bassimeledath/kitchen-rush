@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use Kitchen Rush, please cite it."
-title: "Kitchen Rush: A Benchmark for Fast and Accurate Tool Calling"
+title: "Kitchen Rush: A Benchmark for Accurate and Fast Tool Calling"
 abstract: >-
   Kitchen Rush is a text-to-text, Overcooked-inspired benchmark in which a model plays a
   chef on a seeded grid kitchen, issuing native function calls to fulfill orders before

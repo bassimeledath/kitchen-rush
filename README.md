@@ -2,6 +2,13 @@
 
 **A tool-calling benchmark where thinking time costs points.**
 
+<p>
+  <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-blue.svg"></a>
+  <img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-blue.svg">
+  <img alt="Ruleset: gen 1.0, frozen" src="https://img.shields.io/badge/ruleset-gen_1.0_frozen-2f6fb2.svg">
+  <img alt="Core dependencies: zero" src="https://img.shields.io/badge/core_deps-zero-success.svg">
+</p>
+
 > **Heads-up before quoting numbers:** Kitchen Rush is in beta. The game rules are frozen
 > (generation 1.0, hash `33034952fa7f` — see [docs/CALIBRATION.md](docs/CALIBRATION.md)), but the
 > token→seconds coefficients behind the reproducible clock are still being calibrated, so
@@ -35,13 +42,21 @@ Overcooked:
    the latency once — decisiveness is rewarded.)
 2. **No joystick skills.** The chef walks itself to the right station automatically; travel
    time is charged inside the action. What's being tested is *choosing the right action
-   sequence under time pressure*, not steering a sprite.
+   sequence under time pressure*, not video-game reflexes.
 3. **Fully deterministic.** Same seed, same actions, same latencies → exactly the same episode,
    every time, on any machine. Every run can be replayed in a browser viewer and audited.
 
-Every episode produces a score called **KR**, from 0 to 100. It's graded on a curve between two
-fixed anchors: KR 0 means "no better than doing nothing and letting every order expire," and
-KR 100 means "matched a scripted reference chef that plays the same kitchen with zero latency."
+Every episode produces a single 0–100 score we call **KR** (the **Kitchen Rush score**). It's
+graded on a curve between two fixed anchors: KR 0 means "no better than doing nothing and
+letting every order expire," and KR 100 means "matched a scripted reference chef that plays
+the same kitchen with zero latency."
+
+A worked example makes it concrete. Say that on one kitchen the do-nothing chef finishes at
+**−60** points (every order expired), the zero-latency reference chef finishes at **+140**,
+and your model finishes at **+40**. There are 200 points between the two anchors and your
+model covered 100 of them, so its KR is **50** — it closed half the gap to the reference.
+Average that over many seeded kitchens and you have the leaderboard number
+([docs/METHODOLOGY.md](docs/METHODOLOGY.md) has the full formula).
 
 ## The latency budget (B)
 
@@ -73,26 +88,30 @@ voice-agent regime. **B=5s** buys about 730 tokens per decision — enough for a
 reasoning — the interactive-assistant regime. The same model can rank very differently on the
 two boards, and that reordering is precisely what the benchmark is for.
 
-## Results — starter board (gen 1.0)
+## Leaderboard (gen 1.0 starter run)
 
-First sweep: 12 models × 12 seeds × {medium, hard} × {B=1s, B=5s} — 576 episodes. Top 5 shown
-here; the full board with per-tier cells is at
+First sweep: 12 models × 12 seeds × {medium, hard} kitchens × two latency budgets — 576
+episodes. Each chart is one latency budget; bars are mean KR, whiskers are 95% confidence
+intervals. The full per-tier table (with costs, reasoning tokens, and serve rates) is at
 [leaderboard/results/starter.md](leaderboard/results/starter.md).
 
-| # | model | reasoning | **KR @B=1s** | **KR @B=5s** | KR̄ ± CI | $ |
-|---|---|---|---|---|---|---|
-| 1 | claude-sonnet-4.6 | off | **36.7** | **44.4** | 40.6 ±5.8 | 29.45 |
-| 2 | gemini-3.1-flash-lite | off | **31.6** | 21.0 | 26.3 ±9.8 | 0.79 |
-| 3 | qwen3.7-plus | off | 9.9 | 6.7 | 8.3 ±4.3 | 2.32 |
-| 4 | deepseek-v4-pro | off | 4.1 | **11.5** | 7.8 ±5.4 | 2.04 |
-| 5 | gpt-oss-120b | low | 3.3 | 10.9 | 7.1 ±3.4 | 0.42 |
+<p align="center">
+  <img src="docs/assets/leaderboard_b1.png" width="49%" alt="Leaderboard at latency budget B=1s">
+  <img src="docs/assets/leaderboard_b5.png" width="49%" alt="Leaderboard at latency budget B=5s">
+</p>
 
-Read the two budget columns side by side — that contrast is the product.
-`gemini-3.1-flash-lite` nearly ties for first under tight realtime pressure (B=1s) but *drops*
-when deliberation gets cheap, while deeper models like `deepseek-v4-pro` and `gpt-oss-120b`
-roughly triple with the extra slack. That's the latency tax, made visible. (Most of the panel
-ran with reasoning off — this is a benchmark for *fast* tool calling, so no-reasoning is the
-honest default; the full board labels every row.)
+**The left board (B=1s)** is the realtime test: the kitchen is priced for one second per
+decision, which on the benchmark's clock buys about 65 output tokens — terse, single-shot tool
+dispatch. Winning here means "the model I'd trust to drive a voice agent or a live dashboard."
+**The right board (B=5s)** prices the same kitchens for five seconds per decision (~730
+tokens — room for a short burst of reasoning), the interactive-assistant regime.
+
+Read them side by side — that contrast is the product. `gemini-3.1-flash-lite` is nearly even
+with `claude-sonnet-4.6` under tight realtime pressure (32 vs 37) but *drops* to half its
+score when deliberation gets cheap, while deeper models like `deepseek-v4-pro` and
+`gpt-oss-120b` roughly triple with the extra slack (4→12 and 3→11). That's the latency tax,
+made visible. (Most of the panel ran with reasoning off — this is a benchmark for *fast* tool
+calling, so no-reasoning is the honest default; `·think` rows ran with reasoning on.)
 
 ## Try it
 
@@ -131,6 +150,20 @@ method, registered with `register_adapter`. CLI commands: `run`, `bench`, `repla
 - [docs/OBJECTIONS.md](docs/OBJECTIONS.md) — anticipated critiques, answered with data
 - [docs/SUBMISSIONS.md](docs/SUBMISSIONS.md) · [docs/CONTAMINATION.md](docs/CONTAMINATION.md) —
   leaderboard contract & data hygiene
+
+## Citation
+
+If you use Kitchen Rush in your work, please cite it (machine-readable copy in
+[CITATION.cff](CITATION.cff)):
+
+```bibtex
+@software{kitchenrush2026,
+  author = {Eledath, Bassim},
+  title  = {Kitchen Rush: A Benchmark for Accurate and Fast Tool Calling},
+  url    = {https://github.com/bassimeledath/kitchen-rush},
+  year   = {2026}
+}
+```
 
 ## License
 

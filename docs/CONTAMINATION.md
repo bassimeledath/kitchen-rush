@@ -15,7 +15,7 @@ into disjoint, published bands:
 | `train` | public | free for prompt/agent tuning and fine-tuning |
 | `dev` | public | validation / ablation during development |
 | `test` | public | standard reported number; reproducible by anyone |
-| `challenge` | **maintainer-run, hidden** | headline / audit; generated from secret seeds |
+| `challenge` | **maintainer-run, hidden** | official-board / audit; generated from secret seeds |
 
 Because generation is a pure function of `(seed, tier, GENERATOR_VERSION)`, anyone can
 regenerate `train`/`dev`/`test`, but the `challenge` band's seeds are withheld and run by
@@ -30,7 +30,7 @@ leaked into training. Do not train on text containing the canary.
 ## Versioning ties scores to rules
 
 Each result is stamped with `RULESET_VERSION`, `GENERATOR_VERSION`, `SCHEMA_VERSION`,
-`config_hash`, and `seeds_hash`. A submission only appears on the active headline board if
+`config_hash`, and `seeds_hash`. A submission only appears on the active official board if
 these match the current official split; changing any scoring constant or recipe bumps
 `RULESET_VERSION` and starts a new board generation.
 
@@ -44,5 +44,5 @@ lands in the Custom track.
 
 ## Open governance questions
 
-Open: whether the headline number is the public `test` split or the hidden `challenge` band,
+Open: whether the official board number is the public `test` split or the hidden `challenge` band,
 and the Pass^k sampling temperature (tracked in [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)).

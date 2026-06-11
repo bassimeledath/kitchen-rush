@@ -1,4 +1,4 @@
-"""Kitchen Rush — a benchmark for fast AND accurate native tool calling.
+"""Kitchen Rush — a benchmark for accurate AND fast native tool calling.
 
 Latency costs points by construction: a model's per-response thinking time is converted to
 game-seconds that advance a shared world clock *before* each action resolves, so while the

@@ -40,6 +40,16 @@ try {
   await page.setViewport({ width, height, deviceScaleFactor: 2 });
   await page.goto(url, { waitUntil: "networkidle0" });
   await page.waitForFunction("window.KRplayer && KRplayer.ready()", { timeout: 15000 });
+  // headroom above the pane headers, then auto-fit the viewport to the actual content so
+  // nothing (rank badges, model names, transport) is ever cropped
+  await page.addStyleTag({ content: ".layout { padding-top: 22px; }" });
+  const fit = await page.evaluate(() => {
+    const t = document.querySelector(".transport").getBoundingClientRect();
+    const l = document.querySelector(".layout").getBoundingClientRect();
+    return { h: Math.ceil(t.bottom), w: Math.ceil(Math.max(l.width, t.width)) };
+  });
+  await page.setViewport({ width: Math.max(width, fit.w), height: Math.max(height, fit.h + 6) & ~1,
+                           deviceScaleFactor: 2 });
   const dur = await page.evaluate("KRplayer.duration()");
   const dt = speed / fps;
   const total = Math.floor(dur / dt) + 1;

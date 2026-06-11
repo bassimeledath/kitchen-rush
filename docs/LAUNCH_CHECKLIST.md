@@ -108,7 +108,9 @@ Legend: `[ ]` todo · `[~]` partial · `[x]` done.
 ## P3 — polish & credibility
 
 - [ ] Short tech report / methodology writeup for citeability (METHODOLOGY exists).
-- [ ] README hero: KR-vs-B results table + an embedded replay GIF.
+- [~] README hero: per-budget leaderboard charts embedded (done); replay GIF rendered
+  (`runs/clips/`, offline renderer `scripts/render_clip.mjs`) — embed once the top-2 duel is
+  re-cut with a sonnet replay (needs an Anthropic/OpenRouter key).
 - [ ] Independent external reproduction of one standard submission before launch (treat every
   failure as a docs/CLI bug).
 - [ ] Optional: human/expert baseline rows; Docker for a pinned environment.
