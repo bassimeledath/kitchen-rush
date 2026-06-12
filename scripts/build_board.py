@@ -22,6 +22,8 @@ PATCH_RUNS = ["openai_patch", "anthropic_patch", "openrouter_patch"]
 # rows that must not appear on the published board, and why (kept in the json for audit)
 EXCLUDED = {
     "gpt-5.4·think": "OpenAI quota exhausted mid-config — episodes quarantined, pending rerun",
+    "claude-sonnet-4.6·think†": "Anthropic credit exhausted mid-config — B=5 + 6 hard-B1 episodes "
+                                "quarantined, pending rerun (row incomplete)",
     "nemotron-3-ultra": "no OpenRouter endpoint supports tool_choice:required (harness contract)",
 }
 # starter rows superseded by a cleaner direct-API rerun with the same label
@@ -134,9 +136,9 @@ def main() -> int:
         "KR = 100·clip((S−S_null)/(S_ref−S_null)), mean over seeds. `·think` = reasoning on "
         "(low effort). Not on the board: `gpt-5.4·think` (provider quota died mid-run — pending), "
         "`nemotron-3-ultra` (no tool_choice:required endpoint on OpenRouter), `gpt-oss-120b` "
-        "reasoning-off (provider: reasoning is mandatory), `claude-sonnet-4.6·think` (Anthropic "
-        "API: thinking may not be enabled when tool_choice forces tool use, which the harness "
-        "contract requires).",
+        "reasoning-off (provider: reasoning is mandatory), `claude-sonnet-4.6·think†` (runs as a "
+        "flagged deviation under tool_choice:auto since Anthropic forbids thinking with forced "
+        "tool use — partially run, Anthropic credit died mid-config, pending completion).",
         "",
         hdr,
         "|" + "|".join(["---"] * (hdr.count("|") - 1)) + "|",

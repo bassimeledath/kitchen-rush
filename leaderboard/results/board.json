@@ -11,9 +11,10 @@
     "generator": "0.1",
     "tokenizer": "tiktoken-cl100k_base-v1"
   },
-  "total_cost_usd": 107.59,
+  "total_cost_usd": 122.3,
   "excluded": {
     "gpt-5.4\u00b7think": "OpenAI quota exhausted mid-config \u2014 episodes quarantined, pending rerun",
+    "claude-sonnet-4.6\u00b7think\u2020": "Anthropic credit exhausted mid-config \u2014 B=5 + 6 hard-B1 episodes quarantined, pending rerun (row incomplete)",
     "nemotron-3-ultra": "no OpenRouter endpoint supports tool_choice:required (harness contract)"
   },
   "superseded": [

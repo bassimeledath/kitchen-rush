@@ -55,6 +55,7 @@ PRICES = {
     'openai:gpt-5.4-mini': (0.00000075, 0.0000045),
     'openai:gpt-5.4': (0.0000025, 0.000015),
     'anthropic:claude-haiku-4-5-20251001': (0.000001, 0.000005),
+    'anthropic:claude-sonnet-4-6': (0.000003, 0.000015),
     # OpenRouter nemotron-3 family (prices from openrouter.ai/api/v1/models, 2026-06-11)
     'nvidia/nemotron-3-nano-30b-a3b': (0.00000005, 0.0000002),
     'nvidia/nemotron-3-super-120b-a12b': (0.00000009, 0.00000045),
@@ -90,9 +91,11 @@ PANELS = {
     ],
     'anthropic': [
         ('anthropic:claude-haiku-4-5-20251001', 'default', 'claude-haiku-4.5'),
-        # NB: claude-sonnet-4.6·think is impossible — Anthropic API: "Thinking may not be
-        # enabled when tool_choice forces tool use", and the harness contract requires
-        # tool_choice:required (verified 2026-06-12 with reasoning_effort=low).
+        # † deviation row: Anthropic forbids thinking + forced tool use ("Thinking may not
+        # be enabled when tool_choice forces tool use"), so this row runs tool_choice:auto.
+        # The shared system prompt already mandates tool-calls-only; RP charges any prose it
+        # emits anyway, and prose/no-op turns are counted per episode (noop_turns).
+        ('anthropic:claude-sonnet-4-6', 'on-auto', 'claude-sonnet-4.6·think†'),
     ],
     'openrouter2': [
         # NB: gpt-oss-120b@off is impossible — OpenRouter: "Reasoning is mandatory for this endpoint"
@@ -112,6 +115,8 @@ def client_extra(mode: str) -> dict:
         return {"reasoning_effort": mode}
     if mode == 'on':
         return {"reasoning_effort": "low"}
+    if mode == 'on-auto':   # Anthropic: thinking cannot be combined with forced tool use
+        return {"reasoning_effort": "low", "tool_choice": "auto"}
     return {}
 
 
@@ -119,11 +124,14 @@ class TallyClient(LiteLLMClient):
     """LiteLLM client that adds real provider token spend to a shared mutable tracker."""
 
     def __init__(self, spec: str, tracker: dict, price: tuple[float, float], **kw):
+        self._tool_choice = kw.pop('tool_choice', None)
         super().__init__(spec, **kw)
         self._t = tracker
         self._price = price
 
     def generate(self, **kw):
+        if self._tool_choice:
+            kw.setdefault('tool_choice', self._tool_choice)
         resp = super().generate(**kw)
         pin, pout = self._price
         u = resp.usage
@@ -227,6 +235,7 @@ def main() -> int:
             'served': rep['counters']['orders_served'], 'total': rep['counters']['orders_total'],
             'turns': rep['turns'], 'terminated': rep['terminated'],
             'invalid': rep['counters']['invalid_actions'], 'burns': rep['counters']['burns'],
+            'noop_turns': sum(1 for st in res.steps if not st['calls']),
             'ep_tokens_in': mt['in'], 'ep_tokens_out': mt['out'], 'ep_reason': mt['reason'],
             'ep_cost': round(mt['cost'], 5), 'wall_s': round(time.time() - t0, 1),
         }
@@ -275,6 +284,14 @@ def main() -> int:
                       f'pass_{trials}': agg.get(f'pass_{trials}'),
                       'completion_rate': agg.get('completion_rate'),
                       'invalid_rate': agg.get('invalid_rate')})
+    # resume safety: carry over cells from a previous leaderboard.json for configs that were
+    # skipped this invocation (groups only sees episodes actually run now)
+    lbpath = out / 'leaderboard.json'
+    if lbpath.exists():
+        fresh = {(c['model'], c['B'], c['tier']) for c in board}
+        for c in json.loads(lbpath.read_text())['board']:
+            if (c['model'], c['B'], c['tier']) not in fresh:
+                board.append(c)
     board.sort(key=lambda r: (r['tier'], r['B'], -(r['KR'] if r['KR'] is not None else -1)))
     summary = {'name': name, 'ruleset': ruleset_hash(), 'versions': versions(),
                'total_cost_usd': round(grand['cost'], 2), 'halted_on_budget': halted, 'board': board}
