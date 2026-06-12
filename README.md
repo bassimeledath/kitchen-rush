@@ -10,13 +10,16 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/duel_b5.gif" width="85%"
-       alt="claude-sonnet-4.6 and gpt-5.4-mini (low reasoning) racing the same kitchen at a 5-second latency budget">
+  <img src="docs/assets/duel_b1.gif" width="85%"
+       alt="claude-sonnet-4.6 and gpt-5.4-mini (low reasoning) racing the same kitchen at a 1-second latency budget">
 </p>
-<p align="center"><em>Same kitchen, same orders, one shared clock (latency budget B=5s):
-<code>gpt-5.4-mini</code> with a short reasoning burst finishes every order at <b>99</b> while
-<code>claude-sonnet-4.6</code> is still cooking at 40. The 🤔 pauses are real, charged thinking
-time. <a href="ui/README.md">Race any replays yourself in the viewer.</a></em></p>
+<p align="center"><em>Same kitchen, same orders, one shared clock, one second per decision
+(latency budget B=1s): the leaderboard's #1 and #2 head to head. <code>claude-sonnet-4.6</code>
+fires terse tool calls, serves all six orders and finishes at <b>+88</b>;
+<code>gpt-5.4-mini</code>'s 🤔 pauses are real, charged thinking time — it sinks to <b>−82</b>
+as orders expire around it. That's the latency tax. (Scores shown are raw kitchen points for
+this one kitchen; the leaderboard below averages the normalized KR score over 24 kitchens per
+budget.) <a href="ui/README.md">Race any replays yourself in the viewer.</a></em></p>
 
 > **Heads-up before quoting numbers:** Kitchen Rush is in beta. The game rules are frozen
 > (generation 1.0, hash `33034952fa7f` — see [docs/CALIBRATION.md](docs/CALIBRATION.md)), but the
@@ -124,6 +127,17 @@ standing. The same mini with reasoning fully off scores 0.0 at both budgets — 
 can't afford at B=1 is exactly what makes it a frontier-level tool caller at B=5. That's the
 latency tax, made visible. (`·think` rows ran with reasoning on at low effort; everything
 else with reasoning off — fast single-shot dispatch is the honest realtime default.)
+
+<p align="center">
+  <img src="docs/assets/duel_b5.gif" width="85%"
+       alt="the same duel at a 5-second latency budget: gpt-5.4-mini's reasoning becomes affordable and it finishes first">
+</p>
+<p align="center"><em>The flip, watched live: the same two models from the clip at the top,
+but in a kitchen priced at B=5s. Now the mini's reasoning burst is affordable — it finishes
+every order at <b>99</b> raw points (KR 86) while sonnet is still cooking at 40. This is the
+mini's best kitchen — the chart above shows the average, a 44–44 tie across all 24 — but the
+direction is real: it wins the medium tier at B=5 outright (59 vs 52). Same models, different
+latency budget, different winner: that's exactly what the two boards measure.</em></p>
 
 ## Try it
 
