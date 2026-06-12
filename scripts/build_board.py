@@ -134,7 +134,9 @@ def main() -> int:
         "KR = 100·clip((S−S_null)/(S_ref−S_null)), mean over seeds. `·think` = reasoning on "
         "(low effort). Not on the board: `gpt-5.4·think` (provider quota died mid-run — pending), "
         "`nemotron-3-ultra` (no tool_choice:required endpoint on OpenRouter), `gpt-oss-120b` "
-        "reasoning-off (provider: reasoning is mandatory).",
+        "reasoning-off (provider: reasoning is mandatory), `claude-sonnet-4.6·think` (Anthropic "
+        "API: thinking may not be enabled when tool_choice forces tool use, which the harness "
+        "contract requires).",
         "",
         hdr,
         "|" + "|".join(["---"] * (hdr.count("|") - 1)) + "|",

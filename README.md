@@ -126,7 +126,10 @@ sonnet (44 vs 44) at about a fifth of the cost**, while flash-lite *drops* to ha
 standing. The same mini with reasoning fully off scores 0.0 at both budgets — reasoning it
 can't afford at B=1 is exactly what makes it a frontier-level tool caller at B=5. That's the
 latency tax, made visible. (`·think` rows ran with reasoning on at low effort; everything
-else with reasoning off — fast single-shot dispatch is the honest realtime default.)
+else with reasoning off — fast single-shot dispatch is the honest realtime default. One row
+you might expect is missing: there is no `claude-sonnet-4.6·think`, because Anthropic's API
+does not allow extended thinking when tool calls are forced, and the harness forces tool
+calls — sonnet competes thinking-off only.)
 
 <p align="center">
   <img src="docs/assets/duel_b5.gif" width="85%"

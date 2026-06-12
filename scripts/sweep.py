@@ -90,6 +90,9 @@ PANELS = {
     ],
     'anthropic': [
         ('anthropic:claude-haiku-4-5-20251001', 'default', 'claude-haiku-4.5'),
+        # NB: claude-sonnet-4.6·think is impossible — Anthropic API: "Thinking may not be
+        # enabled when tool_choice forces tool use", and the harness contract requires
+        # tool_choice:required (verified 2026-06-12 with reasoning_effort=low).
     ],
     'openrouter2': [
         # NB: gpt-oss-120b@off is impossible — OpenRouter: "Reasoning is mandatory for this endpoint"

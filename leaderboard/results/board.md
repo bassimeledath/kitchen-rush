@@ -2,7 +2,7 @@
 
 Ruleset `33034952fa7f` (gen 1.0, frozen) · tokenizer `tiktoken-cl100k_base-v1` · track RP (experimental β) · 816 episodes · total $107.59 · = [starter run](starter.md) + 2026-06-11 patch (gpt-5.4 family & haiku via direct keys, nemotron via OpenRouter)
 
-KR = 100·clip((S−S_null)/(S_ref−S_null)), mean over seeds. `·think` = reasoning on (low effort). Not on the board: `gpt-5.4·think` (provider quota died mid-run — pending), `nemotron-3-ultra` (no tool_choice:required endpoint on OpenRouter), `gpt-oss-120b` reasoning-off (provider: reasoning is mandatory).
+KR = 100·clip((S−S_null)/(S_ref−S_null)), mean over seeds. `·think` = reasoning on (low effort). Not on the board: `gpt-5.4·think` (provider quota died mid-run — pending), `nemotron-3-ultra` (no tool_choice:required endpoint on OpenRouter), `gpt-oss-120b` reasoning-off (provider: reasoning is mandatory), `claude-sonnet-4.6·think` (Anthropic API: thinking may not be enabled when tool_choice forces tool use, which the harness contract requires).
 
 | # | model | har B1 | har B5 | med B1 | med B5 | KR̄ | ±95%CI | serve% | reason/ep | $ |
 |---|---|---|---|---|---|---|---|---|---|---|
