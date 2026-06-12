@@ -52,8 +52,11 @@ def main() -> int:
         cis = [r[2] for r in rows]
 
         fig, ax = plt.subplots(figsize=(6.4, 0.42 * len(rows) + 1.6), dpi=200)
+        # the lead is shared: accent every bar statistically tied with the top one (its 95% CI
+        # reaches the top mean), so a coin-flip ordering never reads as a decided winner
+        top = max(krs)
         bars = ax.barh(names, krs, xerr=cis, height=0.62,
-                       color=[ACCENT if k == max(krs) else MUTED for k in krs],
+                       color=[ACCENT if k + c >= top else MUTED for k, c in zip(krs, cis)],
                        error_kw={"ecolor": "#444", "capsize": 2.5, "lw": 1})
         for bar, k, ci in zip(bars, krs, cis):
             ax.text(bar.get_width() + ci + 1.2, bar.get_y() + bar.get_height() / 2,
@@ -66,7 +69,7 @@ def main() -> int:
         ax.spines[["top", "right"]].set_visible(False)
         ax.grid(axis="x", color="#e6e6e6", lw=0.7)
         ax.set_axisbelow(True)
-        fig.text(0.99, 0.01, "medium+hard tiers pooled · 24 episodes/model · 95% CI · ·think = reasoning on",
+        fig.text(0.99, 0.01, "medium+hard pooled · 24 eps/model · 95% CI · blue = tied for the lead within CI · ·think = reasoning on",
                  ha="right", fontsize=6.5, color="#777")
         fig.tight_layout()
         path = OUT / f"leaderboard_b{b:g}.png"
