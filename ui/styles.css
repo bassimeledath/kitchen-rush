@@ -18,7 +18,9 @@ body {
 .layout { flex: 1; display: flex; flex-direction: row; align-items: flex-start; justify-content: center; gap: 18px; padding: 12px 18px; }
 .panes { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; align-items: flex-start; }
 .pane { display: flex; flex-direction: column; gap: 8px; align-items: center; }
-.pane .caption { max-width: 100%; }
+/* width:0 + min-width:100%: the caption must never drive pane width, or panes shift as the
+   action text changes length; it takes the stage's width and ellipsizes instead */
+.pane .caption { width: 0; min-width: 100%; box-sizing: border-box; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* race chrome: pane headers (label chip / rank / score) appear only with 2+ panes */
 .pane-head { display: none; width: 100%; align-items: center; gap: 8px; padding: 0 2px; }
