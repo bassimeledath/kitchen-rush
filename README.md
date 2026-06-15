@@ -1,6 +1,6 @@
 <img src="assets/kitchen-rush-logo.png" alt="Kitchen Rush" width="420">
 
-**A tool-calling benchmark where thinking time costs points.**
+**An agent tool-calling benchmark where latency matters as much as intelligence.**
 
 <p>
   <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-blue.svg"></a>
@@ -13,14 +13,6 @@
   <img src="docs/assets/duel_b1.gif" width="85%"
        alt="claude-sonnet-4.6 and gpt-5.4-mini (low reasoning) racing the same kitchen at a 1-second latency budget">
 </p>
-<p align="center"><em>Same kitchen, same orders, one shared clock, one second per decision
-(latency budget B=1s): the leaderboard's #1 and #2 head to head. <code>claude-sonnet-4.6</code>
-fires terse tool calls, serves all six orders and finishes at <b>+88</b>;
-<code>gpt-5.4-mini</code>'s 🤔 pauses are real, charged thinking time — it sinks to <b>−82</b>
-as orders expire around it. That's the latency tax. (Scores shown are raw kitchen points for
-this one kitchen; the leaderboard below averages the normalized KR score over 24 kitchens per
-budget.) <a href="ui/README.md">Race any replays yourself in the viewer.</a></em></p>
-
 > **Heads-up before quoting numbers:** Kitchen Rush is in beta. The game rules are frozen
 > (generation 1.0, hash `33034952fa7f` — see [docs/CALIBRATION.md](docs/CALIBRATION.md)), but the
 > token→seconds coefficients behind the reproducible clock are still being calibrated, so
