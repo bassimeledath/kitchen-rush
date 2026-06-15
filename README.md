@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="assets/kitchen-rush-logo.png" alt="Kitchen Rush" width="420">
-</p>
+<img src="assets/kitchen-rush-logo.png" alt="Kitchen Rush" width="420">
 
 **A benchmark for FAST *and* ACCURATE native tool calling.**
 
