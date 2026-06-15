@@ -59,7 +59,7 @@ failure-type breakdown are reported alongside.
 
 | Track | Source | Use |
 |---|---|---|
-| **RP** (reproducible) | token proxy `β₀ + β_in·n_in + β_out·n_out` (incl. reasoning tokens) | intended ranking track — provider-independent, recomputable. *Tokenizer pinned (cl100k via tiktoken, char/4 fallback); the β-coefficients are still provisional pending the calibration study, so RP is **experimental** until they're frozen.* |
+| **RP** (reproducible) | token proxy `β₀ + β_in·n_in + β_out·n_out` (incl. reasoning tokens) | intended ranking track — recomputable from the transcript for visible tokens (pinned cl100k tokenizer, char/4 fallback). **Caveat:** the reasoning-token term is the *provider's self-reported count* over hidden text, so RP is **provider-trusted (not fully recomputable) for hidden-reasoning models** — see [Limitations](docs/LIMITATIONS.md). β-coefficients are provisional pending calibration, so RP is **experimental**. |
 | **RT** (real-latency) | measured wall-clock | realism diagnostic; disclose hardware/region |
 
 > **Important:** RP standardizes speed — it rewards *token economy + decision quality at a fixed

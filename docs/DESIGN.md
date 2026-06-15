@@ -3,7 +3,7 @@
 > is **[RULES.md](RULES.md)**; release tracking is in **[LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)**.
 # Kitchen Rush v2 — DESIGN
 
-This document ties the subsystems together. The crown-jewel specifications are [RULES.md](RULES.md) (deterministic state machine) and [SCORING.md](SCORING.md) (math); this is the architectural glue.
+This document ties the subsystems together. The authoritative spec is [RULES.md](RULES.md) (deterministic state machine **and scoring formulas, §9**); the headline-metric rationale is in [METHODOLOGY.md](METHODOLOGY.md). (`SCORING.md` is archived design history.) This doc is the architectural glue.
 
 ## 1. Design principles
 

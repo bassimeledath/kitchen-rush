@@ -53,7 +53,7 @@ Implemented (see [docs/METHODOLOGY.md](METHODOLOGY.md)):
   (B = 1 / 5 / 20 s). Deadlines are priced at B (`procgen.critical_path`); the horizon scales
   with B; each B is its own leaderboard slice. A synthetic sweep confirms the ranking reorders
   by latency need (a 2s agent: KR 50→68→94 across voice/chat/quality).
-- Multi-trial `run_suite` + Pass^k; **RT primary / RP shadow** tracks.
+- Multi-trial `run_suite` + Pass^k; **RP ranked / RT diagnostic** tracks (per RULES §3.2.1, METHODOLOGY §3).
 
 Remaining in Phase 3:
 - **Parallel reference scheduler + dense/throughput-bound stream** — the current *sequential*

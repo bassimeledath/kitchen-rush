@@ -52,7 +52,7 @@ class Usage:
 
 @dataclass(frozen=True)
 class LatencySample:
-    total_ms: float                      # send → full response parsed (RT primary; successful attempt only)
+    total_ms: float                      # send → full response parsed (RT track, diagnostic; successful attempt only)
     ttft_ms: float | None = None
     server_request_ms: float | None = None
     attempts: int = 1                    # retries EXCLUDED from total_ms; attempts>1 logged
@@ -107,7 +107,7 @@ Each adapter is the ONLY place that knows a provider's quirks (string vs structu
 A `tests/test_adapters_conformance.py` replay spec asserts each adapter round-trips the neutral transcript, synthesizes missing ids deterministically, and degrades gracefully when a provider lacks parallel FC (chain becomes one-call-per-turn; logged).
 
 ### 2.5 RP token counting (`adapters/tokenizer.py`)
-RP latency uses a **pinned tokenizer** (`TOKENIZER_ID` in `version.py`) over the canonical transcript, NOT provider `usage`. Counts: `n_in` = full rendered prompt (system + transcript + serialized tool schemas); `n_out` = assistant text + serialized tool-call JSON + `reasoning_tokens`. Cached tokens counted at full rate. This makes RP provider-independent and recomputable.
+RP latency uses a **pinned tokenizer** (`TOKENIZER_ID` in `version.py`) over the canonical transcript for the **visible** tokens: `n_in` = full rendered prompt (system + transcript + serialized tool schemas); the visible part of `n_out` = assistant text + serialized tool-call JSON. Cached tokens counted at full rate. The **reasoning-token** term added to `n_out` is the **provider's self-reported count** (from `usage`), not a tokenizer count over logged text — so the visible terms are recomputable but the reasoning term is **provider-trusted** (RP is not fully recomputable for hidden-reasoning models; RULES §3.2.1, METHODOLOGY §3.1).
 
 ### 2.6 Registry (`adapters/registry.py`)
 ```python
@@ -220,8 +220,8 @@ Trajectories: JSONL (one `StepRecord`/line) at `out/<run_id>/<seed>/trial<k>.jso
 ```
 
 ### 5.3 Reliability & ranking
-- Pass^k oracle-relative (`θ_pass·S*`), `k=4` (SCORING §6.2). `R_k=(Pass^4)^0.5` feeds RTTC.
-- **Primary ranking: RP-track RTTC.** Board shows RTTC, η, raw score, Pass^1/Pass^4, RP latency p50/p90, tokens/episode, on-time rate, chained-turn rate, and RT-track RTTC + hardware (adjacent, diagnostic). The whole point is the speed-accuracy tradeoff in one row.
+- Pass^k is **normalized pass** (`KR_instance ≥ θ_pass`, θ_pass=0.6), `k=4` (RULES §9.8.1). *(This file is archived design history; the older `θ_pass·S*` raw-ratio form and the RTTC headline are obsolete — the implemented headline is KR, RULES §9.8.)*
+- **Primary ranking: RP-track KR** (RULES §9.8, METHODOLOGY §3). Board shows KR, raw score, Pass^1/Pass^4, RP latency p50/p90, tokens/episode, on-time rate, chained-turn rate, and RT-track latency + hardware (adjacent, diagnostic). The whole point is the speed-accuracy tradeoff in one row.
 
 ### 5.4 Standard vs custom
 - **Standard:** unmodified harness, official frozen split (hashes match), default reference `Agent` + tool set, `temperature=0.2`. Headline board. CI rejects hash-mismatch or default-agent override.

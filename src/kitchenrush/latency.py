@@ -1,10 +1,13 @@
-"""Latency tracks (SCORING §1.2).
+"""Latency tracks (RULES §3.2.1).
 
 Both tracks feed the same ``think_gs = LATENCY_SCALE * latency_seconds`` clock rule
 (RULES §3.2.2). They differ only in how ``latency_seconds`` is obtained:
 
 - RT (real, diagnostic): measured wall-clock around the model call.
-- RP (reproducible, ranked): a deterministic token proxy, recomputable from logs.
+- RP (reproducible, ranked): a deterministic token proxy. The visible token terms are
+  recomputable from the transcript with the pinned tokenizer; the reasoning-token term is the
+  provider's self-reported count over hidden text and is NOT recomputable (provider-trusted for
+  hidden-reasoning models — see METHODOLOGY §3.1).
 """
 
 from __future__ import annotations

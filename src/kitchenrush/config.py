@@ -55,7 +55,9 @@ RP_BETA_IN = 0.0002         # s per input token
 RP_BETA_OUT = 0.006         # s per output token (~167 tok/s decode); incl. reasoning tokens
 
 # Reliability + headline (SCORING §6).
-THETA_PASS = 0.6            # an episode passes a seed iff score_raw >= THETA_PASS * S_ref
+THETA_PASS = 0.6            # normalized pass: an episode passes iff KR_instance >= THETA_PASS
+                            # i.e. (S_model - S_null)/(S_ref - S_null) >= 0.6 (RULES §9.8.1, NOT
+                            # score_raw >= THETA_PASS*S_ref — they differ when S_null != 0)
 PASS_K = 4                  # trials per seed for Pass^k
 DEFAULT_TEMPERATURE = 0.2   # sampling temperature for trials
 

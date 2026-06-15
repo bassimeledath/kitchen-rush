@@ -1,9 +1,10 @@
 # METHODOLOGY — how Kitchen Rush scores models, and why the parameters are defensible
 
-This document is the *justification layer*. [RULES.md](RULES.md) defines the game and
-[SCORING.md](SCORING.md) the raw point formulas; this explains the **headline metric**, how
+This document is the *justification layer*. [RULES.md](RULES.md) defines the game **and the
+raw point formulas (§9, authoritative)**; this explains the **headline metric**, how
 the **1-second realtime preference** is encoded, and how every tunable parameter is either
-**derived**, **calibrated**, or **acknowledged-arbitrary-but-robust**.
+**derived**, **calibrated**, or **acknowledged-arbitrary-but-robust**. (`SCORING.md` is archived
+design history — do not cite it.)
 
 It incorporates an independent design review (gpt-5.5) that converged on the scheme below.
 
@@ -100,11 +101,27 @@ latency need. Two robustness facts from the same sweep:
 
 | Track | `latency_seconds` | Role |
 |---|---|---|
-| **RT (primary)** | measured wall-clock | the realtime claim; standardized harness (fixed region, concurrency=1, disclosed) |
-| **RP (shadow)** | `0.30 + 0.0002·n_in + 0.006·n_out` (reasoning tokens incl.) | reproducible / cross-hardware audit |
+| **RP (ranked headline)** | `0.30 + 0.0002·n_in + 0.006·n_out` (reasoning tokens incl.) | the reproducible, cross-hardware ranking track — the only track wired into `cli.py`/`metrics.py` |
+| **RT (diagnostic)** | measured wall-clock | the ecological-realtime check; standardized harness (fixed region, concurrency=1, disclosed), published adjacent, **never** the cross-model rank |
 
-The leaderboard ranks by **RT**; RP is published adjacent for reproducibility. (Earlier docs
-called RP canonical; we follow the realtime thesis and make RT primary.)
+The leaderboard ranks by **RP** (matching `README.md`, `RULES.md` §3.2.1, and the CLI default
+`--track rp`); RT is reported adjacent as a hardware-dependent diagnostic. RP is provider-trusted
+on reasoning tokens — see §3.1 and `docs/LIMITATIONS.md` for the reproducibility caveat for
+hidden-reasoning models.
+
+### 3.1 RP is provider-trusted on reasoning tokens (reproducibility caveat)
+
+RP's `n_out` is `count_tokens(canonical_output) + reasoning_tokens`, where the
+**reasoning-token term is the provider's self-reported integer** (`agent.py`), not a tokenizer
+count over logged text — reasoning content is hidden, so it is **not recomputable from the
+canonical transcript**. For a hidden-reasoning model the dominant latency term is therefore
+**provider-trusted, not provider-independent**: a provider that under-reports (or returns
+null/0) reasoning tokens pays less game-time. The visible-output portion of `n_out` and all of
+`n_in` *are* recomputable from the transcript with the pinned tokenizer; the reasoning term is
+not. The turn log records whether the provider actually reported a reasoning-token count
+(`reasoning_reported`) so this gap is auditable. No submission validator exists yet to enforce
+reporting (it is a P1 item, `LAUNCH_CHECKLIST.md`); until it does, treat RP for thinking models
+as provider-trusted.
 
 ## 4. Parameter taxonomy
 

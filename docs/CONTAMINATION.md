@@ -3,7 +3,7 @@
 Kitchen Rush is procedurally generated, so there is no fixed "test set" to memorize — but a
 benchmark is only credible if models cannot be quietly tuned on the exact instances they are
 scored on. This document states the policy. See [PROCEDURAL.md](PROCEDURAL.md) for the
-generation algorithm and [SCORING.md](SCORING.md) for how scores are computed.
+generation algorithm and [RULES.md](RULES.md) §9 for how scores are computed (`SCORING.md` is archived design history).
 
 ## Seed bands (splits)
 

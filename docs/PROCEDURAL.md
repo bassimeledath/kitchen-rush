@@ -39,7 +39,7 @@ Hard cap 200 attempts → fall back to `OPEN` (constructively valid). `generate_
 
 **Per-instance timers:** each dish's `COOK_TIME`/`BURN_WINDOW` = RULES §3.5 base × tier `step_time_multiplier`, jittered ±`step_time_jitter` via `rng_timers`, baked into the spec. The engine reads cook/burn from the spec. `BURN_WINDOW`≡`burn_grace`.
 
-**Value:** `base_value = V0 + V1·n_steps + V2·n_steps²` (V0=6,V1=2,V2=0.5; SCORING §2/§4.1).
+**Value:** `base_value = V0 + V1·n_steps + V2·n_steps²` (V0=6,V1=2,V2=0.5; RULES §9.1).
 
 ## (c) Deadlines (feasibility-anchored — the speed-accuracy crux)
 Per order, the reference scheduler (§e) computes the **critical-path completion time** `C_o` given THIS grid (travel = path length × `MOVE_GS_PER_STEP`, action durations, **parallel walk-away cooking** up to `num_burners`, single-agent serialization of non-cook steps). Then:
