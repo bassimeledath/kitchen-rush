@@ -1,6 +1,6 @@
 # Kitchen Rush — RULES.md (v2, authoritative)
 
-> **Status:** Normative game specification. Kitchen Rush is a deterministic discrete-event simulation. All numeric values are the canonical defaults from §16 (mirrored in `src/kitchenrush/config.py`); the scoring formulas are normative in §9 (mirrored in `src/kitchenrush/scoring.py`). Language is MUST / MUST NOT / SHALL. Time is in **game-seconds (gs)**, a **float** quantity (see §3.1).
+> **Status:** Normative game specification **and the authoritative scoring-formula doc**. Kitchen Rush is a deterministic discrete-event simulation. All numeric values are the canonical defaults from §16 (mirrored in `src/kitchenrush/config.py`); the scoring formulas are normative in §9 (mirrored in `src/kitchenrush/scoring.py`). Language is MUST / MUST NOT / SHALL. Time is in **game-seconds (gs)**, a **float** quantity (see §3.1).
 >
 > **Ruleset frozen — generation 1.0** (`ruleset_hash = 33034952fa7f`, frozen 2026-06-06 after the calibration panel; see docs/CALIBRATION.md). §16 mirrors the frozen `config.py` values. Note: the RP β-coefficients are part of the hash but remain **provisional** — a future β-calibration will bump the generation, and RP stays labelled *experimental* until then.
 >
@@ -111,7 +111,7 @@ There MUST be no hidden state outside `S`.
 
 ### 3.2 Latency → game-time (THE core mechanic; single definition)
 3.2.1 Per response the harness produces `latency_seconds` via one of two tracks:
-- **RP** (reproducible; the intended ranked headline) = a token proxy `β₀ + β_in·n_in + β_out·n_out` (`RP_BETA0/RP_BETA_IN/RP_BETA_OUT`). `n_in` counts ALL model-visible request content (system prompt + observation + **tool schemas**); `n_out` counts the canonical assistant output (each tool call's **name** + arguments + any text) **plus provider-reported reasoning tokens**. Tokens use ONE pinned tokenizer applied to every model — `cl100k_base` via tiktoken (stamped `TOKENIZER_ID`), with a char/4 fallback when tiktoken is absent (stdlib-only core); the active id is recorded in every output so RP is never silently compared across tokenizers. RP is provider-independent and recomputable from a trajectory log. *(β coefficients are provisional pending a published calibration.)*
+- **RP** (reproducible; the intended ranked headline) = a token proxy `β₀ + β_in·n_in + β_out·n_out` (`RP_BETA0/RP_BETA_IN/RP_BETA_OUT`). `n_in` counts ALL model-visible request content (system prompt + observation + **tool schemas**); `n_out` counts the canonical assistant output (each tool call's **name** + arguments + any text) **plus the provider's self-reported reasoning-token count**. The visible terms (`n_in` and the visible part of `n_out`) use ONE pinned tokenizer applied to every model — `cl100k_base` via tiktoken (stamped `TOKENIZER_ID`), with a char/4 fallback when tiktoken is absent (stdlib-only core); the active id is recorded in every output so RP is never silently compared across tokenizers, and those terms ARE recomputable from the transcript. **Caveat — RP is provider-trusted on reasoning tokens, NOT fully provider-independent for hidden-reasoning models:** the reasoning content is hidden, so its token count is the provider's reported integer and **cannot be recomputed from the canonical transcript**. The turn log records whether the provider actually reported a reasoning-token count (`reasoning_reported`) so the gap is auditable; a provider that under-reports or returns null/0 pays less game-time. There is currently **no submission validator** to enforce reasoning-token reporting (a P1 item). See METHODOLOGY §3.1 and LIMITATIONS. *(β coefficients are provisional pending a published calibration.)*
 - **RT** (real; diagnostic) = measured wall-clock of the response — ecologically real but provider/region/load-dependent, so it is reported alongside, **not** the cross-model rank.
 
 The in-process runner passes a policy-supplied `latency_s` (baselines inject a fixed value); `think_gs = LATENCY_SCALE · latency_s`.
@@ -165,7 +165,7 @@ These are read **directly from `config.INGREDIENTS`** by the engine at `cook` ti
 | Timer | Constant | Default |
 |---|---|---|
 | Episode horizon | `HORIZON_GS` | 300.0 (procgen sets per tier and may extend it to fit the schedule, §13.1) |
-| Stall turn limit | `STALL_TURNS` | 50 (consecutive unproductive turns ends the episode, §13) |
+| Stall turn limit | `STALL_TURNS` | 12 (consecutive unproductive turns ends the episode, §13) |
 | Safety turn cap | `MAX_TURNS` | 500 (anti-runaway ceiling; should not bind, §13) |
 | Reference turn budget | `REFERENCE_MAX_TURNS` | 20000 (the scripted oracle's turns are free; game-time bounds it) |
 
@@ -215,7 +215,7 @@ Notation: `reach(T)` = a station of type T (matching the named ingredient / a fr
 
 5.6 `collect_cooked(i, burner_index?)` — MUST: `|hands|<HAND_SLOTS`, a reachable burner holds a READY (or transiently BURNED) job for `i` (if two burners hold the same `i`, `burner_index` disambiguates; omitted → lowest-index matching), `reach(STOVE)`. Effect: auto-walk to the stove; free the burner; if READY → hands ⊕ `(i, COOKED)`; if BURNED → hands ⊕ `(i, BURNED)`. Collecting a COOKING burner is invalid (`early_pickup`, E05); no matching READY/BURNED item → `bad_target`. clock += `COOK_PICKUP_GS`. **Note:** under auto-burn (§6.5) a burned job is auto-binned and its burner auto-freed the instant `clock ≥ burn_gs`, so in normal play the BURNED branch here is unreachable — a job is collected only while READY.
 
-5.7 `plate(recipe)` — MUST: `recipe ∈ active set`, the held components (ignoring any finished plates) **EXACTLY** match the recipe by ingredient→state **and by count** (no extras, no missing, no duplicates, no wrong-state), `reach(PLATE)`. Recipes are ingredient→state maps, so they cannot request duplicates; you therefore cannot plate two of anything. Effect: auto-walk to a board; hands ⊖ the matched components; hands ⊕ `PlatedDish(recipe)`; clock += `PLATE_GS`. Any deviation → invalid (`wrong_inventory`, E06); unknown/off-menu recipe → `bad_target`; no plating counter → `unreachable`. **All-or-nothing; no partial plate** (quality `q ∈ {0,1}`, §SCORING; always q=1).
+5.7 `plate(recipe)` — MUST: `recipe ∈ active set`, the held components (ignoring any finished plates) **EXACTLY** match the recipe by ingredient→state **and by count** (no extras, no missing, no duplicates, no wrong-state), `reach(PLATE)`. Recipes are ingredient→state maps, so they cannot request duplicates; you therefore cannot plate two of anything. Effect: auto-walk to a board; hands ⊖ the matched components; hands ⊕ `PlatedDish(recipe)`; clock += `PLATE_GS`. Any deviation → invalid (`wrong_inventory`, E06); unknown/off-menu recipe → `bad_target`; no plating counter → `unreachable`. **All-or-nothing; no partial plate** (quality `q ∈ {0,1}`, §9.2; always q=1).
 
 5.8 `serve(order_id)` — MUST: `order_id` exists, `orders[order_id].status == ACTIVE`, `hold(PlatedDish(recipe))` with `recipe == orders[order_id].dish`, `reach(PASS)`. Effect: auto-walk to the pass; hands ⊖ plate; order → SERVED; score += earned (§9.2); combo update (§9.7); clock += `SERVE_GS`. Unknown order → `bad_target`; non-ACTIVE order → `expired_serve`; wrong/absent plate → `wrong_inventory` — in all cases **plate retained** (E09, E10). **Re-check at the pass:** the order's status is re-validated after the walk, so an order that **expires while the chef is walking to the pass** makes the serve invalid (`expired_serve`); the serve action itself is exempted from triggering its own target's expiry during the `SERVE_GS` advance (`advance(..., exempt_order=order_id)`).
 
@@ -267,14 +267,14 @@ Every turn returns the **full** observation (no partial/withheld-map mode — fu
 
 ---
 
-## 9. Scoring (events, values & formulas — mirrored in `src/kitchenrush/scoring.py`)
+## 9. Scoring (events, values & formulas — authoritative; mirrored in `src/kitchenrush/scoring.py`)
 Score is a `float` accumulator; the single rounding rule (`floor(x+0.5)`) is applied once per serve (§11.6). Final reported score is raw (ranking) and `max(0, score)` (display).
 
 ### 9.1 Base value (superlinear in steps, prevents cheap-dish farming)
 ```
 base_value(recipe) = V0 + V1·n_steps + V2·n_steps²    # V0=6, V1=2, V2=0.5
 ```
-Where `n_steps` = `config.recipe_n_steps` (collect/chop/cook pipeline per component + 1 plate step). Yields (`base_value`, kept as **float** — never rounded here; rounding happens only once per serve, §9.2/§11.6): soup (3 steps) → 16.5; burger (4) → 22.0; salad (5) → 28.5; mushroom_cheeseburger (8) → 54.0; veggie_ramen (9) → 64.5. Superlinearity guarantees hard dishes have higher points-per-time potential even at the combo cap.
+Where `n_steps` = `config.recipe_n_steps` (collect/chop/cook pipeline per component + 1 plate step). Yields (`base_value`, kept as **float** — never rounded here; rounding happens only once per serve, §9.2/§11.6): soup (3 steps) → 16.5; burger (4) → 22.0; salad (5) → 28.5; mushroom_cheeseburger (8) → 54.0; veggie_ramen (9) → 64.5. Superlinear *base value* makes hard dishes worth more **per recipe-step** and discourages farming the cheapest 1–3 step dishes. **Known limitation (NOT a guarantee):** superlinear value does NOT make points-per-game-second monotone in difficulty — see §9.7.4.
 
 ### 9.2 Delivery reward
 On `serve` at `clock_gs = t`:
@@ -289,7 +289,7 @@ Let `a=arrival_gs`, `d=deadline_gs`, `L=d-a>0`:
 ```
 time_factor(t) = clamp( 1.0 - DECAY_RATE · (t - a)/L , FLOOR_FACTOR , 1.0 )
 ```
-`DECAY_RATE = 0.6`, `FLOOR_FACTOR = 0.4`. Serving at arrival → 1.0; at deadline → 0.4. **The derivative dP/dt is strictly negative on the entire `[a,d]` interval** (no free window), so latency always costs points — the benchmark thesis holds by construction for every speed regime (SCORING §3).
+`DECAY_RATE = 0.6`, `FLOOR_FACTOR = 0.4`. Serving at arrival → 1.0; at deadline → 0.4. **The derivative dP/dt is strictly negative on the entire `[a,d]` interval** (no free window), so latency always costs points — the benchmark thesis holds by construction for every speed regime (the latency-sensitivity rationale is in METHODOLOGY §2).
 
 ### 9.4 Burn penalty
 On a cook auto-transitioning to BURNED: `score += BURN_PENALTY` (−5); `counters.burns += 1`; combo → 0; **the burner is auto-freed and the item auto-binned** (§6.5) — there is nothing left to discard.
@@ -306,12 +306,24 @@ On an ACTIVE order → EXPIRED: `score += -(EXPIRY_FRACTION · base_value)` with
 
 ### 9.7 Combo / tip multiplier (complexity-gated; strict)
 9.7.1 The streak `s` counts **consecutive on-time, clean serves**. A serve advances the streak iff it is **on-time** (`t ≤ deadline_gs`) AND uses no BURNED component (guaranteed by §5.7). **Combo resets to 0** on: an expiry, a burn, OR any invalid action (probing is expensive — adopting the strict rule).
-9.7.2 **Anti-farming gate:** only serves of dishes with `n_steps ≥ COMBO_MIN_STEPS` (default 4 → burger/R4/R5; salad and soup do NOT advance the streak past 1) increment `s`. Cheap-dish spamming cannot build the multiplier.
+9.7.2 **Anti-farming gate:** only serves of dishes with `n_steps ≥ COMBO_MIN_STEPS` (default 4) increment `s`. Qualifying dishes are burger (4), **salad (5)**, mushroom_cheeseburger (8), veggie_ramen (9); only soup (3) does NOT advance the streak. So the gate blocks the cheapest dish from sustaining the multiplier, but it does **not** force the deepest recipes — salad (a 5-step dish) qualifies, which is why salad-farming is viable under the timed metric (§9.7.4).
 9.7.3
 ```
 combo_multiplier = min( COMBO_CAP , 1.0 + COMBO_STEP · max(0, s-1) )
 ```
-`COMBO_STEP = 0.25`, `COMBO_CAP = 2.0` (cap reached at s=5, matching Overcooked's 2× tip). Combined with §9.1 superlinearity and §9.7.2 gating, `points_per_gs(hard) > points_per_gs(easy)` at the cap (verified in `test_scoring.py`).
+`COMBO_STEP = 0.25`, `COMBO_CAP = 2.0` (cap reached at s=5, matching Overcooked's 2× tip). The combo gate (§9.7.2) means a streak can only be *built and kept* on dishes with `n_steps ≥ 4` — so the cheapest dishes (soup) cannot sustain the multiplier.
+
+### 9.7.4 Points-per-game-second is NOT monotone in difficulty (known limitation)
+Earlier drafts claimed `points_per_gs(hard) > points_per_gs(easy)` "at the cap, verified in `test_scoring.py`". **That claim is false and is withdrawn** (no such test exists or could pass — the property does not hold). Computing `points_per_gs = base_value · COMBO_CAP / critical_path_gs` over the combo-qualifying dishes (`n_steps ≥ 4`) with the benchmark's own time model (`procgen.critical_path`):
+
+| dish | n_steps | base_value | crit-path gs | points/gs at cap |
+|---|---|---|---|---|
+| burger | 4 | 22.0 | ~26.1 | ~1.68 |
+| **salad** | 5 | 28.5 | ~23.1 | **~2.46 (highest)** |
+| mushroom_cheeseburger | 8 | 54.0 | ~44.8 | ~2.41 |
+| veggie_ramen | 9 | 64.5 | ~57.8 | **~2.23 (lowest qualifier)** |
+
+Superlinear *base value* does not overcome the superlinear *cook + serial-bottleneck time* of the hard dishes, so the hardest dish has the **lowest** points-per-second of the qualifiers and salad beats both 8- and 9-step dishes. Because salad is `n_steps = 5 ≥ COMBO_MIN_STEPS`, it both pays best per second **and** advances the combo: under the **timed KR metric a point-maximizer may rationally farm salads/burgers** and never cook the deep recipes. We document this as a **permitted strategy and a known limitation** of generation 1.0 rather than claiming it is priced out. (The KR-INT track is unaffected — it scores completion fraction, not points.) Re-pricing values/timers so points/gs is monotone in difficulty is a future-calibration item (`LAUNCH_CHECKLIST.md`), not a generation-1.0 guarantee.
 
 ### 9.8 No win/loss; the KR headline
 No win flag. `final_report` presents `score_raw`, `score_display` (= `max(0, raw)`), and all counters. The leaderboard **headline** is the normalized **Kitchen Rush score** (`metrics.py`, METHODOLOGY §1):
@@ -319,6 +331,13 @@ No win flag. `final_report` presents `score_raw`, `score_display` (= `max(0, raw
 KR = 100 · mean_over(seeds×trials) clip( (S_model − S_null) / (S_ref − S_null), 0, 1 )
 ```
 where for each instance `S_model = score_raw`, `S_null` = the analytic do-nothing floor (serve nothing → every order expires, `oracle.null_score`), and `S_ref` = the **greedy-EDF oracle** (`oracle.py`) run at **zero latency** — deterministic and *complete* (it finishes every instance) but **not claimed optimal**. Instances with `S_ref ≤ S_null` are degenerate (excluded from KR, flagged as mis-calibration). Raw score, completion/expiry/invalid rates, latency percentiles, and Pass^k are diagnostics, not multiplied into the headline.
+
+### 9.8.1 Reliability (Pass^k) — **normalized pass** (single definition)
+Pass is defined on the **normalized** instance score `KR_instance = clip((S_model − S_null)/(S_ref − S_null), 0, 1)`, NOT on a raw-reference ratio:
+```
+passed(instance)  ⟺  KR_instance ≥ THETA_PASS        # THETA_PASS = 0.6
+```
+This matches `metrics.py` exactly (`passed = kr ≥ config.THETA_PASS`). It is **not** equivalent to `score_raw ≥ THETA_PASS·S_ref` whenever `S_null ≠ 0` (the usual case, since `S_null < 0`); we keep the normalized form so "pass" sits on the same floor-anchored scale as the headline. `Pass^1` = fraction of scored episodes that pass; `Pass^k` = fraction of seeds whose **all `k` trials** pass (τ-bench style; `PASS_K = 4`). Degenerate instances (`KR_instance` undefined) are excluded from both.
 
 ---
 
@@ -372,7 +391,7 @@ Passive (clock sweep, §11.5 priority):
 ## 13. Termination
 13.1 **Horizon is the real limit (it always wins):** `clock_gs ≥ spec.horizon_gs` (checked in `_check_terminate`) terminates with reason `horizon`. Procgen sets the per-tier horizon and **extends it if needed** so that `max(deadline) + 1.0 ≤ horizon_gs` — the invariant "every order's `deadline_gs ≤ horizon_gs" holds, so no order is cut off mid-life.
 13.2 **Early natural end (`orders_exhausted`):** all scheduled orders are SERVED or EXPIRED (the whole stream is fixed at reset, so this is the full set). Only reachable before horizon.
-13.3 **Stall guard (`stalled`):** an episode that does **no productive work** for `STALL_TURNS` (50) consecutive turns terminates. Any successful (productive) action resets the counter; repeated invalids, no-op `move_to`, and empty responses do not. This is the true safety net that keeps **game-time**, not a small turn cap, the binding limit.
+13.3 **Stall guard (`stalled`):** an episode that does **no productive work** for `STALL_TURNS` (12) consecutive turns terminates. Any successful (productive) action resets the counter; repeated invalids, no-op `move_to`, and empty responses do not. This is the true safety net that keeps **game-time**, not a small turn cap, the binding limit.
 13.4 **`MAX_TURNS` (500)** is a paranoid anti-runaway ceiling enforced by the runner loop (not the engine); for a model making progress it should never bind. The scripted reference runs under `REFERENCE_MAX_TURNS` (20000) instead, since its turns are free and game-time bounds it.
 13.5 **No failure-termination.** Invalid actions, burns, expiries never end the episode early.
 13.6 **Truncation-invariance (any unresolved order → EXPIRED).** At episode end `final_report` force-resolves every order still PENDING or ACTIVE to EXPIRED, applying the expiry penalty (§9.5), resetting combo, and counting it as an expiry/`force_expired_end`. There is **no neutral scoring** for ACTIVE-at-horizon orders. This keeps scoring consistent with `S_null` (which assumes all unserved orders expire) so a fast agent cannot dodge expiry penalties by running out of turns. Idempotent.
@@ -437,7 +456,7 @@ Authoritative schemas live in `src/kitchenrush/tools.py` (`TOOL_SCHEMAS`, expose
 | `OBSERVE_GS` | 1.0 | internal observe (not a model tool) |
 | `INVALID_GS` | 3.0 | invalid time |
 | `HORIZON_GS` | 300.0 | base episode length (per-tier 260/340/420, extended to fit schedule) |
-| `STALL_TURNS` | 50 | consecutive unproductive turns → terminate |
+| `STALL_TURNS` | 12 | consecutive unproductive turns → terminate |
 | `MAX_TURNS` | 500 | runner anti-runaway ceiling |
 | `REFERENCE_MAX_TURNS` | 20000 | turn budget for the scripted oracle |
 | `MAX_STEPS_PER_MOVE` | 8 | legacy single-leg cap (no directional `move` tool exists; unused by current actions) |
@@ -457,7 +476,7 @@ Authoritative schemas live in `src/kitchenrush/tools.py` (`TOOL_SCHEMAS`, expose
 | `B_SECONDS` | 1.0 | per-decision latency the deadlines are priced at (METHODOLOGY §2) |
 | `RP_BETA0`/`RP_BETA_IN`/`RP_BETA_OUT` *‡* | 0.30 / 0.0002 / 0.006 | RP token-proxy latency model (§3.2.1; coefficients provisional) |
 | `TOKENIZER_ID` | `tiktoken-cl100k_base-v1` (`char4-v0` fallback) | pinned RP tokenizer, stamped in every output |
-| `THETA_PASS` | 0.6 | episode passes a seed iff `score_raw ≥ THETA_PASS·S_ref` |
+| `THETA_PASS` | 0.6 | **normalized pass**: an episode passes iff `KR_instance ≥ THETA_PASS`, i.e. `(S_model − S_null)/(S_ref − S_null) ≥ 0.6` (§9.8.1) |
 | `PASS_K` | 4 | trials per seed for Pass^k |
 | `DEFAULT_TEMPERATURE` | 0.2 | sampling temperature for trials |
 | `COOK_TIME[...]`/`BURN_WINDOW[...]` | §3.5 | base timers (procgen does NOT currently jitter them) |

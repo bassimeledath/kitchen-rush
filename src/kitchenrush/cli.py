@@ -211,7 +211,7 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--out", type=str, default=None, help="write trajectory JSONL here")
     run.set_defaults(func=_cmd_run)
 
-    bench = sub.add_parser("bench", help="multi-seed x trial run with aggregate metrics + KR")
+    bench = sub.add_parser("bench", help="multi-seed x trial run with aggregate metrics + the KR headline")
     _add_policy_args(bench)
     bench.add_argument("--seeds", type=int, default=20, help="number of seeds")
     bench.add_argument("--start", type=int, default=0, help="first seed")

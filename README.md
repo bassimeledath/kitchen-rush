@@ -1,4 +1,4 @@
-# Kitchen Rush
+<img src="assets/kitchen-rush-logo.png" alt="Kitchen Rush" width="420">
 
 **A tool-calling benchmark where thinking time costs points.**
 

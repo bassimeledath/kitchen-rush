@@ -152,7 +152,8 @@ def _build_kitchen(tier: config.Tier):
     return stations, chef_start, frozenset(blocked), door
 
 
-def _build_orders(rng: random.Random, tier: config.Tier, b: float) -> list[OrderSpec]:
+def _build_orders(rng: random.Random, tier: config.Tier, b: float,
+                  relax_deadlines: bool = False) -> list[OrderSpec]:
     from . import scoring
 
     import math
@@ -184,7 +185,10 @@ def _build_orders(rng: random.Random, tier: config.Tier, b: float) -> list[Order
         _, _, c_o = critical_path(dish, tier.grid_n, b)
         finish = max(arrival, busy) + c_o
         busy = finish
-        deadline = arrival + math.ceil(tier.slack * (finish - arrival))
+        if relax_deadlines:
+            deadline = 1_000_000.0   # time-agnostic (KR-INT): deadlines never bind
+        else:
+            deadline = arrival + math.ceil(tier.slack * (finish - arrival))
         orders.append(
             OrderSpec(
                 order_id=f"O{idx}",
@@ -206,17 +210,25 @@ def generate(seed: int, tier: str = "easy", b: float | None = None) -> KitchenSp
         raise ValueError(f"unknown tier {tier!r}; choose from {sorted(config.TIERS)}")
     if b is None:
         b = config.B_SECONDS
-    t = config.TIERS[tier]
+    return generate_from_tier(seed, config.TIERS[tier], b)
+
+
+def generate_from_tier(seed: int, t: config.Tier, b: float = 1.0,
+                       relax_deadlines: bool = False) -> KitchenSpec:
+    """Core generator for any ``Tier`` object (the named tiers and the KR-INT K-ladder both go
+    through here). ``relax_deadlines`` = the time-agnostic mode: deadlines never bind, so the
+    score reduces to planning correctness (KR-INT). The named-tier path passes the defaults, so
+    its output — and the frozen ruleset hash — are unchanged."""
     _rng_grid, rng_orders = _substreams(seed)   # layout is fixed per tier; only orders are seeded
     stations, chef_start, blocked, door = _build_kitchen(t)
-    orders = _build_orders(rng_orders, t, b)
+    orders = _build_orders(rng_orders, t, b, relax_deadlines=relax_deadlines)
     # Horizon scales to fit the (B-priced) schedule so a loose budget isn't clipped, while
     # keeping the RULES invariant "every deadline <= horizon" (§13.1).
     max_deadline = max((o.deadline_gs for o in orders), default=t.horizon_gs)
     horizon = max(t.horizon_gs, max_deadline + 1.0)
     return KitchenSpec(
         seed=seed,
-        tier=tier,
+        tier=t.name,
         grid_n=t.grid_n,
         burner_count=t.burner_count,
         horizon_gs=horizon,

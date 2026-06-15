@@ -37,12 +37,15 @@ def test_round_half_up_and_rewards():
     assert scoring.expiry_penalty(22) == -11
 
 
-def test_base_value_superlinear_in_steps():
-    # base value strictly increases with recipe complexity (anti cheap-dish farming),
-    # and the hardest dish yields strictly more points per step than the simplest.
+def test_base_value_superlinear_per_recipe_step():
+    # Base value strictly increases with recipe complexity (discourages farming the cheapest
+    # 1-3 step dishes), and the hardest dish yields strictly more points PER RECIPE-STEP than
+    # the simplest. NOTE: this is points-per-STEP, NOT points-per-game-second. Per-game-second
+    # is NOT monotone in difficulty (salad beats veggie_ramen once cook/travel time is priced
+    # in) — see RULES.md §9.7.4. Do not read this test as proving the per-gs property.
     order = ["soup", "burger", "salad", "mushroom_cheeseburger", "veggie_ramen"]
     by_steps = sorted(order, key=config.recipe_n_steps)
     values = [scoring.base_value(r) for r in by_steps]
     assert values == sorted(values) and len(set(values)) == len(values)  # strictly increasing
-    ppr = lambda r: scoring.base_value(r) / config.recipe_n_steps(r)
+    ppr = lambda r: scoring.base_value(r) / config.recipe_n_steps(r)     # points per recipe-step
     assert ppr("veggie_ramen") > ppr("soup")

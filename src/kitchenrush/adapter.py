@@ -95,19 +95,30 @@ class LiteLLMClient:
             tool_calls.append(ToolCall(tc.function.name, args, id=getattr(tc, "id", None)))
 
         usage_obj = getattr(resp, "usage", None)
+        reasoning = _reasoning_tokens(usage_obj)   # None iff the provider did not report the field
         usage = {
             "prompt_tokens": getattr(usage_obj, "prompt_tokens", 0) or 0,
             "completion_tokens": getattr(usage_obj, "completion_tokens", 0) or 0,
-            "reasoning_tokens": _reasoning_tokens(usage_obj),
+            # reasoning_tokens is the count used for RP latency (0 when unreported, see latency math);
+            # reasoning_reported distinguishes "provider said 0" from "provider didn't report it" so
+            # the provider-trusted gap is auditable (RULES §3.2.1, METHODOLOGY §3.1).
+            "reasoning_tokens": reasoning or 0,
+            "reasoning_reported": reasoning is not None,
         }
         return ModelResponse(tool_calls, getattr(choice, "content", "") or "", latency_s, usage)
 
 
-def _reasoning_tokens(usage_obj: Any) -> int:
+def _reasoning_tokens(usage_obj: Any) -> int | None:
+    """The provider's reported reasoning-token count, or None if the field is absent entirely.
+
+    Returning None for genuine absence (rather than collapsing it to 0) lets callers record
+    whether a thinking model actually disclosed its hidden reasoning cost.
+    """
     details = getattr(usage_obj, "completion_tokens_details", None)
     if details is None:
-        return 0
-    return getattr(details, "reasoning_tokens", 0) or 0
+        return None
+    val = getattr(details, "reasoning_tokens", None)
+    return None if val is None else (val or 0)
 
 
 ADAPTER_REGISTRY: dict[str, Callable[..., ModelClient]] = {"litellm": LiteLLMClient}

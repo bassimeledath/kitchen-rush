@@ -55,6 +55,28 @@ def test_rp_track_uses_token_proxy_and_differs_from_rt():
     assert rp >= config.RP_BETA0 and rp != rt
 
 
+def test_reasoning_reported_audit_surfaces_provider_gap():
+    """RP is provider-trusted on reasoning tokens (RULES §3.2.1): the agent must record whether the
+    provider actually reported a reasoning-token count, distinct from reporting 0."""
+    obs = {"chef_pos": [0, 0], "hands": [], "hand_slots_free": 4, "grid_ascii": ".",
+           "grid_legend": "x", "stations": [], "burners": [], "orders": [],
+           "clock_gs": 0, "remaining_gs": 1, "score": 0, "combo_count": 0,
+           "ready_actions": [], "last_turn": {}, "events_since_last": []}
+    # Provider reported a count (even if 0): reasoning_reported True.
+    reported = MockClient([ToolCall("observe", {})],
+                          usage={"prompt_tokens": 1, "completion_tokens": 1,
+                                 "reasoning_tokens": 0, "reasoning_reported": True})
+    agent = ModelAgent(reported, track="rp")
+    agent(obs, [])
+    assert agent.last_reasoning_reported is True and agent.last_reasoning_tokens == 0
+    # Provider did NOT report the field: reasoning_reported False, count still 0 for the math.
+    unreported = MockClient([ToolCall("observe", {})],
+                            usage={"prompt_tokens": 1, "completion_tokens": 1})
+    agent2 = ModelAgent(unreported, track="rp")
+    agent2(obs, [])
+    assert agent2.last_reasoning_reported is False and agent2.last_reasoning_tokens == 0
+
+
 def test_warmup_makes_a_throwaway_call_before_scoring():
     client = MockClient([ToolCall("observe", {})], latency_s=0.1)
     ModelAgent(client, track="rt").warmup([])

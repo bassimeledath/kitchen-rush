@@ -62,6 +62,15 @@ short: AA avoids the conversion; we embrace it and pay for it with the limitatio
 token unit directly comparable to AA's — worth doing.)
 
 ## 3. Other current limitations
+- **RP is provider-trusted on reasoning tokens (not fully recomputable for hidden-reasoning
+  models).** RP's `n_out` adds the provider's *self-reported* reasoning-token count, which is over
+  **hidden** text and therefore **cannot be recomputed from the canonical transcript** with the
+  pinned tokenizer (the visible `n_in`/`n_out` terms can). For a thinking model the dominant latency
+  term is thus provider-trusted: a provider that under-reports or returns null/0 reasoning tokens
+  pays less game-time. The turn log records `reasoning_reported` (whether the provider actually
+  returned a count) so the gap is auditable, but there is **no submission validator** yet to reject
+  unreported reasoning — that is a P1 launch item. Until it ships, treat RP for thinking models as
+  provider-trusted, not provider-independent. (See RULES §3.2.1, METHODOLOGY §3.1.)
 - **Provisional β-coefficients.** β0/β_in/β_out are not yet calibrated to real measured throughput —
   RP is labelled *experimental* until they are. They're part of the ruleset hash, so calibrating
   them starts a new generation.
@@ -72,3 +81,9 @@ token unit directly comparable to AA's — worth doing.)
   controlled-environment.
 - **Single-agent, text-only.** No multi-chef coordination; voice/realtime models are exercised over
   their text path, not their speech pipeline (see RULES §1.1).
+- **No prompt caching in the starter sweep.** Each turn re-sends the full prompt (system + tool
+  schemas + observation), and the static system+schema block (~1,435 tokens, identical every turn)
+  was billed at full input price on every call — there was no provider-side prompt caching. Input
+  dominates cost (~92% for the priciest model), so reported `$` figures are an **upper bound**;
+  enabling prompt caching would cut input spend roughly 40–50%. Cost is metadata only — it does not
+  affect KR or any score.

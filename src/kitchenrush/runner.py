@@ -42,7 +42,7 @@ def run_episode(spec: KitchenSpec, policy: Policy, *, max_turns: int | None = No
         think_gs = config.LATENCY_SCALE * float(latency_s)
         obs = engine.step(calls, think_gs)
         if record_steps:
-            steps.append({
+            step = {
                 "turn": engine.turn_count,
                 "calls": [{"name": c.name, "arguments": c.arguments} for c in calls],
                 "latency_s": round(float(latency_s), 4),
@@ -50,7 +50,15 @@ def run_episode(spec: KitchenSpec, policy: Policy, *, max_turns: int | None = No
                 "clock_gs": obs["clock_gs"],
                 "score": obs["score"],
                 "last_turn": obs["last_turn"],
-            })
+            }
+            # Surface the provider-trusted reasoning-token gap for audit (RULES §3.2.1): record
+            # whether the model actually reported a reasoning-token count this turn, and the count
+            # that entered the RP latency math. Only model-backed policies expose these.
+            reported = getattr(policy, "last_reasoning_reported", None)
+            if reported is not None:
+                step["reasoning_reported"] = reported
+                step["reasoning_tokens"] = getattr(policy, "last_reasoning_tokens", None)
+            steps.append(step)
 
     report = engine.final_report()
     engine.emit_end_frame()   # capture end-of-game force-expiries + final score (no-op if not tracing)

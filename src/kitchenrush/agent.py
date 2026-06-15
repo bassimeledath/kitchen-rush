@@ -119,6 +119,11 @@ class ModelAgent:
         self.temperature = temperature
         self.system = system_prompt
         self.stall_seconds = stall_seconds
+        # Per-turn audit of the provider-trusted reasoning-token gap (RULES §3.2.1, METHODOLOGY
+        # §3.1): whether the last response actually reported a reasoning-token count, and the count
+        # used in the RP latency math. None until the first model call (stalls leave them unset).
+        self.last_reasoning_reported: bool | None = None
+        self.last_reasoning_tokens: int | None = None
 
     def warmup(self, tools: list[dict]) -> None:
         """Spin up the model (e.g. a cold NIM endpoint) with one throwaway call so the first
@@ -142,16 +147,23 @@ class ModelAgent:
             import sys
             print(f"[ModelAgent] stall: {type(exc).__name__}: {str(exc)[:120]}", file=sys.stderr)
             return [], self.stall_seconds
+        # Audit the provider-trusted reasoning-token gap (RULES §3.2.1). `reasoning_reported` is
+        # False when the provider returned no reasoning-token field at all (vs reporting 0); the
+        # count below is what actually enters the RP latency math.
+        reasoning_tokens = int(resp.usage.get("reasoning_tokens", 0) or 0)
+        self.last_reasoning_reported = bool(resp.usage.get("reasoning_reported", False))
+        self.last_reasoning_tokens = reasoning_tokens
         if self.track == "rt":
             latency_s = resp.latency_s
         else:
             # RP counts ALL model-visible request content (system + observation + tool schemas) and
             # the canonical assistant output (text + each tool call's NAME and arguments), plus the
-            # provider-reported reasoning tokens. sort_keys keeps it deterministic/recomputable.
+            # provider's self-reported reasoning tokens (NOT recomputable from the transcript — see
+            # RULES §3.2.1). sort_keys keeps the visible terms deterministic/recomputable.
             n_in = (count_tokens(self.system) + count_tokens(user)
                     + count_tokens(json.dumps(tools, sort_keys=True)))
             out_text = (resp.text or "") + "".join(
                 c.name + json.dumps(c.arguments, sort_keys=True) for c in resp.tool_calls)
-            n_out = count_tokens(out_text) + int(resp.usage.get("reasoning_tokens", 0) or 0)
+            n_out = count_tokens(out_text) + reasoning_tokens
             latency_s = rp_latency_seconds(n_in, n_out)
         return resp.tool_calls, latency_s
