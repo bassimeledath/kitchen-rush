@@ -1,4 +1,6 @@
-# Kitchen Rush
+<p align="center">
+  <img src="assets/kitchen-rush-logo.png" alt="Kitchen Rush" width="420">
+</p>
 
 **A benchmark for FAST *and* ACCURATE native tool calling.**
 
