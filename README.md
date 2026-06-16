@@ -1,6 +1,6 @@
 <img src="assets/kitchen-rush-logo.png" alt="Kitchen Rush" width="420">
 
-**An agent tool-calling benchmark where latency matters as much as intelligence.**
+**An agent tool-calling benchmark where speed matters as much as intelligence.**
 
 <p>
   <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-blue.svg"></a>
