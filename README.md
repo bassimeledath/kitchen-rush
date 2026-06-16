@@ -83,9 +83,9 @@ chef collapsing ([docs/METHODOLOGY.md §2](docs/METHODOLOGY.md),
 
 And in plain deployment terms: **the model that wins at B=1s is the best pick when every
 decision has to land in about a second** — on the benchmark's reproducible clock that's a
-budget of roughly 65 output tokens per decision, i.e. terse, single-shot tool dispatch, the
-voice-agent regime. **B=5s** buys about 730 tokens per decision — enough for a short burst of
-reasoning — the interactive-assistant regime. The same model can rank very differently on the
+budget of roughly 65 output tokens per decision, i.e. terse, single-shot tool dispatch — what a
+voice agent needs. **B=5s** buys about 730 tokens per decision — enough for a short burst of
+reasoning, what an interactive assistant can afford. The same model can rank very differently on the
 two boards, and that reordering is precisely what the benchmark is for.
 
 ## Leaderboard
@@ -104,7 +104,7 @@ is at [leaderboard/results/board.md](leaderboard/results/board.md).
 decision, which on the benchmark's clock buys about 65 output tokens — terse, single-shot tool
 dispatch. Winning here means "the model I'd trust to drive a voice agent or a live dashboard."
 **The right board (B=5s)** prices the same kitchens for five seconds per decision (~730
-tokens — room for a short burst of reasoning), the interactive-assistant regime.
+tokens — room for a short burst of reasoning), what an interactive assistant can afford.
 
 Read them side by side — that contrast is the product. Under tight realtime pressure (B=1s)
 the fast no-reasoning models hold the podium: `gemini-3.1-flash-lite` runs nearly even with
@@ -132,14 +132,14 @@ latency budget, different winner: that's exactly what the two boards measure.</e
 
 ## Try it
 
-Two minutes, no API key needed:
+Two minutes — run the scripted reference chef locally (no model calls):
 
 ```bash
 pip install -e .                          # the core has zero dependencies
 kitchenrush bench --baseline random --tier easy --seeds 12 --trials 2
 kitchenrush calibrate --tier easy --latency-budget 1   # see how the reference chef degrades with latency
 
-# watch a game in the browser (scripted chef, no key needed):
+# watch a game in the browser (scripted chef):
 kitchenrush replay --oracle --tier easy --seed 0       # writes ui/replays/easy_seed0.json
 cd ui && python3 -m http.server 8000                   # then open http://localhost:8000
 # ...or race up to 4 models side-by-side on one clock: ?replays=a.json,b.json (see ui/README.md)

@@ -20,10 +20,10 @@ endpoints can be submitted but are labelled unverified.
 
 1. **Run** the official split (all seeds, ≥4 trials, one configuration), per latency budget:
    ```bash
-   kitchenrush bench --model <provider:model> --tier medium --profile chat \
+   kitchenrush bench --model <provider:model> --tier medium --latency-budget 5 \
        --seeds 50 --trials 4 --track rp --json > runs/<id>.json
    ```
-   Repeat for the profiles/tiers the board ranks (e.g. `voice|chat|quality` × `medium|hard`).
+   Repeat for the budgets/tiers the board ranks (e.g. `--latency-budget 1|5|20` × `medium|hard`).
 2. **Prepare** a submission file (one JSON, schema-validated):
    ```bash
    kitchenrush submit prepare --run runs/<id> --meta meta.toml \
@@ -53,7 +53,7 @@ endpoints can be submitted but are labelled unverified.
 
 ## Reporting
 
-Every submission carries, **per (tier, profile/B, track)**: `KR` (+ CI) and `Pass^1…Pass^k` as the
+Every submission carries, **per (tier, B, track)**: `KR` (+ CI) and `Pass^1…Pass^k` as the
 competence/reliability headline, with **latency (p50/p95), tokens/episode, and $/episode adjacent**
 (never folded into KR). Cost uses the pinned `prices.yaml`; submitters may add measured cost.
 

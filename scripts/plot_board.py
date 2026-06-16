@@ -21,8 +21,8 @@ RESULTS = ROOT / "leaderboard" / "results" / (sys.argv[1] if len(sys.argv) > 1 e
 OUT = ROOT / "docs" / "assets"
 
 SUBTITLE = {
-    1.0: "voice / live-agent regime · ~65 output tokens per decision",
-    5.0: "interactive-assistant regime · ~730 output tokens per decision",
+    1.0: "~65 output tokens per decision · terse, single-shot tool dispatch",
+    5.0: "~730 output tokens per decision · room for a short reasoning burst",
 }
 ACCENT, MUTED = "#2f6fb2", "#9db4c8"
 

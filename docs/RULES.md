@@ -1,4 +1,4 @@
-# Kitchen Rush — RULES.md (v2, authoritative)
+# Kitchen Rush — RULES.md
 
 > **Status:** Normative game specification **and the authoritative scoring-formula doc**. Kitchen Rush is a deterministic discrete-event simulation. All numeric values are the canonical defaults from §16 (mirrored in `src/kitchenrush/config.py`); the scoring formulas are normative in §9 (mirrored in `src/kitchenrush/scoring.py`). Language is MUST / MUST NOT / SHALL. Time is in **game-seconds (gs)**, a **float** quantity (see §3.1).
 >
@@ -65,7 +65,7 @@ A recipe is a partially-ordered bill of steps producing a named **dish**. Step v
 
 2.4.1 **Ordering** is enforced by preconditions (§5): `chop`/`cook` require the named ingredient held in the correct prior state; `plate` requires all named components present in terminal state. `collect` for distinct ingredients may occur in any order. Cooking a non-cookable or chopping a non-choppable ingredient is invalid (§5.9).
 
-2.4.2 **Hand-capacity feasibility (design guarantee).** With `HAND_SLOTS=4` and cook items occupying burners (not hands), every recipe R1–R5 is completable hands-only: each recipe's terminal component count is ≤4 (R4 and R5 are exactly 4). Because all components must be in hands at `plate` time, the chef MUST NOT hold a finished plate concurrently while assembling a 4-component dish; `plate` then consumes the 4 components and produces 1 plate in their place, so capacity holds. *(This is a static property of the fixed recipe catalog — verified by inspection, not enforced at generation time: the current procgen does **not** run a feasibility oracle or fail-generate, so a generation-time feasibility oracle remains aspirational, not implemented.)*
+2.4.2 **Hand-capacity feasibility (design guarantee).** With `HAND_SLOTS=4` and cook items occupying burners (not hands), every recipe R1–R5 is completable hands-only: each recipe's terminal component count is ≤4 (R4 and R5 are exactly 4). Because all components must be in hands at `plate` time, the chef MUST NOT hold a finished plate concurrently while assembling a 4-component dish; `plate` then consumes the 4 components and produces 1 plate in their place, so capacity holds. *(This is a static property of the fixed recipe catalog — verified by inspection, not enforced at generation time: procgen does **not** run a feasibility oracle or fail-generate.)*
 
 ### 2.5 Dishes & plates
 - An in-progress dish is just the multiset of components in hands. A `plate` action consumes the exact required components and produces one **finished plate** (`PlatedDish(recipe)`), occupying 1 hand slot.
@@ -480,22 +480,3 @@ Authoritative schemas live in `src/kitchenrush/tools.py` (`TOOL_SCHEMAS`, expose
 | `PASS_K` | 4 | trials per seed for Pass^k |
 | `DEFAULT_TEMPERATURE` | 0.2 | sampling temperature for trials |
 | `COOK_TIME[...]`/`BURN_WINDOW[...]` | §3.5 | base timers (procgen does NOT currently jitter them) |
-
----
-
-## 17. Resolved cross-section decisions (formerly open)
-1. **Clock = float**, single rounding rule §11.6. (Resolves int/float contradiction.)
-2. **Latency conversion** = single continuous function §3.2.2. (Resolves ceil/round/raw.)
-3. **World model = hands-only, ingredient/order-keyed verbs**, `HAND_SLOTS=4`. (Resolves tool-set fork; movement's pick_up/place vocabulary is dropped.)
-4. **One deadline**, value-scaled expiry. (Resolves one-vs-two deadlines.)
-5. **No grace plateau**; linear decay. (Resolves the latency-thesis hole.)
-6. **Combo:** strict (on-time clean only; invalid breaks it), complexity-gated, superlinear value. (Resolves combo-farming + reset-trigger conflicts.)
-7. **No per-step partial credit**; `q∈{0,1}`. (Resolves partial-credit vs strict-plate.)
-8. **Bind-at-serve.** (Resolves plate-binding/re-bind edge cases.)
-9. **Cooking = parallel/walk-away.** (Frozen across engine/scoring/oracle.)
-10. **Full observation every turn; no model-facing `observe`.** The internal `observe` action remains (`OBSERVE_GS=1`) but is not in `TOOL_SCHEMAS` (§4.4).
-11. **Navigation is automatic.** Station actions auto-walk and charge travel inline; `move_to` is optional pre-positioning. The benchmark tests the ACTION SEQUENCE under latency, not pathfinding. (Resolves the manual-move vs auto-nav fork; the legacy directional `move(direction, steps)` is dropped.)
-12. **Deterministic layout, randomized orders only.** The walled-room kitchen is fixed per tier; only the seeded order stream varies, since with auto-nav randomizing station positions adds travel noise, not signal.
-13. **Burn = auto-discard + auto-free.** A burned cook-job is binned and its burner reopened automatically; no manual clearing (§6.5).
-14. **Plating is exact-match by count** (no extras/missing/duplicates, §5.7). *Rationale:* there is no persistent plate-accumulator entity (unlike Overcooked, where ingredients are added to a plate object one at a time and rejected at add-time). Held items are a single loose hand-pool and `plate(recipe)` is one atomic, declarative action validated against the held set — a cleaner function-calling primitive with minimal state. Requiring an EXACT match (rather than accepting a superset) keeps inventory discipline a tested skill: over-collecting isn't free, so the chef must hold precisely the right components when plating. The net rule matches Overcooked (no duplicates on a plate unless a recipe calls for it); the tradeoff is that batch-prepping across orders requires discarding the surplus.
-15. **Truncation-invariance:** any order unresolved at episode end is force-EXPIRED (§13.6), keeping scoring consistent with `S_null` and the KR headline (§9.8).

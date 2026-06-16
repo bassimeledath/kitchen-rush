@@ -1,12 +1,9 @@
 # METHODOLOGY — how Kitchen Rush scores models, and why the parameters are defensible
 
-This document is the *justification layer*. [RULES.md](RULES.md) defines the game and the raw
-point formulas (§9 there, mirrored in `scoring.py`); this explains **KR, the Kitchen Rush
-score** (the one number the leaderboard reports), how
-the **latency budget B** is encoded, and how every tunable parameter is either
-**derived**, **calibrated**, or **acknowledged-arbitrary-but-robust**.
-
-It incorporates an independent design review (gpt-5.5) that converged on the scheme below.
+The justification layer. [RULES.md](RULES.md) defines the game and the raw point formulas (§9
+there, mirrored in `scoring.py`); this explains **KR, the Kitchen Rush score** (the one number
+the leaderboard reports), how the **latency budget B** is encoded, and how every tunable
+parameter is either **derived**, **calibrated**, or **acknowledged-arbitrary-but-robust**.
 
 ## 1. One reported score — KR, the Kitchen Rush score (no tradeoff plot)
 
@@ -79,10 +76,10 @@ Accuracy stays necessary because it is **outcome-graded**: only valid deliveries
 invalids, burns, expiries, and broken combos cost them. This yields the intended interior
 optimum (reckless-fast and careful-slow both lose).
 
-### 2.1 B is a user-selectable axis (latency profiles)
+### 2.1 B is a user-selectable axis (latency budgets)
 
 Different users have different latency needs, so **B is a parameter**, not a fixed constant:
-`--latency-budget <s>` or presets `--profile voice (B=1s) | chat (B=5s) | quality (B=20s)`.
+`--latency-budget <s>` (e.g. B=1s, B=5s, B=20s).
 Each B is its own leaderboard slice (a single fused realtime ranking at that operating point —
 *not* a latency-vs-accuracy tradeoff plot). The horizon scales with B so a loose budget isn't
 clipped, and the oracle is re-normalized at the chosen B.
@@ -134,22 +131,17 @@ mathematically grounded translations:
 
 The leaderboard ranks by **RP** (matching `README.md`, `RULES.md` §3.2.1, and the CLI default
 `--track rp`); RT is reported adjacent as a hardware-dependent diagnostic. RP is provider-trusted
-on reasoning tokens — see §3.1 and `docs/LIMITATIONS.md` for the reproducibility caveat for
-hidden-reasoning models.
+on reasoning tokens — see §3.1.
 
 ### 3.1 RP is provider-trusted on reasoning tokens (reproducibility caveat)
 
-RP's `n_out` is `count_tokens(canonical_output) + reasoning_tokens`, where the
-**reasoning-token term is the provider's self-reported integer** (`agent.py`), not a tokenizer
-count over logged text — reasoning content is hidden, so it is **not recomputable from the
-canonical transcript**. For a hidden-reasoning model the dominant latency term is therefore
-**provider-trusted, not provider-independent**: a provider that under-reports (or returns
-null/0) reasoning tokens pays less game-time. The visible-output portion of `n_out` and all of
-`n_in` *are* recomputable from the transcript with the pinned tokenizer; the reasoning term is
-not. The turn log records whether the provider actually reported a reasoning-token count
-(`reasoning_reported`) so this gap is auditable. No submission validator exists yet to enforce
-reporting (it is a P1 item, `LAUNCH_CHECKLIST.md`); until it does, treat RP for thinking models
-as provider-trusted.
+RP's `n_out` is `count_tokens(canonical_output) + reasoning_tokens`. The reasoning-token term is
+the provider's **self-reported integer** (`agent.py`) over hidden text, so — unlike the visible
+`n_in`/`n_out` terms — it is **not recomputable from the canonical transcript**. For a hidden-
+reasoning model the dominant latency term is thus provider-trusted, not provider-independent: a
+provider that under-reports (or returns null/0) pays less game-time. The turn log records
+`reasoning_reported` so the gap is auditable; no validator enforces reporting yet (a P1 item).
+Full treatment in [LIMITATIONS.md](LIMITATIONS.md) §3.
 
 ## 4. Parameter taxonomy
 
