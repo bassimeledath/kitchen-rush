@@ -13,10 +13,6 @@
   <img src="docs/assets/duel_b1.gif" width="85%"
        alt="claude-sonnet-4.6 and gpt-5.4-mini (low reasoning) racing the same kitchen at a 1-second latency budget">
 </p>
-> **Heads-up before quoting numbers:** Kitchen Rush is in beta. The game rules are frozen
-> (generation 1.0, hash `33034952fa7f` — see [docs/CALIBRATION.md](docs/CALIBRATION.md)), but the
-> token→seconds coefficients behind the reproducible clock are still being calibrated, so
-> absolute scores may shift a little. The model *ordering* is already informative.
 
 ## Why this exists
 
@@ -92,7 +88,7 @@ voice-agent regime. **B=5s** buys about 730 tokens per decision — enough for a
 reasoning — the interactive-assistant regime. The same model can rank very differently on the
 two boards, and that reordering is precisely what the benchmark is for.
 
-## Leaderboard (gen 1.0)
+## Leaderboard
 
 17 model configurations × 12 seeds × {medium, hard} kitchens × two latency budgets — 816
 episodes so far. Each chart is one latency budget; bars are mean KR, whiskers are 95%
