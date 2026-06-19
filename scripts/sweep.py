@@ -60,6 +60,8 @@ PRICES = {
     'nvidia/nemotron-3-nano-30b-a3b': (0.00000005, 0.0000002),
     'nvidia/nemotron-3-super-120b-a12b': (0.00000009, 0.00000045),
     'nvidia/nemotron-3-ultra-550b-a55b': (0.0000005, 0.0000025),
+    # Z.ai GLM 5.2 (OpenRouter list price, stamped 2026-06-18)
+    'z-ai/glm-5.2': (0.0000012, 0.0000032),
 }
 
 # Panel, ordered cheapest-first so the budget cap trims the most expensive tail if it binds.
@@ -103,6 +105,10 @@ PANELS = {
         ('nvidia/nemotron-3-super-120b-a12b', 'off', 'nemotron-3-super'),
         ('nvidia/nemotron-3-ultra-550b-a55b', 'off', 'nemotron-3-ultra'),
     ],
+    # GLM 5.2 single mixed row: reasoning OFF at B=1, LOW at B=5 (run separately, --budgets
+    # restricts each to its budget; same 'glm-5.2' label merges into one board row).
+    'glm-off': [('z-ai/glm-5.2', 'off', 'glm-5.2')],
+    'glm-on': [('z-ai/glm-5.2', 'on', 'glm-5.2')],
 }
 
 KEY_FOR_PROVIDER = {'openai': 'OPENAI_API_KEY', 'anthropic': 'ANTHROPIC_API_KEY'}

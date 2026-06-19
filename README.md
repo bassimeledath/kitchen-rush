@@ -90,7 +90,7 @@ two boards, and that reordering is precisely what the benchmark is for.
 
 ## Leaderboard
 
-17 model configurations × 12 seeds × {medium, hard} kitchens × two latency budgets — 816
+18 model configurations × 12 seeds × {medium, hard} kitchens × two latency budgets — 864
 episodes so far. Each chart is one latency budget; bars are mean KR, whiskers are 95%
 confidence intervals. The full per-tier table (with costs, reasoning tokens, and serve rates)
 is at [leaderboard/results/board.md](leaderboard/results/board.md).
@@ -113,7 +113,10 @@ reorders: `gpt-5.4-mini` with low reasoning rockets from near-zero to a **dead h
 sonnet (44 vs 44) at about a fifth of the cost**, while flash-lite *drops* to half its B=1
 standing. The same mini with reasoning fully off scores 0.0 at both budgets — reasoning it
 can't afford at B=1 is exactly what makes it a frontier-level tool caller at B=5. That's the
-latency tax, made visible. (`·think` rows ran with reasoning on at low effort; everything
+latency tax, made visible. One model gets there on decisiveness alone: `glm-5.2` runs
+reasoning-off and still finishes second overall, tying sonnet and the mini for the lead at
+B=5 (41 to their 44, with overlapping CIs) — strong tool dispatch without spending a token on
+thinking. (`·think` rows ran with reasoning on at low effort; everything
 else with reasoning off — fast single-shot dispatch is the honest realtime default. One row
 you might expect is missing: there is no `claude-sonnet-4.6·think`, because Anthropic's API
 does not allow extended thinking when tool calls are forced, and the harness forces tool
