@@ -165,5 +165,13 @@ class ModelAgent:
             out_text = (resp.text or "") + "".join(
                 c.name + json.dumps(c.arguments, sort_keys=True) for c in resp.tool_calls)
             n_out = count_tokens(out_text) + reasoning_tokens
+            # Enforcement for hidden/encrypted reasoning (RULES §3.2.1): some APIs (e.g.
+            # claude-sonnet-5 adaptive thinking) return the reasoning encrypted and report 0
+            # reasoning tokens while still billing them inside completion_tokens. Without this the
+            # model would think for free. When that's detected, charge the provider's true output
+            # count. Gated on has_hidden_thinking → strict no-op for every honest-reporting or
+            # non-thinking model, so no existing board row moves and the ruleset hash is unchanged.
+            if resp.usage.get("has_hidden_thinking"):
+                n_out = max(n_out, int(resp.usage.get("completion_tokens", 0) or 0))
             latency_s = rp_latency_seconds(n_in, n_out)
         return resp.tool_calls, latency_s

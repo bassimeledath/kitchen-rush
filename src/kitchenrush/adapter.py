@@ -96,6 +96,10 @@ class LiteLLMClient:
 
         usage_obj = getattr(resp, "usage", None)
         reasoning = _reasoning_tokens(usage_obj)   # None iff the provider did not report the field
+        # Encrypted/adaptive thinking (e.g. claude-sonnet-5): a signed thinking block is returned but
+        # the reasoning-token count is 0/absent, so the thinking is billed only inside
+        # completion_tokens. Flag it so the RP clock can charge the true output (RULES §3.2.1).
+        thinking_blocks = getattr(choice, "thinking_blocks", None)
         usage = {
             "prompt_tokens": getattr(usage_obj, "prompt_tokens", 0) or 0,
             "completion_tokens": getattr(usage_obj, "completion_tokens", 0) or 0,
@@ -104,6 +108,7 @@ class LiteLLMClient:
             # the provider-trusted gap is auditable (RULES §3.2.1, METHODOLOGY §3.1).
             "reasoning_tokens": reasoning or 0,
             "reasoning_reported": reasoning is not None,
+            "has_hidden_thinking": bool(thinking_blocks) and not (reasoning or 0),
         }
         return ModelResponse(tool_calls, getattr(choice, "content", "") or "", latency_s, usage)
 
