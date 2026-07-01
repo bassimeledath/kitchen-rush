@@ -90,7 +90,7 @@ two boards, and that reordering is precisely what the benchmark is for.
 
 ## Leaderboard
 
-18 model configurations × 12 seeds × {medium, hard} kitchens × two latency budgets — 864
+19 model configurations × 12 seeds × {medium, hard} kitchens × two latency budgets — 912
 episodes so far. Each chart is one latency budget; bars are mean KR, whiskers are 95%
 confidence intervals. The full per-tier table (with costs, reasoning tokens, and serve rates)
 is at [leaderboard/results/board.md](leaderboard/results/board.md).
@@ -121,6 +121,23 @@ else with reasoning off — fast single-shot dispatch is the honest realtime def
 you might expect is missing: there is no `claude-sonnet-4.6·think`, because Anthropic's API
 does not allow extended thinking when tool calls are forced, and the harness forces tool
 calls — sonnet competes thinking-off only.)
+
+**Case study — newest ≠ fastest (`claude-sonnet-5`).** Anthropic's newest flagship lands *6th*
+at KR 15.1 — below `gpt-5.4`, `gemini-3.1-flash-lite`, and `glm-5.2`. This isn't a harness
+artifact: every one of its 48 episodes produced well-formed, correctly-parsed tool calls (zero
+malformed, zero dropped). The failure is a real **cook-spam spiral** — on hard kitchens it calls
+`cook` far more than `collect_cooked` (61 vs 11 in one episode), so food piles up and *burns*
+(12–42 burns/episode vs ~3–4 for every other Anthropic model) and its later `cook`s fail on full
+burners. Like every board model it competes reasoning-off — doubly so, since Anthropic forbids
+thinking when tool calls are forced. Its new *adaptive* thinking API is also a measurement edge
+case worth flagging: it returns reasoning **encrypted** and reports `reasoning_tokens: 0` even
+while spending ~1000 hidden thinking tokens per decision, so under RP's provider-trusted rule
+([§3.2.1](docs/RULES.md), [docs/LIMITATIONS.md](docs/LIMITATIONS.md)) a thinking-on run would
+think essentially *for free* — a probe that allowed it (`tool_choice:auto`) duly logged an
+untrustworthy ~44, and charging that hidden thinking honestly drops it *below* its reasoning-off
+row, so no thinking-on number is published. Either way, out of the box in the realtime regime the
+newest flagship plays *worse* than its predecessor — raw capability and realtime tool-calling
+skill are not the same axis, which is the whole point of this benchmark.
 
 <p align="center">
   <img src="docs/assets/duel_b5.gif" width="85%"

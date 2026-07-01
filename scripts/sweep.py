@@ -56,6 +56,7 @@ PRICES = {
     'openai:gpt-5.4': (0.0000025, 0.000015),
     'anthropic:claude-haiku-4-5-20251001': (0.000001, 0.000005),
     'anthropic:claude-sonnet-4-6': (0.000003, 0.000015),
+    'anthropic:claude-sonnet-5': (0.000003, 0.000015),
     # OpenRouter nemotron-3 family (prices from openrouter.ai/api/v1/models, 2026-06-11)
     'nvidia/nemotron-3-nano-30b-a3b': (0.00000005, 0.0000002),
     'nvidia/nemotron-3-super-120b-a12b': (0.00000009, 0.00000045),
@@ -109,6 +110,9 @@ PANELS = {
     # restricts each to its budget; same 'glm-5.2' label merges into one board row).
     'glm-off': [('z-ai/glm-5.2', 'off', 'glm-5.2')],
     'glm-on': [('z-ai/glm-5.2', 'on', 'glm-5.2')],
+    # claude-sonnet-5 (2026-06-30), reasoning off (Anthropic ships thinking off by default; its
+    # adaptive-thinking API can't be combined with the harness's forced tool calls anyway).
+    'sonnet5': [('anthropic:claude-sonnet-5', 'default', 'claude-sonnet-5')],
 }
 
 KEY_FOR_PROVIDER = {'openai': 'OPENAI_API_KEY', 'anthropic': 'ANTHROPIC_API_KEY'}

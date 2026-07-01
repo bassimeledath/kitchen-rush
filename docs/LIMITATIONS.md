@@ -71,6 +71,15 @@ token unit directly comparable to AA's — worth doing.)
   returned a count) so the gap is auditable, but there is **no submission validator** yet to reject
   unreported reasoning — that is a P1 launch item. Until it ships, treat RP for thinking models as
   provider-trusted, not provider-independent. (See RULES §3.2.1, METHODOLOGY §3.1.)
+  *Concrete case (`claude-sonnet-5`):* its *adaptive* thinking API returns the reasoning
+  **encrypted** and reports `reasoning_tokens: 0` while actually spending ~1000 hidden thinking
+  tokens per decision (they surface only inside `completion_tokens`). This is subtler than a
+  missing field — the provider *reports* 0, so `reasoning_reported` is even True — so on the
+  provider-trusted clock a `tool_choice:auto` thinking run thinks essentially for free and posts an
+  inflated ~KR 44. Charging the hidden tokens (`n_out = completion_tokens`) instead drops it to
+  ~KR 7.6 at B=5, *below* its reasoning-off row, because ~1000 tokens/decision overruns the budget.
+  We therefore publish only the reasoning-off `claude-sonnet-5` row and omit a thinking-on number
+  until reasoning-token accounting is enforced. Data for both is preserved under `runs/`.
 - **Provisional β-coefficients.** β0/β_in/β_out are not yet calibrated to real measured throughput —
   RP is labelled *experimental* until they are. They're part of the ruleset hash, so calibrating
   them starts a new generation.

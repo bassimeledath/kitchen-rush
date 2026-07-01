@@ -18,7 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 RESULTS = ROOT / "leaderboard" / "results"
 
-PATCH_RUNS = ["openai_patch", "anthropic_patch", "openrouter_patch"]
+PATCH_RUNS = ["openai_patch", "anthropic_patch", "openrouter_patch", "sonnet5_patch"]
 # rows that must not appear on the published board, and why (kept in the json for audit)
 EXCLUDED = {
     "gpt-5.4·think": "OpenAI quota exhausted mid-config — episodes quarantined, pending rerun",
@@ -95,6 +95,21 @@ def main() -> int:
                 "source": name,
             }
 
+    # Carry over rows added out-of-band — committed straight to board.json with their run data not
+    # in the repo (e.g. glm-5.2, run via runs/glm_patch/ which is gitignored). Without this, any
+    # rebuild would silently drop them. Their cells + stats + cost are reused verbatim.
+    prior_path = RESULTS / "board.json"
+    if prior_path.exists():
+        prior = json.loads(prior_path.read_text())
+        have = {c["model"] for c in cells}
+        for c in prior["board"]:
+            if c["model"] not in have and c["model"] not in EXCLUDED:
+                cells.append(c)
+        for m, st in prior.get("model_stats", {}).items():
+            if m not in stats and m not in EXCLUDED:
+                stats[m] = st
+                total_cost += st.get("cost", 0) or 0
+
     models = sorted({c["model"] for c in cells})
     kr = {(c["model"], c["B"], c["tier"]): c["KR"] for c in cells}
     tiers = sorted({c["tier"] for c in cells})
@@ -131,7 +146,8 @@ def main() -> int:
         "",
         f"Ruleset `{v['ruleset']}` (gen {v['ruleset_version']}, frozen) · tokenizer `{v['tokenizer']}` · "
         f"track RP (experimental β) · {n_eps} episodes · total ${total_cost:.2f} · "
-        "= [starter run](starter.md) + 2026-06-11 patch (gpt-5.4 family & haiku via direct keys, nemotron via OpenRouter)",
+        "= [starter run](starter.md) + 2026-06-11 patch (gpt-5.4 family & haiku, nemotron) "
+        "+ 2026-06-18 GLM 5.2 + 2026-06-30 claude-sonnet-5",
         "",
         "KR = 100·clip((S−S_null)/(S_ref−S_null)), mean over seeds. `·think` = reasoning on "
         "(low effort). Not on the board: `gpt-5.4·think` (provider quota died mid-run — pending), "

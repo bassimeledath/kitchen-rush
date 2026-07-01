@@ -8,6 +8,20 @@ leaderboard generation. See [docs/RULES.md](docs/RULES.md).
 
 ## [Unreleased]
 
+### Added — claude-sonnet-5 (2026-06-30)
+- New board row `claude-sonnet-5` (reasoning-off): lands **6th at KR 15.1**, below `gpt-5.4`,
+  `gemini-3.1-flash-lite`, and `glm-5.2`. Confirmed a real behavioral failure (a "cook-spam
+  spiral": `cook` ≫ `collect_cooked`, mass burns), not a harness artifact — every episode
+  produced well-formed, correctly-parsed tool calls. README case study + charts updated
+  (19 configs, 912 episodes, $150.89); `sweep.py` gained a `sonnet5` panel + price.
+- Flagged Sonnet 5's *adaptive* thinking API as a reasoning-token metering edge case: it reports
+  `reasoning_tokens: 0` while spending ~1000 hidden encrypted tokens/decision, so under the
+  provider-trusted RP clock (RULES §3.2.1) a thinking-on run would think for free (inflated
+  ~KR 44); charging the hidden tokens drops it to ~KR 7.6 at B=5, *below* reasoning-off. No
+  thinking-on row published; documented in `docs/LIMITATIONS.md`.
+- `build_board.py`: carry over out-of-band board rows (e.g. `glm-5.2`, committed straight to
+  board.json with run data not in the repo) so a rebuild never silently drops them.
+
 ### Added — board patch (2026-06-11)
 - Five new leaderboard rows via direct OpenAI/Anthropic keys + OpenRouter: `gpt-5.4`,
   `gpt-5.4-mini·think` (ties sonnet at B=5 for ~1/5 the cost), `claude-haiku-4.5`,
