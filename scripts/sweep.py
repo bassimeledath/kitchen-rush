@@ -49,6 +49,7 @@ PRICES = {
     'anthropic/claude-sonnet-4.6': (0.000003, 0.000015),
     'x-ai/grok-build-0.1': (0.000001, 0.000002),
     'google/gemini-3.5-flash': (0.0000015, 0.000009),
+    'gemini:gemini-3.5-flash': (0.0000015, 0.000009),   # direct Gemini API (reasoning-off route)
     'qwen/qwen3-235b-a22b-thinking-2507': (0.0000001, 0.0000001),
     'openai/gpt-oss-120b': (0.000000039, 0.00000018),
     # direct-provider specs (per-token USD, provider list prices, stamped 2026-06-11)
@@ -113,6 +114,9 @@ PANELS = {
     # claude-sonnet-5 (2026-06-30), reasoning off (Anthropic ships thinking off by default; its
     # adaptive-thinking API can't be combined with the harness's forced tool calls anyway).
     'sonnet5': [('anthropic:claude-sonnet-5', 'default', 'claude-sonnet-5')],
+    # gemini-3.5-flash reasoning OFF — impossible on OpenRouter (mandatory), so routed direct
+    # (reasoning_effort=none disables it). Complements gemini-3.5-flash·think (default/heavy).
+    'gemini35off': [('gemini:gemini-3.5-flash', 'none', 'gemini-3.5-flash')],
 }
 
 KEY_FOR_PROVIDER = {'openai': 'OPENAI_API_KEY', 'anthropic': 'ANTHROPIC_API_KEY'}

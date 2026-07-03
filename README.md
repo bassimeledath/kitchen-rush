@@ -112,8 +112,11 @@ the fast no-reasoning models hold the podium: `gemini-3.1-flash-lite` runs nearl
 reorders: `gpt-5.4-mini` with low reasoning rockets from near-zero to a **dead heat with
 sonnet (44 vs 44) at about a fifth of the cost**, while flash-lite *drops* to half its B=1
 standing. The same mini with reasoning fully off scores 0.0 at both budgets — reasoning it
-can't afford at B=1 is exactly what makes it a frontier-level tool caller at B=5. That's the
-latency tax, made visible. (`·think` rows ran with reasoning on at low effort; everything
+can't afford at B=1 is exactly what makes it a frontier-level tool caller at B=5. The cleanest
+demonstration is a single model run both ways: **`gemini-3.5-flash` scores 3.4 with its
+reasoning on but 25.6 with it off** — an ~8× swing from the same weights, because on the RP
+clock its 31k-token deliberation per episode is charged, and at these budgets it can't afford
+it. That's the latency tax, made visible. (`·think` rows ran with reasoning on; everything
 else with reasoning off — fast single-shot dispatch is the honest realtime default. One row
 you might expect is missing: there is no `claude-sonnet-4.6·think`, because Anthropic's API
 does not allow extended thinking when tool calls are forced, and the harness forces tool

@@ -8,6 +8,16 @@ leaderboard generation. See [docs/RULES.md](docs/RULES.md).
 
 ## [Unreleased]
 
+### Added — gemini-3.5-flash reasoning-off (2026-07-03)
+- New board row `gemini-3.5-flash` (reasoning **off**): **#4 at KR 25.6**, next to `gemini-3.1-flash-lite`
+  (26.3). Its reasoning-on twin `gemini-3.5-flash·think` sits at #13 (KR 3.4) — an ~8× swing on the
+  same weights, the cleanest single-model demonstration of the latency tax (its ~31k reasoning
+  tokens/episode are charged and it can't afford them at these budgets).
+- Reasoning-off is **impossible via OpenRouter** for this model ("reasoning is mandatory"), so it's
+  routed through the **direct Gemini API** (`reasoning_effort=none`, verified to zero out reasoning
+  tokens). `sweep.py` gained a `gemini35off` panel + direct-Gemini price. Board now 20 configs /
+  960 episodes / $155.30.
+
 ### Fixed — GLM 5.2 was over-scored at B=5 (reasoning charged at zero) (2026-07-03)
 - The 2026-06-18 GLM row ran reasoning **on** at B=5 but OpenRouter did not report its
   reasoning-token counts, so ~20k reasoning tokens/episode were priced at **zero** on the RP

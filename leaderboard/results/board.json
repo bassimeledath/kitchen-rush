@@ -11,7 +11,7 @@
     "generator": "0.1",
     "tokenizer": "tiktoken-cl100k_base-v1"
   },
-  "total_cost_usd": 149.97,
+  "total_cost_usd": 155.3,
   "excluded": {
     "gpt-5.4\u00b7think": "OpenAI quota exhausted mid-config \u2014 episodes quarantined, pending rerun",
     "claude-sonnet-4.6\u00b7think\u2020": "Anthropic credit exhausted mid-config \u2014 B=5 + 6 hard-B1 episodes quarantined, pending rerun (row incomplete)",
@@ -856,6 +856,50 @@
       "pass_1": 0.0833,
       "completion_rate": 0.7083,
       "invalid_rate": 0.2751
+    },
+    {
+      "model": "gemini-3.5-flash",
+      "B": 1.0,
+      "tier": "hard",
+      "episodes": 12,
+      "KR": 17.18,
+      "kr_std": 17.9,
+      "pass_1": 0.0,
+      "completion_rate": 0.4742,
+      "invalid_rate": 0.2512
+    },
+    {
+      "model": "gemini-3.5-flash",
+      "B": 5.0,
+      "tier": "hard",
+      "episodes": 12,
+      "KR": 14.35,
+      "kr_std": 14.77,
+      "pass_1": 0.0,
+      "completion_rate": 0.4861,
+      "invalid_rate": 0.3029
+    },
+    {
+      "model": "gemini-3.5-flash",
+      "B": 1.0,
+      "tier": "medium",
+      "episodes": 12,
+      "KR": 38.89,
+      "kr_std": 19.68,
+      "pass_1": 0.0833,
+      "completion_rate": 0.7444,
+      "invalid_rate": 0.1523
+    },
+    {
+      "model": "gemini-3.5-flash",
+      "B": 5.0,
+      "tier": "medium",
+      "episodes": 12,
+      "KR": 32.01,
+      "kr_std": 24.99,
+      "pass_1": 0.0833,
+      "completion_rate": 0.6111,
+      "invalid_rate": 0.2199
     }
   ],
   "model_stats": {
@@ -991,6 +1035,13 @@
       "reason_ep": 0,
       "cost": 5.09,
       "source": "glm_offboth"
+    },
+    "gemini-3.5-flash": {
+      "ci": 8.146875000000001,
+      "serve": 57,
+      "reason_ep": 0,
+      "cost": 5.33,
+      "source": "gemini35_off"
     }
   }
 }

@@ -18,7 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 RESULTS = ROOT / "leaderboard" / "results"
 
-PATCH_RUNS = ["openai_patch", "anthropic_patch", "openrouter_patch", "sonnet5_patch", "glm_offboth"]
+PATCH_RUNS = ["openai_patch", "anthropic_patch", "openrouter_patch", "sonnet5_patch", "glm_offboth", "gemini35_off"]
 # rows that must not appear on the published board, and why (kept in the json for audit)
 EXCLUDED = {
     "gpt-5.4·think": "OpenAI quota exhausted mid-config — episodes quarantined, pending rerun",
@@ -147,8 +147,8 @@ def main() -> int:
         f"Ruleset `{v['ruleset']}` (gen {v['ruleset_version']}, frozen) · tokenizer `{v['tokenizer']}` · "
         f"track RP (experimental β) · {n_eps} episodes · total ${total_cost:.2f} · "
         "= [starter run](starter.md) + 2026-06-11 patch (gpt-5.4 family & haiku, nemotron) "
-        "+ 2026-06-30 claude-sonnet-5 + 2026-07-03 GLM 5.2 (re-run reasoning-off, both budgets — "
-        "the 2026-06-18 B=5 cells did not charge GLM's reasoning and were withdrawn)",
+        "+ 2026-06-30 claude-sonnet-5 + 2026-07-03 GLM 5.2 (re-run reasoning-off) "
+        "+ 2026-07-03 gemini-3.5-flash reasoning-off (direct Gemini API)",
         "",
         "KR = 100·clip((S−S_null)/(S_ref−S_null)), mean over seeds. `·think` = reasoning on "
         "(low effort). Not on the board: `gpt-5.4·think` (provider quota died mid-run — pending), "
