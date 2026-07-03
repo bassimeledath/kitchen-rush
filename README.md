@@ -113,10 +113,7 @@ reorders: `gpt-5.4-mini` with low reasoning rockets from near-zero to a **dead h
 sonnet (44 vs 44) at about a fifth of the cost**, while flash-lite *drops* to half its B=1
 standing. The same mini with reasoning fully off scores 0.0 at both budgets — reasoning it
 can't afford at B=1 is exactly what makes it a frontier-level tool caller at B=5. That's the
-latency tax, made visible. One model gets there on decisiveness alone: `glm-5.2` runs
-reasoning-off and still finishes second overall, tying sonnet and the mini for the lead at
-B=5 (41 to their 44, with overlapping CIs) — strong tool dispatch without spending a token on
-thinking. (`·think` rows ran with reasoning on at low effort; everything
+latency tax, made visible. (`·think` rows ran with reasoning on at low effort; everything
 else with reasoning off — fast single-shot dispatch is the honest realtime default. One row
 you might expect is missing: there is no `claude-sonnet-4.6·think`, because Anthropic's API
 does not allow extended thinking when tool calls are forced, and the harness forces tool
@@ -138,6 +135,12 @@ untrustworthy ~44, and charging that hidden thinking honestly drops it *below* i
 row, so no thinking-on number is published. Either way, out of the box in the realtime regime the
 newest flagship plays *worse* than its predecessor — raw capability and realtime tool-calling
 skill are not the same axis, which is the whole point of this benchmark.
+
+*(`glm-5.2` is a second instance of the same lesson, found the hard way: it was briefly listed
+2nd overall and tied for the B=5 lead, but that run priced its ~500-token-per-decision reasoning
+at zero — a reasoning-token reporting gap since fixed. Charged correctly it scores 5.8 at B=5;
+run reasoning-off like every other plain row it settles at ~21 overall, ~5th. Expensive reasoning
+is a net negative at a fixed latency budget — the recurring finding.)*
 
 <p align="center">
   <img src="docs/assets/duel_b5.gif" width="85%"

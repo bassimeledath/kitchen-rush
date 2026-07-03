@@ -8,6 +8,18 @@ leaderboard generation. See [docs/RULES.md](docs/RULES.md).
 
 ## [Unreleased]
 
+### Fixed — GLM 5.2 was over-scored at B=5 (reasoning charged at zero) (2026-07-03)
+- The 2026-06-18 GLM row ran reasoning **on** at B=5 but OpenRouter did not report its
+  reasoning-token counts, so ~20k reasoning tokens/episode were priced at **zero** on the RP
+  clock — inflating GLM to **2nd overall and tied for the B=5 lead (40.7)**. Neither honest
+  config reproduces that: charged correctly, reasoning-on B=5 = **5.8** (reasoning overruns the
+  budget); reasoning-**off** (its config re-run to match every other plain row) = **22.1** at B=5.
+- Withdrew the inflated cells and replaced the GLM row with a fresh reasoning-off, both-budget,
+  12-seed run (correctly charged): GLM is now **~21.0 overall, ~5th** (was 32.9/#2). README +
+  charts + board updated; the reasoning-on collapse (5.8) is noted as the same latency-tax lesson
+  as `claude-sonnet-5`. (Part of GLM's drop is also OpenRouter backend drift since June — its
+  reasoning-off `medium B1` reproduced, but `hard B1` came in lower.)
+
 ### Added — claude-sonnet-5 (2026-06-30)
 - New board row `claude-sonnet-5` (reasoning-off): lands **6th at KR 15.1**, below `gpt-5.4`,
   `gemini-3.1-flash-lite`, and `glm-5.2`. Confirmed a real behavioral failure (a "cook-spam
