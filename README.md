@@ -90,10 +90,27 @@ two boards, and that reordering is precisely what the benchmark is for.
 
 ## Leaderboard
 
-19 model configurations × 12 seeds × {medium, hard} kitchens × two latency budgets — 912
-episodes so far. Each chart is one latency budget; bars are mean KR, whiskers are 95%
-confidence intervals. The full per-tier table (with costs, reasoning tokens, and serve rates)
-is at [leaderboard/results/board.md](leaderboard/results/board.md).
+There are **two boards**, because "who wins" depends on whether you want a reproducible ranking
+or a real deployment answer, and Kitchen Rush refuses to pretend those are the same question.
+
+- **The flat-clock board** (below) is the **reproducible reference generation**: every model's
+  tokens are priced by one shared, provider-neutral latency model (RP, [§3](docs/METHODOLOGY.md)),
+  so re-running it should reproduce the same numbers regardless of who's serving the model that
+  day. It measures *decision quality under a standardized clock*.
+- **The [calibrated real-speed board](#calibrated-real-speed-board-deployment-realism)** clocks
+  each model on **its own measured serving speed** instead — a dated, explicitly non-reproducible
+  deployment snapshot. It measures *which model would actually keep up if you deployed it today*.
+
+They can and do disagree — a model that's token-efficient but genuinely slow in production can
+win on the flat clock and lose on the calibrated one, or vice versa. Read both; they answer
+different questions.
+
+### Flat-clock board (reproducible reference)
+
+20 model configurations × 12 seeds × {medium, hard} kitchens × two latency budgets — 960
+episodes, $155.30 total spend so far. Each chart is one latency budget; bars are mean KR,
+whiskers are 95% confidence intervals. The full per-tier table (with costs, reasoning tokens, and
+serve rates) is at [leaderboard/results/board.md](leaderboard/results/board.md).
 
 <p align="center">
   <img src="docs/assets/leaderboard_b1.png" width="49%" alt="Leaderboard at latency budget B=1s">
@@ -142,8 +159,9 @@ skill are not the same axis, which is the whole point of this benchmark.
 *(`glm-5.2` is a second instance of the same lesson, found the hard way: it was briefly listed
 2nd overall and tied for the B=5 lead, but that run priced its ~500-token-per-decision reasoning
 at zero — a reasoning-token reporting gap since fixed. Charged correctly it scores 5.8 at B=5;
-run reasoning-off like every other plain row it settles at ~21 overall, ~5th. Expensive reasoning
-is a net negative at a fixed latency budget — the recurring finding.)*
+run reasoning-off like every other plain row it settles at KR 21.0 overall, 6th. Expensive
+reasoning is a net negative at a fixed latency budget — the recurring finding — though see the
+calibrated board below, where GLM 5.2 running reasoning-off is the clear value pick.)*
 
 <p align="center">
   <img src="docs/assets/duel_b5.gif" width="85%"
@@ -155,6 +173,44 @@ every order at <b>99</b> raw points (KR 86) while sonnet is still cooking at 40.
 mini's best kitchen — the chart above shows the average, a 44–44 tie across all 24 — but the
 direction is real: it wins the medium tier at B=5 outright (59 vs 52). Same models, different
 latency budget, different winner: that's exactly what the two boards measure.</em></p>
+
+### Calibrated real-speed board (deployment realism)
+
+The flat-clock board above prices every model's tokens at one shared, standardized rate — great
+for reproducibility, useless if what you actually want to know is "which model keeps up in
+production." The **calibrated board** answers that instead: each model's game clock runs at
+**its own measured serving speed**, fit from real API-latency samples against fixed observation
+fixtures and then frozen. Because the *optimal* amount of reasoning is itself clock-dependent, each
+model's reasoning effort is separately calibrated per budget on that frozen clock, so the level
+column reports what actually won for that model, not a fixed default. One kitchen (no easy/hard
+split), 16 models, 12 seeds × 2 budgets = 384 scored episodes, snapshot **2026-07-10**. Full
+table (plus a calibration appendix of decode speed, β0, and QA flags per model):
+[leaderboard/results/calibrated_board.md](leaderboard/results/calibrated_board.md). Methodology
+and reproducibility caveats: [docs/CALIBRATED_SPEED.md](docs/CALIBRATED_SPEED.md).
+
+<p align="center">
+  <img src="docs/assets/calibrated_b1.png" width="49%" alt="Calibrated real-speed Pareto plot at latency budget B=1s">
+  <img src="docs/assets/calibrated_b5.png" width="49%" alt="Calibrated real-speed Pareto plot at latency budget B=5s">
+</p>
+
+`claude-sonnet-4.6` leads both budgets on its own clock (KR 36 at B=1, 55 at B=5) — genuinely
+fast in addition to accurate, not just token-efficient. `glm-5.2` is the value pick: it's the
+runner-up at both budgets (KR 33/39) at ~$0.33/Mtok, roughly 10× cheaper than sonnet's
+~$3.19/Mtok. Optimal reasoning effort is clock-dependent and was measured per model rather than
+assumed: `gpt-5.4-mini` calibrates to
+`low`, `gpt-5.6-luna` to `minimal`, while `gpt-5.4` and `glm-5.2` both calibrate to reasoning
+*off* at both budgets — on their real measured speed, thinking doesn't pay for itself even at
+B=5s. Ranks are shown as **bands**, not individual positions: a single-cell KR estimate has a wide
+95% CI, and rows sharing a band are statistically tied rather than meaningfully ordered.
+`llama-4-scout` is absent — its provider errored out during speed calibration, so it has no frozen
+clock to run on (see the appendix in the board file).
+
+Because this board is clocked on real, dated API measurements rather than a standardized token
+rate, it is explicitly **not reproducible**: re-measuring on a different day, region, or backend
+can move a model's calibrated speed, and therefore its score. That's the trade, made on purpose —
+see [docs/CALIBRATED_SPEED.md](docs/CALIBRATED_SPEED.md) and
+[docs/LIMITATIONS.md](docs/LIMITATIONS.md) §1 for the honest accounting of what you gain and give
+up versus the flat-clock board.
 
 ## Try it
 
@@ -188,6 +244,8 @@ method, registered with `register_adapter`. CLI commands: `run`, `bench`, `repla
 - [docs/RULES.md](docs/RULES.md) — the authoritative, code-verified ruleset
 - [docs/METHODOLOGY.md](docs/METHODOLOGY.md) — the KR metric, the math of B, statistical protocol
 - [docs/CALIBRATION.md](docs/CALIBRATION.md) — the evidence behind the gen-1.0 freeze
+- [docs/CALIBRATED_SPEED.md](docs/CALIBRATED_SPEED.md) — the calibrated real-speed board's build
+  spec: speed & reasoning-level calibration, QA gates, cost controls
 - [docs/LIMITATIONS.md](docs/LIMITATIONS.md) — what KR does and doesn't measure (worth reading
   before citing results)
 - [docs/OBJECTIONS.md](docs/OBJECTIONS.md) — anticipated critiques, answered with data

@@ -28,6 +28,10 @@ non-reproducible (re-run next month → different number) and would conflate int
 whichever GPU the request landed on. So RP holds speed constant on purpose; the cost is that it
 **cannot tell you which model will actually keep up in production.**
 
+If you need that answer, see the **calibrated real-speed board** below (§1, "built") — it
+answers the "which model will actually keep up" question directly, at the cost of the
+reproducibility RP is protecting.
+
 ### How to recover real-world speed
 - **RT track (diagnostic):** measured wall-clock latency. Captures real speed, but must be run
   sequentially with disclosed hardware/region/date (concurrent load corrupts it), and isn't
@@ -36,9 +40,12 @@ whichever GPU the request landed on. So RP holds speed constant on purpose; the 
   *alongside* KR and $ (sourced from a measurement service such as Artificial Analysis, pinned to a
   date), never blended into KR. A buyer then reads "smarter per token" vs "faster in practice" and
   picks by their constraint.
-- **Per-model-β "realtime-adjusted" board (optional):** a secondary board that prices each model's
-  tokens at its real measured speed (pinned snapshot). More realistic, explicitly non-reproducible,
-  never the headline.
+- **Per-model-β "realtime-adjusted" board — built.** The **calibrated real-speed board**
+  (`leaderboard/results/calibrated_board.md`, spec in
+  [docs/CALIBRATED_SPEED.md](CALIBRATED_SPEED.md)) prices each model's tokens at its own
+  measured serving speed, frozen from real API-latency samples and dated. More realistic,
+  explicitly non-reproducible (re-measuring on another day/endpoint/region can move it), and
+  still not the headline — RP remains the reproducible reference ranking.
 
 ## 2. How this compares to Artificial Analysis
 

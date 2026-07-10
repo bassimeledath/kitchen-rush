@@ -128,10 +128,12 @@ mathematically grounded translations:
 |---|---|---|
 | **RP (ranked headline)** | `0.30 + 0.0002·n_in + 0.006·n_out` (reasoning tokens incl.) | the reproducible, cross-hardware ranking track — the only track wired into `cli.py`/`metrics.py` |
 | **RT (diagnostic)** | measured wall-clock | the ecological-realtime check; standardized harness (fixed region, concurrency=1, disclosed), published adjacent, **never** the cross-model rank |
+| **calibrated (deployment snapshot)** | `β0(model) + β_out(model)·n_out`, per-model frozen coefficients | the real-measured-speed board — deliberately non-reproducible; see §3.2 |
 
 The leaderboard ranks by **RP** (matching `README.md`, `RULES.md` §3.2.1, and the CLI default
 `--track rp`); RT is reported adjacent as a hardware-dependent diagnostic. RP is provider-trusted
-on reasoning tokens — see §3.1.
+on reasoning tokens — see §3.1. The calibrated track is a separate, explicitly dated board — see
+§3.2.
 
 ### 3.1 RP is provider-trusted on reasoning tokens (reproducibility caveat)
 
@@ -142,6 +144,29 @@ reasoning model the dominant latency term is thus provider-trusted, not provider
 provider that under-reports (or returns null/0) pays less game-time. The turn log records
 `reasoning_reported` so the gap is auditable; no validator enforces reporting yet (a P1 item).
 Full treatment in [LIMITATIONS.md](LIMITATIONS.md) §3.
+
+### 3.2 The calibrated track — each model's own measured speed (deployment realism, not reproducible)
+
+RP and RT both hold every model to the *same* clock (standardized β, or raw wall-clock measured
+adjacent). A third track, **calibrated**, does the opposite on purpose: it clocks each model on
+**its own measured serving speed**. For each model we sample real API latency against fixed
+observation fixtures, fit `latency ≈ β0 + β_out·n_out` for that specific (gateway, model,
+provider/variant, region) unit, and freeze the coefficients. The game clock then advances at that
+model's own decode speed instead of the shared RP rate, and — because the optimal amount of
+reasoning is itself clock-dependent — each model's reasoning level is *also* calibrated per
+budget on its frozen clock (highest-mean-KR level on held-out tuning seeds, never reused in the
+scored run).
+
+This produces the **calibrated real-speed board**
+([leaderboard/results/calibrated_board.md](../leaderboard/results/calibrated_board.md)): one
+kitchen, B=1s and B=5s tables, ranked in bands (rows within a band are statistically tied at the
+95% CI). It answers "which model would I actually want serving this kitchen today" — a question
+RP explicitly declines to answer (§3, LIMITATIONS §1). The cost is reproducibility: the clock is
+a **dated deployment snapshot** (calibration + snapshot date stamped on the board), not a
+standardized, rerunnable unit — a different day, region, or backend can move a model's measured
+speed and therefore its score. It is never used to rank the RP headline and never retroactively
+changes an RP row. Full build spec, calibration protocol, QA gates, and cost controls:
+[docs/CALIBRATED_SPEED.md](CALIBRATED_SPEED.md).
 
 ## 4. Parameter taxonomy
 

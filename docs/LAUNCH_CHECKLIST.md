@@ -131,3 +131,10 @@ results are verifiable and hard to game. The differentiator — **latency made l
 deterministic, reproducible, verifiable tool-world, reported as a cost/latency/competence trade-off
 rather than one number** — is genuine and now demonstrated; the launch just has to make it grounded,
 verifiable, and hard to game.
+
+*Update:* gate (1) is unchanged for **RP** — its β-coefficients are still a standardized,
+provisional guess, not a calibration. But the adjacent question ("what if we clocked each model
+on its own real measured speed instead?") now has a shipped answer that doesn't wait on that gate:
+the **calibrated real-speed board** (`docs/CALIBRATED_SPEED.md`,
+`leaderboard/results/calibrated_board.{md,json}`), a dated, explicitly non-reproducible deployment
+snapshot, run as a separate track alongside RP/RT rather than a fix to either.
