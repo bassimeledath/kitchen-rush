@@ -154,32 +154,35 @@ def main() -> int:
                      f"{','.join(a.get('cal_flags') or []) or '—'} |")
     (ROOT / "leaderboard" / "results" / "calibrated_board.md").write_text("\n".join(lines) + "\n")
 
-    # Pareto plots
+    # Ranked bar charts (one per budget) — same style as the flat board, new data.
     try:
         import matplotlib.pyplot as plt
+        # Ranked bar chart per budget — the headline "who's on top" view (blue = tied for the lead
+        # within CI, i.e. its whisker reaches the top bar's mean).
         for B in budgets:
-            rowsB = board["tables"][str(int(B))]
-            xs = [r["usd_per_mtok"] for r in rowsB]; ys = [r["KR"] for r in rowsB]
+            rowsB = sorted(board["tables"][str(int(B))], key=lambda r: r["KR"])  # asc: top model at top of barh
+            names = [r["model"] + (f"·{r['level']}" if r["level"] else "") for r in rowsB]
+            krs = [r["KR"] for r in rowsB]
             cis = [r["ci"] or 0 for r in rowsB]
-            fig, ax = plt.subplots(figsize=(7, 5), dpi=200)
-            ax.errorbar(xs, ys, yerr=cis, fmt="o", color="#2f6fb2", ecolor="#bbb", capsize=2)
-            for r in rowsB:
-                ax.annotate(f"{r['model']}" + (f"·{r['level']}" if r['level'] else ""),
-                            (r["usd_per_mtok"], r["KR"]), fontsize=6, xytext=(4, 2),
-                            textcoords="offset points")
-            # non-dominated frontier
-            front = sorted(rowsB, key=lambda r: (r["usd_per_mtok"], -r["KR"]))
-            fx, fy, best = [], [], -1e9
-            for r in front:
-                if r["KR"] > best:
-                    fx.append(r["usd_per_mtok"]); fy.append(r["KR"]); best = r["KR"]
-            ax.plot(fx, fy, "--", color="#e07b39", lw=1, label="frontier")
-            ax.set_xscale("log")
-            ax.set_xlabel("$ per 1M tokens (billed, log)"); ax.set_ylabel("KR (0–100)")
-            ax.set_title(f"Kitchen Rush — calibrated real-speed · B={int(B)}s · {args.date}", fontsize=9)
-            ax.grid(True, color="#eee"); ax.set_axisbelow(True); ax.legend(fontsize=7)
+            top = max(krs)
+            fig, ax = plt.subplots(figsize=(6.6, 0.42 * len(rowsB) + 1.3), dpi=200)
+            ax.barh(names, krs, xerr=cis, height=0.62,
+                    color=["#2f6fb2" if k + c >= top else "#9db4c8" for k, c in zip(krs, cis)],
+                    error_kw={"ecolor": "#444", "capsize": 2.5, "lw": 1})
+            for i, (k, c) in enumerate(zip(krs, cis)):
+                ax.text(k + c + 1.2, i, f"{k:.0f}", va="center", fontsize=8, color="#333")
+            ax.set_xlim(0, 100)
+            ax.set_xlabel("KR (Kitchen Rush score, 0–100)", fontsize=9)
+            ax.set_title(f"Calibrated real-speed · B = {int(B)}s · {args.date}", fontsize=9.5, loc="left")
+            ax.tick_params(labelsize=8.5)
+            ax.spines[["top", "right"]].set_visible(False)
+            ax.grid(axis="x", color="#e6e6e6", lw=0.7)
+            ax.set_axisbelow(True)
+            fig.text(0.99, 0.01, "each model on its own measured serving speed · 12 seeds · 95% CI · "
+                     "blue = tied for the lead within CI · dated snapshot, not reproducible",
+                     ha="right", fontsize=6, color="#777")
             fig.tight_layout()
-            p = ROOT / "docs" / "assets" / f"calibrated_b{int(B)}.png"
+            p = ROOT / "docs" / "assets" / f"calibrated_bar_b{int(B)}.png"
             fig.savefig(p, facecolor="white"); print("wrote", p.relative_to(ROOT))
     except Exception as exc:  # noqa: BLE001
         print("plot skipped:", exc)

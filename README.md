@@ -43,8 +43,10 @@ Overcooked:
 2. **No joystick skills.** The chef walks itself to the right station automatically; travel
    time is charged inside the action. What's being tested is *choosing the right action
    sequence under time pressure*, not video-game reflexes.
-3. **Fully deterministic.** Same seed, same actions, same latencies → exactly the same episode,
-   every time, on any machine. Every run can be replayed in a browser viewer and audited.
+3. **Deterministic + auditable.** For a fixed clock, the same seed and action sequence reproduce
+   exactly the same episode; every run replays in a browser viewer. The board clocks each model on
+   its *own measured serving speed*, so the board itself is a dated snapshot (see
+   [Leaderboard](#leaderboard)).
 
 Every episode produces a single 0–100 score we call **KR** (the **Kitchen Rush score**). It's
 graded on a curve between two fixed anchors: KR 0 means "no better than doing nothing and
@@ -82,135 +84,57 @@ chef collapsing ([docs/METHODOLOGY.md §2](docs/METHODOLOGY.md),
 [docs/CALIBRATION.md](docs/CALIBRATION.md)).
 
 And in plain deployment terms: **the model that wins at B=1s is the best pick when every
-decision has to land in about a second** — on the benchmark's reproducible clock that's a
-budget of roughly 65 output tokens per decision, i.e. terse, single-shot tool dispatch — what a
-voice agent needs. **B=5s** buys about 730 tokens per decision — enough for a short burst of
-reasoning, what an interactive assistant can afford. The same model can rank very differently on the
-two boards, and that reordering is precisely what the benchmark is for.
+decision has to land in about a second** — terse, single-shot tool dispatch, what a voice agent
+needs. **B=5s** gives about five seconds per decision — room for a short burst of reasoning, what
+an interactive assistant can afford. The same model can rank very differently at the two budgets,
+and that reordering is precisely what the benchmark is for.
 
 ## Leaderboard
 
-There are **two boards**, because "who wins" depends on whether you want a reproducible ranking
-or a real deployment answer, and Kitchen Rush refuses to pretend those are the same question.
-
-- **The flat-clock board** (below) is the **reproducible reference generation**: every model's
-  tokens are priced by one shared, provider-neutral latency model (RP, [§3](docs/METHODOLOGY.md)),
-  so re-running it should reproduce the same numbers regardless of who's serving the model that
-  day. It measures *decision quality under a standardized clock*.
-- **The [calibrated real-speed board](#calibrated-real-speed-board-deployment-realism)** clocks
-  each model on **its own measured serving speed** instead — a dated, explicitly non-reproducible
-  deployment snapshot. It measures *which model would actually keep up if you deployed it today*.
-
-They can and do disagree — a model that's token-efficient but genuinely slow in production can
-win on the flat clock and lose on the calibrated one, or vice versa. Read both; they answer
-different questions.
-
-### Flat-clock board (reproducible reference)
-
-20 model configurations × 12 seeds × {medium, hard} kitchens × two latency budgets — 960
-episodes, $155.30 total spend so far. Each chart is one latency budget; bars are mean KR,
-whiskers are 95% confidence intervals. The full per-tier table (with costs, reasoning tokens, and
-serve rates) is at [leaderboard/results/board.md](leaderboard/results/board.md).
+Kitchen Rush clocks each model on **its own real, measured serving speed**: we sample each
+model's live API latency, fit a per-model clock, freeze it, and run the game on that clock. A
+model that's genuinely slow in production pays for it; a model on fast silicon is rewarded. It's
+the deployment question made concrete — *which model actually keeps up if you ship it today?*
+Each latency budget **B** gets its own board (never averaged together).
 
 <p align="center">
-  <img src="docs/assets/leaderboard_b1.png" width="49%" alt="Leaderboard at latency budget B=1s">
-  <img src="docs/assets/leaderboard_b5.png" width="49%" alt="Leaderboard at latency budget B=5s">
+  <img src="docs/assets/calibrated_bar_b1.png" width="49%" alt="Calibrated real-speed board at latency budget B=1s">
+  <img src="docs/assets/calibrated_bar_b5.png" width="49%" alt="Calibrated real-speed board at latency budget B=5s">
 </p>
 
-**The left board (B=1s)** is the realtime test: the kitchen is priced for one second per
-decision, which on the benchmark's clock buys about 65 output tokens — terse, single-shot tool
-dispatch. Winning here means "the model I'd trust to drive a voice agent or a live dashboard."
-**The right board (B=5s)** prices the same kitchens for five seconds per decision (~730
-tokens — room for a short burst of reasoning), what an interactive assistant can afford.
+16 models · 12 seeds · one kitchen · snapshot **2026-07-10**. Bars are mean KR, whiskers are 95%
+confidence intervals; blue = tied for the lead within CI. Full tables (serve%, $/Mtok, and a
+per-model calibration appendix of measured decode speed + chosen reasoning level) are at
+[leaderboard/results/calibrated_board.md](leaderboard/results/calibrated_board.md); the build
+methodology is [docs/CALIBRATED_SPEED.md](docs/CALIBRATED_SPEED.md).
 
-Read them side by side — that contrast is the product. Under tight realtime pressure (B=1s)
-the fast no-reasoning models hold the podium: `gemini-3.1-flash-lite` runs nearly even with
-`claude-sonnet-4.6` (32 vs 37). Give every decision five seconds instead and the board
-reorders: `gpt-5.4-mini` with low reasoning rockets from near-zero to a **dead heat with
-sonnet (44 vs 44) at about a fifth of the cost**, while flash-lite *drops* to half its B=1
-standing. The same mini with reasoning fully off scores 0.0 at both budgets — reasoning it
-can't afford at B=1 is exactly what makes it a frontier-level tool caller at B=5. The cleanest
-demonstration is a single model run both ways: **`gemini-3.5-flash` scores 3.4 with its
-reasoning on but 25.6 with it off** — an ~8× swing from the same weights, because on the RP
-clock its 31k-token deliberation per episode is charged, and at these budgets it can't afford
-it. That's the latency tax, made visible. (`·think` rows ran with reasoning on; everything
-else with reasoning off — fast single-shot dispatch is the honest realtime default. One row
-you might expect is missing: there is no `claude-sonnet-4.6·think`, because Anthropic's API
-does not allow extended thinking when tool calls are forced, and the harness forces tool
-calls — sonnet competes thinking-off only.)
+**`claude-sonnet-4.6` leads both budgets** (KR 36 at B=1, 55 at B=5) — genuinely fast *and*
+accurate on its own clock, not merely token-efficient. **`glm-5.2` is the value pick**:
+runner-up at both budgets (33 / 39) for **~$0.33/Mtok, roughly 10× cheaper than sonnet's
+~$3.19**. And the **B=1 → B=5 flip is the product**: under tight realtime pressure (~1 s per
+decision) the fast, low-reasoning models hold the podium; give every decision five seconds and
+the reasoners climb — `gpt-5.6-luna` jumps 21 → 37 into third. Same models, different budget,
+different winner.
 
-**Case study — newest ≠ fastest (`claude-sonnet-5`).** Anthropic's newest flagship lands *6th*
-at KR 15.1 — below `gpt-5.4`, `gemini-3.1-flash-lite`, and `glm-5.2`. This isn't a harness
-artifact: every one of its 48 episodes produced well-formed, correctly-parsed tool calls (zero
-malformed, zero dropped). The failure is a real **cook-spam spiral** — on hard kitchens it calls
-`cook` far more than `collect_cooked` (61 vs 11 in one episode), so food piles up and *burns*
-(12–42 burns/episode vs ~3–4 for every other Anthropic model) and its later `cook`s fail on full
-burners. Like every board model it competes reasoning-off — doubly so, since Anthropic forbids
-thinking when tool calls are forced. Its new *adaptive* thinking API is also a measurement edge
-case worth flagging: it returns reasoning **encrypted** and reports `reasoning_tokens: 0` even
-while spending ~1000 hidden thinking tokens per decision, so under RP's provider-trusted rule
-([§3.2.1](docs/RULES.md), [docs/LIMITATIONS.md](docs/LIMITATIONS.md)) a thinking-on run would
-think essentially *for free* — a probe that allowed it (`tool_choice:auto`) duly logged an
-untrustworthy ~44, and charging that hidden thinking honestly drops it *below* its reasoning-off
-row, so no thinking-on number is published. Either way, out of the box in the realtime regime the
-newest flagship plays *worse* than its predecessor — raw capability and realtime tool-calling
-skill are not the same axis, which is the whole point of this benchmark.
+**Reasoning effort is calibrated per model, not assumed — and the best level is
+clock-dependent.** On its real measured speed each model gets the level that actually wins:
+`gpt-5.4-mini` → `low`, `gpt-5.6-luna` → `minimal`, while `gpt-5.4` and `glm-5.2` run **reasoning
+off** at both budgets — on their measured speed, thinking doesn't pay for itself even at B=5. A
+fast-served model can afford to think; a slow-served one can't. That's the latency tax, now
+measured per model rather than charged at a single flat rate.
 
-*(`glm-5.2` is a second instance of the same lesson, found the hard way: it was briefly listed
-2nd overall and tied for the B=5 lead, but that run priced its ~500-token-per-decision reasoning
-at zero — a reasoning-token reporting gap since fixed. Charged correctly it scores 5.8 at B=5;
-run reasoning-off like every other plain row it settles at KR 21.0 overall, 6th. Expensive
-reasoning is a net negative at a fixed latency budget — the recurring finding — though see the
-calibrated board below, where GLM 5.2 running reasoning-off is the clear value pick.)*
+Two honest caveats. **(1) This board is not reproducible.** It's clocked on real, *dated* API
+measurements, so re-measuring on another day/region/backend can move a model's speed and thus its
+score — the deliberate trade for deployment realism (see
+[docs/CALIBRATED_SPEED.md](docs/CALIBRATED_SPEED.md) and
+[docs/LIMITATIONS.md](docs/LIMITATIONS.md) §1). **(2) One kitchen × one budget is 12 episodes**,
+so the CIs are wide and ranks are shown as **bands** — rows in a band are statistically tied, not
+meaningfully ordered. `llama-4-scout` is absent (its provider errored during calibration).
 
-<p align="center">
-  <img src="docs/assets/duel_b5.gif" width="85%"
-       alt="the same duel at a 5-second latency budget: gpt-5.4-mini's reasoning becomes affordable and it finishes first">
-</p>
-<p align="center"><em>The flip, watched live: the same two models from the clip at the top,
-but in a kitchen priced at B=5s. Now the mini's reasoning burst is affordable — it finishes
-every order at <b>99</b> raw points (KR 86) while sonnet is still cooking at 40. This is the
-mini's best kitchen — the chart above shows the average, a 44–44 tie across all 24 — but the
-direction is real: it wins the medium tier at B=5 outright (59 vs 52). Same models, different
-latency budget, different winner: that's exactly what the two boards measure.</em></p>
-
-### Calibrated real-speed board (deployment realism)
-
-The flat-clock board above prices every model's tokens at one shared, standardized rate — great
-for reproducibility, useless if what you actually want to know is "which model keeps up in
-production." The **calibrated board** answers that instead: each model's game clock runs at
-**its own measured serving speed**, fit from real API-latency samples against fixed observation
-fixtures and then frozen. Because the *optimal* amount of reasoning is itself clock-dependent, each
-model's reasoning effort is separately calibrated per budget on that frozen clock, so the level
-column reports what actually won for that model, not a fixed default. One kitchen (no easy/hard
-split), 16 models, 12 seeds × 2 budgets = 384 scored episodes, snapshot **2026-07-10**. Full
-table (plus a calibration appendix of decode speed, β0, and QA flags per model):
-[leaderboard/results/calibrated_board.md](leaderboard/results/calibrated_board.md). Methodology
-and reproducibility caveats: [docs/CALIBRATED_SPEED.md](docs/CALIBRATED_SPEED.md).
-
-<p align="center">
-  <img src="docs/assets/calibrated_b1.png" width="49%" alt="Calibrated real-speed Pareto plot at latency budget B=1s">
-  <img src="docs/assets/calibrated_b5.png" width="49%" alt="Calibrated real-speed Pareto plot at latency budget B=5s">
-</p>
-
-`claude-sonnet-4.6` leads both budgets on its own clock (KR 36 at B=1, 55 at B=5) — genuinely
-fast in addition to accurate, not just token-efficient. `glm-5.2` is the value pick: it's the
-runner-up at both budgets (KR 33/39) at ~$0.33/Mtok, roughly 10× cheaper than sonnet's
-~$3.19/Mtok. Optimal reasoning effort is clock-dependent and was measured per model rather than
-assumed: `gpt-5.4-mini` calibrates to
-`low`, `gpt-5.6-luna` to `minimal`, while `gpt-5.4` and `glm-5.2` both calibrate to reasoning
-*off* at both budgets — on their real measured speed, thinking doesn't pay for itself even at
-B=5s. Ranks are shown as **bands**, not individual positions: a single-cell KR estimate has a wide
-95% CI, and rows sharing a band are statistically tied rather than meaningfully ordered.
-`llama-4-scout` is absent — its provider errored out during speed calibration, so it has no frozen
-clock to run on (see the appendix in the board file).
-
-Because this board is clocked on real, dated API measurements rather than a standardized token
-rate, it is explicitly **not reproducible**: re-measuring on a different day, region, or backend
-can move a model's calibrated speed, and therefore its score. That's the trade, made on purpose —
-see [docs/CALIBRATED_SPEED.md](docs/CALIBRATED_SPEED.md) and
-[docs/LIMITATIONS.md](docs/LIMITATIONS.md) §1 for the honest accounting of what you gain and give
-up versus the flat-clock board.
+<sub>An earlier flat-clock generation — one shared, provider-neutral token clock, so it's fully
+reproducible but blind to real serving speed — is archived at
+[leaderboard/results/board.md](leaderboard/results/board.md) for anyone who wants a
+hardware-independent ranking instead of a deployment snapshot.</sub>
 
 ## Try it
 
