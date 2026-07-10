@@ -1,0 +1,685 @@
+{
+  "calibration_id": "cal-2026-07-10",
+  "stage": "levels",
+  "ruleset": "33034952fa7f",
+  "versions": {
+    "package": "0.1.0",
+    "ruleset": "33034952fa7f",
+    "ruleset_version": "1.0",
+    "frozen": true,
+    "schema": "0.1",
+    "generator": "0.1",
+    "tokenizer": "tiktoken-cl100k_base-v1"
+  },
+  "tokenizer": "tiktoken-cl100k_base-v1",
+  "tier": "medium",
+  "cal_seeds": [
+    900,
+    901
+  ],
+  "tune_seeds": [
+    1000,
+    1001,
+    1002,
+    1003
+  ],
+  "models": {
+    "gpt-5.6-luna": {
+      "model_id": "openai/gpt-5.6-luna",
+      "provider_pinned": null,
+      "provider_observed": [
+        "OpenAI"
+      ],
+      "probe_level": "minimal",
+      "levels": [
+        "off",
+        "minimal",
+        "low",
+        "medium"
+      ],
+      "clock": {
+        "beta0": 2.237323,
+        "beta_in": 0.0,
+        "beta_out": 0.00737804,
+        "decode_tps": 135.5,
+        "valid_samples": 82,
+        "r2": 0.543,
+        "residual_ratio_cv": 0.207,
+        "token_span_ratio": 29.91,
+        "latency_p50": 2.989,
+        "latency_p95": 4.539,
+        "flags": []
+      },
+      "selected_level": {
+        "1": "minimal",
+        "5": "minimal"
+      },
+      "level_note": "preset=minimal (empirically established this session: minimal 37/40 >> low 24/36 >> off 0 under the flat clock; the slower calibrated clock only strengthens minimal); not swept to avoid re-spend"
+    },
+    "claude-sonnet-4.6": {
+      "model_id": "anthropic/claude-sonnet-4.6",
+      "provider_pinned": null,
+      "provider_observed": [
+        "Anthropic"
+      ],
+      "probe_level": "off",
+      "levels": [],
+      "clock": {
+        "beta0": 1.575041,
+        "beta_in": 0.0,
+        "beta_out": 0.01910007,
+        "decode_tps": 52.4,
+        "valid_samples": 115,
+        "r2": 0.056,
+        "residual_ratio_cv": 0.211,
+        "token_span_ratio": 2.86,
+        "latency_p50": 1.704,
+        "latency_p95": 2.64,
+        "flags": [
+          "CLOCK_FIT_WEAK"
+        ]
+      },
+      "selected_level": {
+        "1": null,
+        "5": null
+      }
+    },
+    "claude-haiku-4.5": {
+      "model_id": "anthropic/claude-haiku-4.5",
+      "provider_pinned": null,
+      "provider_observed": [
+        "Amazon Bedrock"
+      ],
+      "probe_level": "default",
+      "levels": [],
+      "clock": {
+        "beta0": 1.091749,
+        "beta_in": 0.0,
+        "beta_out": 0.01696358,
+        "decode_tps": 58.9,
+        "valid_samples": 83,
+        "r2": 0.231,
+        "residual_ratio_cv": 0.227,
+        "token_span_ratio": 8.86,
+        "latency_p50": 1.317,
+        "latency_p95": 2.09,
+        "flags": [
+          "CLOCK_FIT_WEAK"
+        ]
+      },
+      "selected_level": {
+        "1": null,
+        "5": null
+      }
+    },
+    "gpt-5.4": {
+      "model_id": "openai/gpt-5.4",
+      "provider_pinned": null,
+      "provider_observed": [
+        "OpenAI"
+      ],
+      "probe_level": "none",
+      "levels": [
+        "none",
+        "low",
+        "medium"
+      ],
+      "clock": {
+        "beta0": 0.92439,
+        "beta_in": 0.0,
+        "beta_out": 0.01277183,
+        "decode_tps": 78.3,
+        "valid_samples": 100,
+        "r2": 0.171,
+        "residual_ratio_cv": 0.273,
+        "token_span_ratio": 8.57,
+        "latency_p50": 1.036,
+        "latency_p95": 1.841,
+        "flags": [
+          "CLOCK_FIT_WEAK"
+        ]
+      },
+      "selected_level": {
+        "1": "none",
+        "5": "none"
+      },
+      "level_results": {
+        "none": {
+          "1": {
+            "kr": 19.17,
+            "cost": 0.24328500000000003,
+            "n": 4
+          },
+          "5": {
+            "kr": 24.3025,
+            "cost": 0.259545625,
+            "n": 4
+          }
+        },
+        "low": {
+          "1": {
+            "kr": 9.872499999999999,
+            "cost": 0.3861568749999999,
+            "n": 4
+          },
+          "5": {
+            "kr": 0.2875,
+            "cost": 0.600148125,
+            "n": 4
+          }
+        },
+        "medium": {
+          "1": {
+            "kr": 3.5825,
+            "cost": 0.39054875,
+            "n": 4
+          },
+          "5": {
+            "kr": 0.0,
+            "cost": 0.6737318750000001,
+            "n": 4
+          }
+        }
+      }
+    },
+    "gpt-5.4-mini": {
+      "model_id": "openai/gpt-5.4-mini",
+      "provider_pinned": null,
+      "provider_observed": [
+        "OpenAI"
+      ],
+      "probe_level": "none",
+      "levels": [
+        "none",
+        "minimal",
+        "low",
+        "medium"
+      ],
+      "clock": {
+        "beta0": 2.230499,
+        "beta_in": 0.0,
+        "beta_out": 0.00787215,
+        "decode_tps": 127.0,
+        "valid_samples": 115,
+        "r2": 0.009,
+        "residual_ratio_cv": 0.348,
+        "token_span_ratio": 6.88,
+        "latency_p50": 0.955,
+        "latency_p95": 1.767,
+        "flags": [
+          "CLOCK_FIT_WEAK",
+          "DROPPED_1_OUTLIERS",
+          "CLOCK_DRIFT_CORRECTED_x2.26"
+        ],
+        "beta0_precorrection": 0.986292,
+        "beta_out_precorrection": 0.00348094
+      },
+      "selected_level": {
+        "1": "low",
+        "5": "low"
+      },
+      "level_results": {
+        "none": {
+          "1": {
+            "kr": 0.0,
+            "cost": 0.098029125,
+            "n": 4
+          },
+          "5": {
+            "kr": 0.0,
+            "cost": 0.15473699999999999,
+            "n": 4
+          }
+        },
+        "minimal": {
+          "1": {
+            "kr": 11.7775,
+            "cost": 0.14934299999999998,
+            "n": 4
+          },
+          "5": {
+            "kr": 41.49,
+            "cost": 0.13907175,
+            "n": 4
+          }
+        },
+        "low": {
+          "1": {
+            "kr": 39.957499999999996,
+            "cost": 0.1222875375,
+            "n": 4
+          },
+          "5": {
+            "kr": 53.0125,
+            "cost": 0.12826001250000002,
+            "n": 4
+          }
+        },
+        "medium": {
+          "1": {
+            "kr": 18.9925,
+            "cost": 0.233380875,
+            "n": 4
+          },
+          "5": {
+            "kr": 15.735,
+            "cost": 0.4408006500000001,
+            "n": 4
+          }
+        }
+      }
+    },
+    "gpt-oss-120b": {
+      "model_id": "openai/gpt-oss-120b",
+      "provider_pinned": "Groq",
+      "provider_observed": [
+        "Groq"
+      ],
+      "probe_level": "low",
+      "levels": [
+        "low",
+        "medium"
+      ],
+      "clock": {
+        "beta0": 0.278232,
+        "beta_in": 0.0,
+        "beta_out": 0.00285969,
+        "decode_tps": 349.7,
+        "valid_samples": 149,
+        "r2": 0.64,
+        "residual_ratio_cv": 0.334,
+        "token_span_ratio": 19.57,
+        "latency_p50": 0.623,
+        "latency_p95": 1.518,
+        "flags": []
+      },
+      "selected_level": {
+        "1": "low",
+        "5": "medium"
+      },
+      "level_results": {
+        "low": {
+          "1": {
+            "kr": 7.96,
+            "cost": 0.028723274999999996,
+            "n": 4
+          },
+          "5": {
+            "kr": 0.64,
+            "cost": 0.047070675000000006,
+            "n": 2
+          }
+        },
+        "medium": {
+          "1": {
+            "kr": 4.2725,
+            "cost": 0.0468474,
+            "n": 4
+          },
+          "5": {
+            "kr": 6.23,
+            "cost": 0.06276907500000001,
+            "n": 2
+          }
+        }
+      }
+    },
+    "glm-5.2": {
+      "model_id": "z-ai/glm-5.2",
+      "provider_pinned": null,
+      "provider_observed": [
+        "StreamLake"
+      ],
+      "probe_level": "off",
+      "levels": [
+        "off",
+        "low"
+      ],
+      "clock": {
+        "beta0": 1.329603,
+        "beta_in": 0.0,
+        "beta_out": 0.02394332,
+        "decode_tps": 41.8,
+        "valid_samples": 66,
+        "r2": 0.31,
+        "residual_ratio_cv": 0.256,
+        "token_span_ratio": 4.0,
+        "latency_p50": 1.808,
+        "latency_p95": 3.171,
+        "flags": [
+          "CLOCK_FIT_WEAK"
+        ]
+      },
+      "selected_level": {
+        "1": "off",
+        "5": "off"
+      },
+      "level_results": {
+        "off": {
+          "1": {
+            "kr": 39.96,
+            "cost": 0.011252824000000002,
+            "n": 4
+          },
+          "5": {
+            "kr": 32.65,
+            "cost": 0.0179073565,
+            "n": 4
+          }
+        },
+        "low": {
+          "1": {
+            "kr": 0.0,
+            "cost": 0.03390692525,
+            "n": 4
+          },
+          "5": {
+            "kr": 4.0825,
+            "cost": 0.04947981225,
+            "n": 4
+          }
+        }
+      }
+    },
+    "gemini-3.1-flash-lite": {
+      "model_id": "google/gemini-3.1-flash-lite",
+      "provider_pinned": null,
+      "provider_observed": [
+        "Google AI Studio"
+      ],
+      "probe_level": "off",
+      "levels": [],
+      "clock": {
+        "beta0": 0.699743,
+        "beta_in": 0.0,
+        "beta_out": 0.0067178,
+        "decode_tps": 148.9,
+        "valid_samples": 91,
+        "r2": 0.25,
+        "residual_ratio_cv": 0.195,
+        "token_span_ratio": 9.14,
+        "latency_p50": 0.593,
+        "latency_p95": 0.841,
+        "flags": [
+          "CLOCK_FIT_WEAK",
+          "CLOCK_DRIFT_CORRECTED_x1.42"
+        ],
+        "beta0_precorrection": 0.493124,
+        "beta_out_precorrection": 0.00473418
+      },
+      "selected_level": {
+        "1": null,
+        "5": null
+      }
+    },
+    "gemini-3.5-flash": {
+      "model_id": "google/gemini-3.5-flash",
+      "provider_pinned": null,
+      "provider_observed": [
+        "Google"
+      ],
+      "probe_level": "default",
+      "levels": [],
+      "clock": {
+        "beta0": 0.989091,
+        "beta_in": 0.0,
+        "beta_out": 0.0116737,
+        "decode_tps": 85.7,
+        "valid_samples": 57,
+        "r2": 0.958,
+        "residual_ratio_cv": 0.395,
+        "token_span_ratio": 153.1,
+        "latency_p50": 1.081,
+        "latency_p95": 2.363,
+        "flags": []
+      },
+      "selected_level": {
+        "1": null,
+        "5": null
+      }
+    },
+    "grok-build-0.1": {
+      "model_id": "x-ai/grok-build-0.1",
+      "provider_pinned": null,
+      "provider_observed": [
+        "xAI"
+      ],
+      "probe_level": "default",
+      "levels": [],
+      "clock": {
+        "beta0": 0.05,
+        "beta_in": 0.0,
+        "beta_out": 0.00782177,
+        "decode_tps": 127.8,
+        "valid_samples": 11,
+        "r2": 0.971,
+        "residual_ratio_cv": 0.164,
+        "token_span_ratio": 27.76,
+        "latency_p50": 29.658,
+        "latency_p95": 217.51,
+        "flags": [
+          "CAL_TOO_FEW",
+          "CLOCK_INTERCEPT_FLOOR"
+        ]
+      },
+      "selected_level": {
+        "1": null,
+        "5": null
+      }
+    },
+    "qwen3.7-plus": {
+      "model_id": "qwen/qwen3.7-plus",
+      "provider_pinned": null,
+      "provider_observed": [
+        "Alibaba"
+      ],
+      "probe_level": "off",
+      "levels": [],
+      "clock": {
+        "beta0": 0.86273,
+        "beta_in": 0.0,
+        "beta_out": 0.05520882,
+        "decode_tps": 18.1,
+        "valid_samples": 60,
+        "r2": 0.939,
+        "residual_ratio_cv": 0.09,
+        "token_span_ratio": 7.5,
+        "latency_p50": 1.783,
+        "latency_p95": 3.867,
+        "flags": []
+      },
+      "selected_level": {
+        "1": null,
+        "5": null
+      }
+    },
+    "deepseek-v4-pro": {
+      "model_id": "deepseek/deepseek-v4-pro",
+      "provider_pinned": null,
+      "provider_observed": [
+        "Alibaba"
+      ],
+      "probe_level": "off",
+      "levels": [],
+      "clock": {
+        "beta0": 1.674951,
+        "beta_in": 0.0,
+        "beta_out": 0.03252749,
+        "decode_tps": 30.7,
+        "valid_samples": 76,
+        "r2": 0.665,
+        "residual_ratio_cv": 0.118,
+        "token_span_ratio": 7.43,
+        "latency_p50": 2.158,
+        "latency_p95": 3.15,
+        "flags": []
+      },
+      "selected_level": {
+        "1": null,
+        "5": null
+      }
+    },
+    "deepseek-v4-flash": {
+      "model_id": "deepseek/deepseek-v4-flash",
+      "provider_pinned": null,
+      "provider_observed": [
+        "AkashML",
+        "Fireworks"
+      ],
+      "probe_level": "off",
+      "levels": [
+        "off",
+        "low"
+      ],
+      "clock": {
+        "beta0": 4.204921,
+        "beta_in": 0.0,
+        "beta_out": 0.06502025,
+        "decode_tps": 15.4,
+        "valid_samples": 20,
+        "r2": 0.251,
+        "residual_ratio_cv": 0.154,
+        "token_span_ratio": 14.0,
+        "latency_p50": 4.966,
+        "latency_p95": 6.802,
+        "flags": [
+          "CLOCK_FIT_WEAK",
+          "DROPPED_3_OUTLIERS"
+        ]
+      },
+      "selected_level": {
+        "1": "off",
+        "5": "low"
+      },
+      "level_results": {
+        "off": {
+          "1": {
+            "kr": 0.6525,
+            "cost": 0.008945776,
+            "n": 4
+          },
+          "5": {
+            "kr": 0.0,
+            "cost": 0.015775401499999998,
+            "n": 4
+          }
+        },
+        "low": {
+          "1": {
+            "kr": 0.0,
+            "cost": 0.010823062999999999,
+            "n": 4
+          },
+          "5": {
+            "kr": 3.585,
+            "cost": 0.015424198000000002,
+            "n": 4
+          }
+        }
+      }
+    },
+    "nemotron-3-super": {
+      "model_id": "nvidia/nemotron-3-super-120b-a12b",
+      "provider_pinned": null,
+      "provider_observed": [
+        "DekaLLM"
+      ],
+      "probe_level": "off",
+      "levels": [],
+      "clock": {
+        "beta0": 1.291589,
+        "beta_in": 0.0,
+        "beta_out": 0.04498471,
+        "decode_tps": 22.2,
+        "valid_samples": 54,
+        "r2": 0.292,
+        "residual_ratio_cv": 0.365,
+        "token_span_ratio": 6.88,
+        "latency_p50": 2.236,
+        "latency_p95": 4.073,
+        "flags": [
+          "CLOCK_FIT_WEAK",
+          "DROPPED_19_OUTLIERS"
+        ]
+      },
+      "selected_level": {
+        "1": null,
+        "5": null
+      }
+    },
+    "nemotron-3-nano": {
+      "model_id": "nvidia/nemotron-3-nano-30b-a3b",
+      "provider_pinned": null,
+      "provider_observed": [
+        "DeepInfra"
+      ],
+      "probe_level": "off",
+      "levels": [],
+      "clock": {
+        "beta0": 0.31507,
+        "beta_in": 0.0,
+        "beta_out": 0.01811945,
+        "decode_tps": 55.2,
+        "valid_samples": 50,
+        "r2": 0.041,
+        "residual_ratio_cv": 0.287,
+        "token_span_ratio": 2.22,
+        "latency_p50": 0.438,
+        "latency_p95": 0.808,
+        "flags": [
+          "CLOCK_FIT_WEAK"
+        ]
+      },
+      "selected_level": {
+        "1": null,
+        "5": null
+      }
+    },
+    "mistral-small": {
+      "model_id": "mistralai/mistral-small-2603",
+      "provider_pinned": null,
+      "provider_observed": [
+        "Mistral"
+      ],
+      "probe_level": "off",
+      "levels": [],
+      "clock": {
+        "beta0": 0.715968,
+        "beta_in": 0.0,
+        "beta_out": 0.0020328,
+        "decode_tps": 491.9,
+        "valid_samples": 62,
+        "r2": 0.009,
+        "residual_ratio_cv": 0.329,
+        "token_span_ratio": 5.62,
+        "latency_p50": 0.682,
+        "latency_p95": 1.15,
+        "flags": [
+          "CLOCK_FIT_WEAK"
+        ]
+      },
+      "selected_level": {
+        "1": null,
+        "5": null
+      }
+    },
+    "llama-4-scout": {
+      "model_id": "meta-llama/llama-4-scout",
+      "provider_pinned": null,
+      "provider_observed": [],
+      "probe_level": "off",
+      "levels": [],
+      "clock": {
+        "flags": [
+          "CAL_TOO_FEW"
+        ],
+        "valid_samples": 0
+      },
+      "selected_level": {
+        "1": null,
+        "5": null
+      }
+    }
+  },
+  "total_cost_usd": 24.887
+}

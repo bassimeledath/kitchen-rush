@@ -1,0 +1,654 @@
+{
+  "snapshot_date": "2026-07-10",
+  "note": "Dated calibrated real-speed deployment snapshot \u2014 each model's game clock is its own measured serving speed (frozen). NOT a fully reproducible or provider-neutral benchmark; re-measuring on another day/endpoint/region can change results.",
+  "run": "calibrated-2026-07-10",
+  "calibration_id": "cal-2026-07-10",
+  "ruleset": "33034952fa7f",
+  "budgets": [
+    1.0,
+    5.0
+  ],
+  "tables": {
+    "1": [
+      {
+        "model": "claude-sonnet-4.6",
+        "B": 1.0,
+        "n": 12,
+        "KR": 36.4,
+        "ci": 10.8,
+        "serve_pct": 79,
+        "usd_per_mtok": 3.193,
+        "drift": 0.98,
+        "level": null,
+        "band": 1
+      },
+      {
+        "model": "glm-5.2",
+        "B": 1.0,
+        "n": 12,
+        "KR": 33.3,
+        "ci": 11.1,
+        "serve_pct": 75,
+        "usd_per_mtok": 0.329,
+        "drift": 0.823,
+        "level": "off",
+        "band": 1
+      },
+      {
+        "model": "gemini-3.5-flash",
+        "B": 1.0,
+        "n": 12,
+        "KR": 31.1,
+        "ci": 15.8,
+        "serve_pct": 63,
+        "usd_per_mtok": 1.814,
+        "drift": 0.908,
+        "level": null,
+        "band": 1
+      },
+      {
+        "model": "gemini-3.1-flash-lite",
+        "B": 1.0,
+        "n": 12,
+        "KR": 29.0,
+        "ci": 13.9,
+        "serve_pct": 65,
+        "usd_per_mtok": 0.286,
+        "drift": 1.019,
+        "level": null,
+        "band": 1
+      },
+      {
+        "model": "gpt-5.4",
+        "B": 1.0,
+        "n": 12,
+        "KR": 25.9,
+        "ci": 11.2,
+        "serve_pct": 73,
+        "usd_per_mtok": 2.773,
+        "drift": 0.892,
+        "level": "none",
+        "band": 2
+      },
+      {
+        "model": "gpt-5.6-luna",
+        "B": 1.0,
+        "n": 12,
+        "KR": 21.2,
+        "ci": 12.1,
+        "serve_pct": 61,
+        "usd_per_mtok": 1.578,
+        "drift": 0.997,
+        "level": "minimal",
+        "band": 2
+      },
+      {
+        "model": "gpt-oss-120b",
+        "B": 1.0,
+        "n": 12,
+        "KR": 19.1,
+        "ci": 7.8,
+        "serve_pct": 66,
+        "usd_per_mtok": 0.15,
+        "drift": 0.929,
+        "level": "low",
+        "band": 2
+      },
+      {
+        "model": "gpt-5.4-mini",
+        "B": 1.0,
+        "n": 12,
+        "KR": 15.9,
+        "ci": 13.7,
+        "serve_pct": 51,
+        "usd_per_mtok": 1.384,
+        "drift": 1.046,
+        "level": "low",
+        "band": 2
+      },
+      {
+        "model": "deepseek-v4-pro",
+        "B": 1.0,
+        "n": 12,
+        "KR": 15.7,
+        "ci": 12.0,
+        "serve_pct": 41,
+        "usd_per_mtok": 0.99,
+        "drift": 0.946,
+        "level": null,
+        "band": 2
+      },
+      {
+        "model": "claude-haiku-4.5",
+        "B": 1.0,
+        "n": 12,
+        "KR": 14.5,
+        "ci": 10.9,
+        "serve_pct": 38,
+        "usd_per_mtok": 1.155,
+        "drift": 1.038,
+        "level": null,
+        "band": 3
+      },
+      {
+        "model": "qwen3.7-plus",
+        "B": 1.0,
+        "n": 12,
+        "KR": 9.7,
+        "ci": 6.4,
+        "serve_pct": 52,
+        "usd_per_mtok": 0.35,
+        "drift": 1.028,
+        "level": null,
+        "band": 3
+      },
+      {
+        "model": "grok-build-0.1",
+        "B": 1.0,
+        "n": 12,
+        "KR": 2.6,
+        "ci": 2.7,
+        "serve_pct": 8,
+        "usd_per_mtok": 1.687,
+        "drift": 0.838,
+        "level": null,
+        "band": 4
+      },
+      {
+        "model": "nemotron-3-super",
+        "B": 1.0,
+        "n": 12,
+        "KR": 1.8,
+        "ci": 3.2,
+        "serve_pct": 20,
+        "usd_per_mtok": 0.103,
+        "drift": 0.951,
+        "level": null,
+        "band": 4
+      },
+      {
+        "model": "nemotron-3-nano",
+        "B": 1.0,
+        "n": 12,
+        "KR": 0.0,
+        "ci": 0.0,
+        "serve_pct": 0,
+        "usd_per_mtok": 0.052,
+        "drift": 1.223,
+        "level": null,
+        "band": 4
+      },
+      {
+        "model": "mistral-small",
+        "B": 1.0,
+        "n": 12,
+        "KR": 0.0,
+        "ci": 0.0,
+        "serve_pct": 8,
+        "usd_per_mtok": 0.063,
+        "drift": 0.853,
+        "level": null,
+        "band": 4
+      },
+      {
+        "model": "deepseek-v4-flash",
+        "B": 1.0,
+        "n": 12,
+        "KR": 0.0,
+        "ci": 0.0,
+        "serve_pct": 10,
+        "usd_per_mtok": 0.132,
+        "drift": 0.954,
+        "level": "off",
+        "band": 4
+      }
+    ],
+    "5": [
+      {
+        "model": "claude-sonnet-4.6",
+        "B": 5.0,
+        "n": 12,
+        "KR": 54.7,
+        "ci": 12.5,
+        "serve_pct": 89,
+        "usd_per_mtok": 3.194,
+        "drift": 0.895,
+        "level": null,
+        "band": 1
+      },
+      {
+        "model": "glm-5.2",
+        "B": 5.0,
+        "n": 12,
+        "KR": 39.4,
+        "ci": 15.9,
+        "serve_pct": 79,
+        "usd_per_mtok": 0.313,
+        "drift": 0.912,
+        "level": "off",
+        "band": 1
+      },
+      {
+        "model": "gpt-5.6-luna",
+        "B": 5.0,
+        "n": 12,
+        "KR": 37.4,
+        "ci": 12.2,
+        "serve_pct": 92,
+        "usd_per_mtok": 1.646,
+        "drift": 0.993,
+        "level": "minimal",
+        "band": 2
+      },
+      {
+        "model": "gemini-3.5-flash",
+        "B": 5.0,
+        "n": 12,
+        "KR": 31.6,
+        "ci": 18.9,
+        "serve_pct": 63,
+        "usd_per_mtok": 1.762,
+        "drift": 0.855,
+        "level": null,
+        "band": 2
+      },
+      {
+        "model": "gemini-3.1-flash-lite",
+        "B": 5.0,
+        "n": 12,
+        "KR": 24.9,
+        "ci": 14.6,
+        "serve_pct": 45,
+        "usd_per_mtok": 0.29,
+        "drift": 1.047,
+        "level": null,
+        "band": 3
+      },
+      {
+        "model": "qwen3.7-plus",
+        "B": 5.0,
+        "n": 12,
+        "KR": 24.4,
+        "ci": 15.0,
+        "serve_pct": 66,
+        "usd_per_mtok": 0.352,
+        "drift": 1.018,
+        "level": null,
+        "band": 3
+      },
+      {
+        "model": "gpt-5.4",
+        "B": 5.0,
+        "n": 12,
+        "KR": 21.3,
+        "ci": 11.6,
+        "serve_pct": 52,
+        "usd_per_mtok": 2.788,
+        "drift": 0.912,
+        "level": "none",
+        "band": 3
+      },
+      {
+        "model": "gpt-5.4-mini",
+        "B": 5.0,
+        "n": 12,
+        "KR": 20.1,
+        "ci": 13.3,
+        "serve_pct": 76,
+        "usd_per_mtok": 1.374,
+        "drift": 1.042,
+        "level": "low",
+        "band": 3
+      },
+      {
+        "model": "deepseek-v4-pro",
+        "B": 5.0,
+        "n": 12,
+        "KR": 13.1,
+        "ci": 14.3,
+        "serve_pct": 38,
+        "usd_per_mtok": 0.993,
+        "drift": 0.944,
+        "level": null,
+        "band": 3
+      },
+      {
+        "model": "gpt-oss-120b",
+        "B": 5.0,
+        "n": 12,
+        "KR": 11.2,
+        "ci": 12.1,
+        "serve_pct": 54,
+        "usd_per_mtok": 0.3,
+        "drift": 0.901,
+        "level": "medium",
+        "band": 3
+      },
+      {
+        "model": "claude-haiku-4.5",
+        "B": 5.0,
+        "n": 12,
+        "KR": 6.9,
+        "ci": 6.8,
+        "serve_pct": 34,
+        "usd_per_mtok": 1.184,
+        "drift": 0.954,
+        "level": null,
+        "band": 4
+      },
+      {
+        "model": "deepseek-v4-flash",
+        "B": 5.0,
+        "n": 12,
+        "KR": 6.1,
+        "ci": 10.1,
+        "serve_pct": 32,
+        "usd_per_mtok": 0.143,
+        "drift": 0.734,
+        "level": "low",
+        "band": 4
+      },
+      {
+        "model": "mistral-small",
+        "B": 5.0,
+        "n": 12,
+        "KR": 4.5,
+        "ci": 7.5,
+        "serve_pct": 15,
+        "usd_per_mtok": 0.076,
+        "drift": 0.871,
+        "level": null,
+        "band": 4
+      },
+      {
+        "model": "grok-build-0.1",
+        "B": 5.0,
+        "n": 12,
+        "KR": 2.7,
+        "ci": 3.0,
+        "serve_pct": 14,
+        "usd_per_mtok": 1.649,
+        "drift": 0.876,
+        "level": null,
+        "band": 4
+      },
+      {
+        "model": "nemotron-3-super",
+        "B": 5.0,
+        "n": 12,
+        "KR": 0.8,
+        "ci": 1.6,
+        "serve_pct": 13,
+        "usd_per_mtok": 0.09,
+        "drift": 0.937,
+        "level": null,
+        "band": 4
+      },
+      {
+        "model": "nemotron-3-nano",
+        "B": 5.0,
+        "n": 12,
+        "KR": 0.0,
+        "ci": 0.0,
+        "serve_pct": 0,
+        "usd_per_mtok": 0.052,
+        "drift": 1.105,
+        "level": null,
+        "band": 4
+      }
+    ]
+  },
+  "appendix": {
+    "gpt-5.6-luna": {
+      "provider": null,
+      "decode_tps": 135.5,
+      "beta0": 2.237323,
+      "beta_out": 0.00737804,
+      "n": 82,
+      "r2": 0.543,
+      "selected_level": {
+        "1": "minimal",
+        "5": "minimal"
+      },
+      "cal_flags": []
+    },
+    "claude-sonnet-4.6": {
+      "provider": null,
+      "decode_tps": 52.4,
+      "beta0": 1.575041,
+      "beta_out": 0.01910007,
+      "n": 115,
+      "r2": 0.056,
+      "selected_level": {
+        "1": null,
+        "5": null
+      },
+      "cal_flags": [
+        "CLOCK_FIT_WEAK"
+      ]
+    },
+    "claude-haiku-4.5": {
+      "provider": null,
+      "decode_tps": 58.9,
+      "beta0": 1.091749,
+      "beta_out": 0.01696358,
+      "n": 83,
+      "r2": 0.231,
+      "selected_level": {
+        "1": null,
+        "5": null
+      },
+      "cal_flags": [
+        "CLOCK_FIT_WEAK"
+      ]
+    },
+    "gpt-5.4": {
+      "provider": null,
+      "decode_tps": 78.3,
+      "beta0": 0.92439,
+      "beta_out": 0.01277183,
+      "n": 100,
+      "r2": 0.171,
+      "selected_level": {
+        "1": "none",
+        "5": "none"
+      },
+      "cal_flags": [
+        "CLOCK_FIT_WEAK"
+      ]
+    },
+    "gpt-5.4-mini": {
+      "provider": null,
+      "decode_tps": 127.0,
+      "beta0": 2.230499,
+      "beta_out": 0.00787215,
+      "n": 115,
+      "r2": 0.009,
+      "selected_level": {
+        "1": "low",
+        "5": "low"
+      },
+      "cal_flags": [
+        "CLOCK_FIT_WEAK",
+        "DROPPED_1_OUTLIERS",
+        "CLOCK_DRIFT_CORRECTED_x2.26"
+      ]
+    },
+    "gpt-oss-120b": {
+      "provider": null,
+      "decode_tps": 349.7,
+      "beta0": 0.278232,
+      "beta_out": 0.00285969,
+      "n": 149,
+      "r2": 0.64,
+      "selected_level": {
+        "1": "low",
+        "5": "medium"
+      },
+      "cal_flags": []
+    },
+    "glm-5.2": {
+      "provider": null,
+      "decode_tps": 41.8,
+      "beta0": 1.329603,
+      "beta_out": 0.02394332,
+      "n": 66,
+      "r2": 0.31,
+      "selected_level": {
+        "1": "off",
+        "5": "off"
+      },
+      "cal_flags": [
+        "CLOCK_FIT_WEAK"
+      ]
+    },
+    "gemini-3.1-flash-lite": {
+      "provider": null,
+      "decode_tps": 148.9,
+      "beta0": 0.699743,
+      "beta_out": 0.0067178,
+      "n": 91,
+      "r2": 0.25,
+      "selected_level": {
+        "1": null,
+        "5": null
+      },
+      "cal_flags": [
+        "CLOCK_FIT_WEAK",
+        "CLOCK_DRIFT_CORRECTED_x1.42"
+      ]
+    },
+    "gemini-3.5-flash": {
+      "provider": null,
+      "decode_tps": 85.7,
+      "beta0": 0.989091,
+      "beta_out": 0.0116737,
+      "n": 57,
+      "r2": 0.958,
+      "selected_level": {
+        "1": null,
+        "5": null
+      },
+      "cal_flags": []
+    },
+    "grok-build-0.1": {
+      "provider": null,
+      "decode_tps": 127.8,
+      "beta0": 0.05,
+      "beta_out": 0.00782177,
+      "n": 11,
+      "r2": 0.971,
+      "selected_level": {
+        "1": null,
+        "5": null
+      },
+      "cal_flags": [
+        "CAL_TOO_FEW",
+        "CLOCK_INTERCEPT_FLOOR"
+      ]
+    },
+    "qwen3.7-plus": {
+      "provider": null,
+      "decode_tps": 18.1,
+      "beta0": 0.86273,
+      "beta_out": 0.05520882,
+      "n": 60,
+      "r2": 0.939,
+      "selected_level": {
+        "1": null,
+        "5": null
+      },
+      "cal_flags": []
+    },
+    "deepseek-v4-pro": {
+      "provider": null,
+      "decode_tps": 30.7,
+      "beta0": 1.674951,
+      "beta_out": 0.03252749,
+      "n": 76,
+      "r2": 0.665,
+      "selected_level": {
+        "1": null,
+        "5": null
+      },
+      "cal_flags": []
+    },
+    "deepseek-v4-flash": {
+      "provider": null,
+      "decode_tps": 15.4,
+      "beta0": 4.204921,
+      "beta_out": 0.06502025,
+      "n": 20,
+      "r2": 0.251,
+      "selected_level": {
+        "1": "off",
+        "5": "low"
+      },
+      "cal_flags": [
+        "CLOCK_FIT_WEAK",
+        "DROPPED_3_OUTLIERS"
+      ]
+    },
+    "nemotron-3-super": {
+      "provider": null,
+      "decode_tps": 22.2,
+      "beta0": 1.291589,
+      "beta_out": 0.04498471,
+      "n": 54,
+      "r2": 0.292,
+      "selected_level": {
+        "1": null,
+        "5": null
+      },
+      "cal_flags": [
+        "CLOCK_FIT_WEAK",
+        "DROPPED_19_OUTLIERS"
+      ]
+    },
+    "nemotron-3-nano": {
+      "provider": null,
+      "decode_tps": 55.2,
+      "beta0": 0.31507,
+      "beta_out": 0.01811945,
+      "n": 50,
+      "r2": 0.041,
+      "selected_level": {
+        "1": null,
+        "5": null
+      },
+      "cal_flags": [
+        "CLOCK_FIT_WEAK"
+      ]
+    },
+    "mistral-small": {
+      "provider": null,
+      "decode_tps": 491.9,
+      "beta0": 0.715968,
+      "beta_out": 0.0020328,
+      "n": 62,
+      "r2": 0.009,
+      "selected_level": {
+        "1": null,
+        "5": null
+      },
+      "cal_flags": [
+        "CLOCK_FIT_WEAK"
+      ]
+    },
+    "llama-4-scout": {
+      "provider": null,
+      "decode_tps": null,
+      "beta0": null,
+      "beta_out": null,
+      "n": 0,
+      "r2": null,
+      "selected_level": {
+        "1": null,
+        "5": null
+      },
+      "cal_flags": [
+        "CAL_TOO_FEW"
+      ]
+    }
+  }
+}

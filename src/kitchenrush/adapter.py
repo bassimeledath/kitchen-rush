@@ -37,6 +37,11 @@ class ModelClient(Protocol):
 
 _NO_TEMPERATURE: set[str] = set()   # models that reject the temperature param (learned at runtime)
 
+# Hard per-call output ceiling: bounds worst-case cost per call and stops OpenRouter from reserving
+# the endpoint's full context window (a 402 source). Far above any real Kitchen Rush turn
+# (heaviest observed reasoning burst ~8k tokens/turn), so it never truncates normal behaviour.
+MAX_OUTPUT_TOKENS = 16000
+
 
 class LiteLLMClient:
     """Multi-provider adapter. ``spec`` is ``provider:model`` (e.g. ``openai:gpt-4.1``);
@@ -49,7 +54,8 @@ class LiteLLMClient:
 
     def generate(self, *, system: str, messages: list[dict], tools: list[dict],
                  temperature: float = 0.2, timeout: float = 90.0, num_retries: int = 2,
-                 tool_choice: str = "required", **kwargs: Any) -> ModelResponse:
+                 tool_choice: str = "required", max_tokens: int = MAX_OUTPUT_TOKENS,
+                 **kwargs: Any) -> ModelResponse:
         try:
             import litellm
         except ImportError as exc:  # pragma: no cover - exercised only without the extra
@@ -66,6 +72,7 @@ class LiteLLMClient:
             tool_choice=tool_choice,   # "required" -> tool call(s) only, no prose (faster)
             timeout=timeout,
             num_retries=num_retries,
+            max_tokens=max_tokens,     # hard per-call output ceiling (cost + 402 guard)
             **{**self.extra, **kwargs},
         )
         # Newer reasoning models (e.g. Opus 4.7) deprecate `temperature`; litellm's registry may
@@ -100,6 +107,16 @@ class LiteLLMClient:
         # the reasoning-token count is 0/absent, so the thinking is billed only inside
         # completion_tokens. Flag it so the RP clock can charge the true output (RULES §3.2.1).
         thinking_blocks = getattr(choice, "thinking_blocks", None)
+        # Actual billed cost: OpenRouter reports usage.cost; litellm often computes response_cost in
+        # _hidden_params. Prefer this over local price tables so a pinned provider's real price (and
+        # the spend cap) are exact, not estimated. None -> caller falls back to a price estimate.
+        hidden = getattr(resp, "_hidden_params", None) or {}
+        cost = hidden.get("response_cost")
+        if cost is None:
+            cost = getattr(usage_obj, "cost", None)
+            if cost is None:
+                details = getattr(usage_obj, "cost_details", None)
+                cost = getattr(details, "upstream_inference_cost", None) if details else None
         usage = {
             "prompt_tokens": getattr(usage_obj, "prompt_tokens", 0) or 0,
             "completion_tokens": getattr(usage_obj, "completion_tokens", 0) or 0,
@@ -109,6 +126,10 @@ class LiteLLMClient:
             "reasoning_tokens": reasoning or 0,
             "reasoning_reported": reasoning is not None,
             "has_hidden_thinking": bool(thinking_blocks) and not (reasoning or 0),
+            "cost": float(cost) if cost is not None else None,   # actual billed USD, if the provider reports it
+            # Provider that actually served this generation (for pin verification / reroute detection).
+            "provider_served": (getattr(resp, "provider", None)
+                                or hidden.get("provider") or hidden.get("custom_llm_provider")),
         }
         return ModelResponse(tool_calls, getattr(choice, "content", "") or "", latency_s, usage)
 

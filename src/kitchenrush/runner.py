@@ -28,11 +28,14 @@ def anchors_for(spec: KitchenSpec) -> tuple[float, float]:
 
 
 def run_episode(spec: KitchenSpec, policy: Policy, *, max_turns: int | None = None,
-                record_steps: bool = True, record_trace: bool = False) -> EpisodeResult:
+                record_steps: bool = True, record_trace: bool = False,
+                warmup: bool = True) -> EpisodeResult:
     engine = KitchenRushEngine(spec, record_trace=record_trace)
     max_turns = max_turns or config.MAX_TURNS
-    # Warm up the model before scoring so a one-time cold-start never pollutes RT latency.
-    if hasattr(policy, "warmup"):
+    # Warm up the model before scoring so a one-time cold-start never pollutes RT latency. Disabled
+    # for calibration/board runs (warmup=False) — a per-episode warmup would be a paid call each
+    # episode and would pollute token/cost tallies (calibrated clock is frozen anyway).
+    if warmup and hasattr(policy, "warmup"):
         policy.warmup(TOOL_SCHEMAS)
     obs = engine.observe()
     steps: list[dict] = []
@@ -58,6 +61,13 @@ def run_episode(spec: KitchenSpec, policy: Policy, *, max_turns: int | None = No
             if reported is not None:
                 step["reasoning_reported"] = reported
                 step["reasoning_tokens"] = getattr(policy, "last_reasoning_tokens", None)
+            # Per-turn pinned token counts + measured wall-clock (for speed calibration and the
+            # calibrated-vs-live drift check); only model-backed policies expose these.
+            n_in = getattr(policy, "last_n_in", None)
+            if n_in is not None:
+                step["n_in"] = n_in
+                step["n_out"] = getattr(policy, "last_n_out", None)
+                step["live_latency_s"] = getattr(policy, "last_live_latency_s", None)
             steps.append(step)
 
     report = engine.final_report()

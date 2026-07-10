@@ -36,3 +36,4 @@ runs/
 
 # Locally exported replays (the bundled demo replays are already tracked; new exports are yours)
 ui/replays/*.json
+calibration/**/spend.jsonl

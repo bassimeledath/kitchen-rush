@@ -111,19 +111,35 @@ class ModelAgent:
 
     def __init__(self, client: ModelClient, *, track: str = "rp",
                  temperature: float = config.DEFAULT_TEMPERATURE,
-                 system_prompt: str = SYSTEM_PROMPT, stall_seconds: float = 30.0) -> None:
-        if track not in ("rt", "rp"):
-            raise ValueError(f"track must be 'rt' or 'rp', got {track!r}")
+                 system_prompt: str = SYSTEM_PROMPT, stall_seconds: float = 30.0,
+                 clock: tuple[float, float, float] | None = None,
+                 num_retries: int = 2, fail_fast: bool = False) -> None:
+        if track not in ("rt", "rp", "calibrated"):
+            raise ValueError(f"track must be 'rt', 'rp', or 'calibrated', got {track!r}")
+        if track == "calibrated" and clock is None:
+            raise ValueError("track='calibrated' requires clock=(beta0, beta_in, beta_out)")
         self.client = client
         self.track = track
         self.temperature = temperature
         self.system = system_prompt
         self.stall_seconds = stall_seconds
+        self.num_retries = num_retries
+        # fail_fast: re-raise client/infra errors instead of degrading to a scored stall, so an
+        # unavailable endpoint / unsupported level becomes an infra-invalid episode (quarantined)
+        # rather than a fake low-KR "model quality" result. Used by calibration + the scored board.
+        self.fail_fast = fail_fast
+        # Frozen per-model calibrated clock coefficients (beta0, beta_in, beta_out); beta_in is 0
+        # in the 2-param fit but kept for the RP-compatible shape.
+        self.clock = clock
         # Per-turn audit of the provider-trusted reasoning-token gap (RULES §3.2.1, METHODOLOGY
         # §3.1): whether the last response actually reported a reasoning-token count, and the count
-        # used in the RP latency math. None until the first model call (stalls leave them unset).
+        # used in the latency math. None until the first model call (stalls leave them unset).
         self.last_reasoning_reported: bool | None = None
         self.last_reasoning_tokens: int | None = None
+        # Per-turn pinned token counts + measured wall-clock, surfaced for calibration + QA drift.
+        self.last_n_in: int | None = None
+        self.last_n_out: int | None = None
+        self.last_live_latency_s: float | None = None
 
     def warmup(self, tools: list[dict]) -> None:
         """Spin up the model (e.g. a cold NIM endpoint) with one throwaway call so the first
@@ -139,11 +155,17 @@ class ModelAgent:
     def __call__(self, obs: dict, tools: list[dict]) -> tuple[list[ToolCall], float]:
         user = render_observation(obs)
         messages = [{"role": "user", "content": user}]
+        # Clear per-turn audit state up front so a failed call never logs the previous turn's values.
+        self.last_reasoning_reported = self.last_reasoning_tokens = None
+        self.last_n_in = self.last_n_out = self.last_live_latency_s = None
         try:
             resp = self.client.generate(
-                system=self.system, messages=messages, tools=tools, temperature=self.temperature
+                system=self.system, messages=messages, tools=tools, temperature=self.temperature,
+                num_retries=self.num_retries,
             )
-        except Exception as exc:  # noqa: BLE001 - any model/infra error degrades to a stall (RULES §13.7)
+        except Exception as exc:  # noqa: BLE001
+            if self.fail_fast:    # propagate infra/API errors -> caller quarantines (not a scored stall)
+                raise
             import sys
             print(f"[ModelAgent] stall: {type(exc).__name__}: {str(exc)[:120]}", file=sys.stderr)
             return [], self.stall_seconds
@@ -153,25 +175,30 @@ class ModelAgent:
         reasoning_tokens = int(resp.usage.get("reasoning_tokens", 0) or 0)
         self.last_reasoning_reported = bool(resp.usage.get("reasoning_reported", False))
         self.last_reasoning_tokens = reasoning_tokens
+        # Pinned-tokenizer counts of ALL model-visible request content (system + observation + tool
+        # schemas) and the canonical assistant output (text + each tool call's NAME and arguments),
+        # plus the provider's self-reported reasoning tokens (NOT recomputable from the transcript —
+        # RULES §3.2.1). Computed every turn so calibration/QA can log them regardless of track.
+        n_in = (count_tokens(self.system) + count_tokens(user)
+                + count_tokens(json.dumps(tools, sort_keys=True)))
+        out_text = (resp.text or "") + "".join(
+            c.name + json.dumps(c.arguments, sort_keys=True) for c in resp.tool_calls)
+        n_out = count_tokens(out_text) + reasoning_tokens
+        # Enforcement for hidden/encrypted reasoning (RULES §3.2.1): some APIs (e.g. claude-sonnet-5
+        # adaptive thinking) return the reasoning encrypted and report 0 reasoning tokens while still
+        # billing them inside completion_tokens. Without this the model would think for free. When
+        # detected, charge the provider's true output count. Applied to n_out globally so BOTH the RP
+        # and the calibrated clock charge it; gated on has_hidden_thinking → strict no-op for every
+        # honest-reporting or non-thinking model.
+        if resp.usage.get("has_hidden_thinking"):
+            n_out = max(n_out, int(resp.usage.get("completion_tokens", 0) or 0))
+        self.last_n_in, self.last_n_out = n_in, n_out
+        self.last_live_latency_s = resp.latency_s
         if self.track == "rt":
             latency_s = resp.latency_s
+        elif self.track == "calibrated":
+            b0, b_in, b_out = self.clock
+            latency_s = max(0.05, b0 + b_in * n_in + b_out * n_out)
         else:
-            # RP counts ALL model-visible request content (system + observation + tool schemas) and
-            # the canonical assistant output (text + each tool call's NAME and arguments), plus the
-            # provider's self-reported reasoning tokens (NOT recomputable from the transcript — see
-            # RULES §3.2.1). sort_keys keeps the visible terms deterministic/recomputable.
-            n_in = (count_tokens(self.system) + count_tokens(user)
-                    + count_tokens(json.dumps(tools, sort_keys=True)))
-            out_text = (resp.text or "") + "".join(
-                c.name + json.dumps(c.arguments, sort_keys=True) for c in resp.tool_calls)
-            n_out = count_tokens(out_text) + reasoning_tokens
-            # Enforcement for hidden/encrypted reasoning (RULES §3.2.1): some APIs (e.g.
-            # claude-sonnet-5 adaptive thinking) return the reasoning encrypted and report 0
-            # reasoning tokens while still billing them inside completion_tokens. Without this the
-            # model would think for free. When that's detected, charge the provider's true output
-            # count. Gated on has_hidden_thinking → strict no-op for every honest-reporting or
-            # non-thinking model, so no existing board row moves and the ruleset hash is unchanged.
-            if resp.usage.get("has_hidden_thinking"):
-                n_out = max(n_out, int(resp.usage.get("completion_tokens", 0) or 0))
             latency_s = rp_latency_seconds(n_in, n_out)
         return resp.tool_calls, latency_s

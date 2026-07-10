@@ -64,6 +64,13 @@ PRICES = {
     'nvidia/nemotron-3-ultra-550b-a55b': (0.0000005, 0.0000025),
     # Z.ai GLM 5.2 (OpenRouter list price, stamped 2026-06-18)
     'z-ai/glm-5.2': (0.0000012, 0.0000032),
+    # OpenAI GPT-5.6 Luna / Terra (OpenRouter list price, stamped 2026-07-09)
+    'openai/gpt-5.6-luna': (0.000001, 0.000006),
+    'openai/gpt-5.6-terra': (0.0000025, 0.000015),
+    # Backfill: OpenRouter routes for models whose direct-API episode data was deleted
+    # (per-turn-cost recovery only; stamped 2026-06-19)
+    'openai/gpt-5.4': (0.0000025, 0.000015),
+    'anthropic/claude-haiku-4.5': (0.000001, 0.000005),
 }
 
 # Panel, ordered cheapest-first so the budget cap trims the most expensive tail if it binds.
@@ -117,6 +124,33 @@ PANELS = {
     # gemini-3.5-flash reasoning OFF — impossible on OpenRouter (mandatory), so routed direct
     # (reasoning_effort=none disables it). Complements gemini-3.5-flash·think (default/heavy).
     'gemini35off': [('gemini:gemini-3.5-flash', 'none', 'gemini-3.5-flash')],
+    # RT feel-out: does fast silicon rescue gpt-oss-120b·think? Run on both clocks, provider-pinned.
+    'oss-rt': [('openai/gpt-oss-120b', 'on', 'gpt-oss-120b·think')],
+    # luna at minimal reasoning, single clean row (its settled board config).
+    'luna-min': [('openai/gpt-5.6-luna', 'minimal', 'gpt-5.6-luna·min')],
+    # GPT-5.6 Luna feel-out sample: both reasoning modes at both budgets so we can compare
+    # off vs low across B=1 and B=5 before deciding the board config. Two labels -> two rows.
+    'luna-sample': [
+        ('openai/gpt-5.6-luna', 'off', 'gpt-5.6-luna'),
+        ('openai/gpt-5.6-luna', 'on', 'gpt-5.6-luna·think'),
+    ],
+    # Round 2 feel-out: luna at 'minimal' effort (it over-thinks at 'low'), plus terra
+    # (bigger sibling) at minimal + low. off is skipped — the family is non-viable without
+    # reasoning (luna off scored KR 0 with 30-100 invalid calls/episode).
+    'luna-terra-sample': [
+        ('openai/gpt-5.6-luna', 'minimal', 'gpt-5.6-luna·min'),
+        ('openai/gpt-5.6-terra', 'minimal', 'gpt-5.6-terra·min'),
+        ('openai/gpt-5.6-terra', 'on', 'gpt-5.6-terra·think'),
+    ],
+    # Per-turn-cost backfill via OpenRouter (labels MUST match board labels exactly so the
+    # episodes merge into the right rows). Light sample only — $/turn is a stable ratio.
+    'backfill': [
+        ('nvidia/nemotron-3-nano-30b-a3b', 'off', 'nemotron-3-nano'),
+        ('nvidia/nemotron-3-super-120b-a12b', 'off', 'nemotron-3-super'),
+        ('anthropic/claude-haiku-4.5', 'default', 'claude-haiku-4.5'),
+        ('openai/gpt-5.4-mini', 'on', 'gpt-5.4-mini·think'),
+        ('openai/gpt-5.4', 'off', 'gpt-5.4'),
+    ],
 }
 
 KEY_FOR_PROVIDER = {'openai': 'OPENAI_API_KEY', 'anthropic': 'ANTHROPIC_API_KEY'}
@@ -125,7 +159,7 @@ KEY_FOR_PROVIDER = {'openai': 'OPENAI_API_KEY', 'anthropic': 'ANTHROPIC_API_KEY'
 def client_extra(mode: str) -> dict:
     if mode == 'off':
         return {"extra_body": {"reasoning": {"enabled": False}}}
-    if mode in ('minimal', 'none'):                 # OpenAI: gpt-5.4 takes 'none', mini takes both
+    if mode in ('minimal', 'none', 'low', 'medium', 'high'):   # direct reasoning_effort levels
         return {"reasoning_effort": mode}
     if mode == 'on':
         return {"reasoning_effort": "low"}
@@ -134,14 +168,34 @@ def client_extra(mode: str) -> dict:
     return {}
 
 
-class TallyClient(LiteLLMClient):
-    """LiteLLM client that adds real provider token spend to a shared mutable tracker."""
+def ledger_total(path) -> float:
+    """Sum of all durably-recorded per-call spend (crash-tolerant; ignores a torn last line)."""
+    if not path or not Path(path).exists():
+        return 0.0
+    tot = 0.0
+    for line in Path(path).read_text().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            tot += float(json.loads(line)["cost"])
+        except Exception:  # noqa: BLE001 - tolerate a single torn final line
+            pass
+    return tot
 
-    def __init__(self, spec: str, tracker: dict, price: tuple[float, float], **kw):
+
+class TallyClient(LiteLLMClient):
+    """LiteLLM client that records REAL provider spend to a per-episode tracker, a durable ledger
+    file (append+flush per call, for a hard cross-stage cap), and enforces a per-episode ceiling."""
+
+    def __init__(self, spec: str, tracker: dict, price: tuple[float, float], *,
+                 ep_cap: float | None = None, ledger: str | None = None, **kw):
         self._tool_choice = kw.pop('tool_choice', None)
         super().__init__(spec, **kw)
         self._t = tracker
         self._price = price
+        self._ep_cap = ep_cap          # abort the episode if its own spend exceeds this
+        self._ledger = ledger          # durable append-only spend log path
 
     def generate(self, **kw):
         if self._tool_choice:
@@ -152,8 +206,26 @@ class TallyClient(LiteLLMClient):
         self._t['in'] += u.get('prompt_tokens', 0)
         self._t['out'] += u.get('completion_tokens', 0)
         self._t['reason'] += u.get('reasoning_tokens', 0)
-        self._t['cost'] += u.get('prompt_tokens', 0) * pin + u.get('completion_tokens', 0) * pout
+        # Prefer the provider's actual billed cost (accurate for the pinned endpoint). Fall back to
+        # the price table; if BOTH are absent, charge a deliberately-conservative $1/$10-per-M so a
+        # mispriced row can never be counted as free against the cap.
+        actual = u.get('cost')
+        if actual is not None:
+            cost = float(actual)
+        elif self._price != (0.0, 0.0):
+            cost = u.get('prompt_tokens', 0) * pin + u.get('completion_tokens', 0) * pout
+        else:
+            cost = u.get('prompt_tokens', 0) * 1e-6 + u.get('completion_tokens', 0) * 1e-5
+        self._t['cost'] += cost
         self._t['calls'] += 1
+        self._t['lat'] = self._t.get('lat', 0.0) + getattr(resp, 'latency_s', 0.0)
+        if u.get('provider_served'):
+            self._t['provider_served'] = u.get('provider_served')
+        if self._ledger:                # durable, per-call, survives crashes
+            with open(self._ledger, 'a') as f:
+                f.write(json.dumps({'cost': cost}) + '\n')
+        if self._ep_cap is not None and self._t['cost'] > self._ep_cap:
+            raise RuntimeError(f"episode spend ${self._t['cost']:.3f} exceeded ep_cap ${self._ep_cap}")
         return resp
 
 
@@ -175,6 +247,10 @@ def main() -> int:
     ap.add_argument('--temperature', type=float, default=0.2)
     ap.add_argument('--workers', type=int, default=10, help='concurrent episodes per model batch')
     ap.add_argument('--panel', choices=sorted(PANELS), default='starter')
+    ap.add_argument('--track', choices=['rp', 'rt'], default='rp',
+                    help='rp = deterministic token proxy (ranked); rt = measured wall-clock (diagnostic)')
+    ap.add_argument('--provider', type=str, default=None,
+                    help='pin OpenRouter routing to a single provider (order + allow_fallbacks:false)')
     args = ap.parse_args()
 
     panel = PANELS[args.panel]
@@ -199,7 +275,7 @@ def main() -> int:
     # with — the renderer reads this rather than its own environment, which may lack tiktoken).
     (out / 'run_meta.json').write_text(json.dumps(
         {'name': name, 'versions': versions(), 'seeds': seeds, 'trials': trials,
-         'tiers': tiers, 'budgets': budgets}, indent=2))
+         'tiers': tiers, 'budgets': budgets, 'track': args.track, 'provider': args.provider}, indent=2))
     epfile = (out / 'episodes.jsonl').open('a')
     logfile = (out / 'progress.log').open('a')
 
@@ -233,10 +309,15 @@ def main() -> int:
         # so concurrent tasks at different B don't race. Anchors derive purely from the spec.
         spec = procgen.generate(seed, tier, b=float(B))
         s_null, s_ref = anchors_for(spec)
-        mt = {'in': 0, 'out': 0, 'reason': 0, 'cost': 0.0, 'calls': 0}
+        mt = {'in': 0, 'out': 0, 'reason': 0, 'cost': 0.0, 'calls': 0, 'lat': 0.0}
         model_spec = mid if ':' in mid else f"openrouter:{mid}"   # bare ids route via OpenRouter
-        client = TallyClient(model_spec, mt, PRICES[mid], **client_extra(mode))
-        agent = ModelAgent(client, track='rp', temperature=args.temperature)
+        extra = client_extra(mode)
+        if args.provider:   # pin one OpenRouter endpoint; never silently reroute (RT hygiene)
+            eb = dict(extra.get('extra_body') or {})
+            eb['provider'] = {'order': [args.provider], 'allow_fallbacks': False}
+            extra = {**extra, 'extra_body': eb}
+        client = TallyClient(model_spec, mt, PRICES[mid], **extra)
+        agent = ModelAgent(client, track=args.track, temperature=args.temperature)
         t0 = time.time()
         res = run_episode(spec, agent)
         res.s_null, res.s_ref, res.trial = s_null, s_ref, trial
@@ -252,6 +333,9 @@ def main() -> int:
             'noop_turns': sum(1 for st in res.steps if not st['calls']),
             'ep_tokens_in': mt['in'], 'ep_tokens_out': mt['out'], 'ep_reason': mt['reason'],
             'ep_cost': round(mt['cost'], 5), 'wall_s': round(time.time() - t0, 1),
+            'track': args.track, 'provider': args.provider,
+            'ep_lat_s': round(mt['lat'], 2),
+            'tps': round(mt['out'] / mt['lat'], 1) if mt['lat'] else None,
         }
         return res, rec
 
