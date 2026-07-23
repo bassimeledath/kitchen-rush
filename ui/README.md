@@ -1,6 +1,6 @@
 # ui/ — Kitchen Rush replay viewer
 
-Watch any recorded episode play back as a little pixel-art kitchen — and *see* the benchmark's
+Watch any recorded episode play back as a little kitchen — and *see* the benchmark's
 core idea: while the model "thinks", a 🤔 bubble appears, the clock keeps running, food keeps
 cooking (and burning), and order timers keep draining. No build step, no dependencies — plain
 HTML/CSS/JS.
@@ -64,9 +64,11 @@ pause — that's the latency cost, made visible.
 
 ## Sprites
 
-The viewer works out of the box with emoji fallbacks; the bundled pixel-art sprites in
-`assets/` simply override them (via `assets/manifest.json`, which `app.js` auto-loads). To
-regenerate or restyle the art:
+The viewer uses a single Midnight Food Truck art direction. Its complete 49-key sprite manifest
+lives in `assets/`; the art layer does not change replay data, station placement, timers, or
+scoring. Emoji fallbacks keep every entity readable if an image fails to load.
+
+To regenerate the sprite set:
 
 ```bash
 export GEMINI_API_KEY=...
@@ -75,7 +77,6 @@ python3 ui/assets/generate_sprites.py
 ```
 
 The script generates sprite sheets with Gemini image generation, slices them, chroma-keys the
-background to transparency, and rewrites the PNGs + `manifest.json` — no code edits needed.
-Edit its `SPECS`/`STYLE` to tune art direction; `--only <keys>` regenerates a subset,
-`--force` overwrites. `ui/sprites.js` documents the key naming (`station:TYPE`,
+background to transparency, and rewrites the PNGs + `manifest.json`. `ui/sprites.js` documents
+the key naming (`station:TYPE`,
 `ing:<name>:<STATE>`, `dish:<recipe>`, `chef`).

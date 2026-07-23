@@ -388,7 +388,9 @@
     el.panes.classList.toggle("multi", multi);
     el.panes.classList.toggle("compact", compact);
     el.gclock.hidden = !multi;
-    const cellBudget = [560, 400, 310, 380][datas.length - 1] || 310;
+    const desktopBudget = [560, 400, 310, 380][datas.length - 1] || 310;
+    const chrome = datas.length === 1 ? 126 : 72;
+    const cellBudget = Math.min(desktopBudget, Math.max(280, innerWidth - chrome));
     datas.forEach((d, i) => C.views.push(new KitchenView(el.panes, d, {
       label: labels[i] || `model ${i + 1}`, hue: PANE_HUES[i % PANE_HUES.length],
       compact, cellBudget,
@@ -472,8 +474,8 @@
   async function init() {
     wireControls();
     try {
-      const r = await fetch("assets/manifest.json", { cache: "no-store" });
-      if (r.ok) { Object.assign(S.MANIFEST, await r.json()); await S.preload(); }
+      const response = await fetch("assets/manifest.json", { cache: "no-store" });
+      if (response.ok) { Object.assign(S.MANIFEST, await response.json()); await S.preload(); }
     } catch { /* emoji fallbacks */ }
     const qp = new URLSearchParams(location.search);
     const urls = (qp.get("replays") || "").split(",").map((s) => s.trim()).filter(Boolean);
