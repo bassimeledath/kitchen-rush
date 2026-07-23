@@ -18,7 +18,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 RESULTS = ROOT / "leaderboard" / "results"
 
-PATCH_RUNS = ["openai_patch", "anthropic_patch", "openrouter_patch", "sonnet5_patch", "glm_offboth", "gemini35_off"]
+PATCH_RUN_GROUPS = [
+    ("openai_patch",), ("anthropic_patch",), ("openrouter_patch",), ("sonnet5_patch",),
+    ("glm_offboth",), ("gemini35_off",), ("gemini36_low", "gemini36_low_rep2"),
+]
 # rows that must not appear on the published board, and why (kept in the json for audit)
 EXCLUDED = {
     "gpt-5.4·think": "OpenAI quota exhausted mid-config — episodes quarantined, pending rerun",
@@ -33,14 +36,16 @@ SUPERSEDED_STARTER = {"gpt-5.4-mini"}
 def bootstrap_ci(eps: list[dict], n_boot: int = 2000) -> float | None:
     """95% CI half-width on KR̄ via seed-block bootstrap (mirrors render_board.py)."""
     import random
-    seedkr: dict = defaultdict(dict)
+    seed_values: dict = defaultdict(lambda: defaultdict(list))
     for e in eps:
         if e["kr"] is not None:
-            seedkr[e["seed"]][(e["B"], e["tier"])] = e["kr"]
+            seed_values[e["seed"]][(e["B"], e["tier"])].append(e["kr"])
+    mean = lambda xs: sum(xs) / len(xs)  # noqa: E731
+    seedkr = {s: {c: mean(vals) for c, vals in by_cell.items()}
+              for s, by_cell in seed_values.items()}
     seeds = list(seedkr)
     if len(seeds) < 3:
         return None
-    mean = lambda xs: sum(xs) / len(xs)  # noqa: E731
     cells_all = defaultdict(list)
     for s in seeds:
         for c, v in seedkr[s].items():
@@ -73,26 +78,57 @@ def main() -> int:
                              "reason_ep": int(m.group(4)), "cost": float(m.group(5)),
                              "source": "starter (OpenRouter)"}
 
-    for name in PATCH_RUNS:
-        run = ROOT / "runs" / name
-        lb = json.loads((run / "leaderboard.json").read_text())
-        total_cost += lb["total_cost_usd"]
-        eps = [json.loads(l) for l in (run / "episodes.jsonl").open() if l.strip()]
+    for names in PATCH_RUN_GROUPS:
+        lbs, eps = [], []
+        for name in names:
+            run = ROOT / "runs" / name
+            lb = json.loads((run / "leaderboard.json").read_text())
+            lbs.append(lb)
+            total_cost += lb["total_cost_usd"]
+            eps.extend(json.loads(l) for l in (run / "episodes.jsonl").open() if l.strip())
         by_model = defaultdict(list)
         for e in eps:
             by_model[e["model"]].append(e)
-        for c in lb["board"]:
-            if c["model"] not in EXCLUDED:
-                cells.append(c)
+        if len(names) == 1:
+            cells.extend(c for c in lbs[0]["board"] if c["model"] not in EXCLUDED)
+        else:
+            by_cell = defaultdict(list)
+            source_cells = defaultdict(list)
+            for e in eps:
+                by_cell[(e["model"], e["B"], e["tier"])].append(e)
+            for lb in lbs:
+                for c in lb["board"]:
+                    source_cells[(c["model"], c["B"], c["tier"])].append(c)
+            for (model, budget, tier), cell_eps in by_cell.items():
+                if model in EXCLUDED:
+                    continue
+                kr_vals = [e["kr"] for e in cell_eps if e["kr"] is not None]
+                kr_mean = sum(kr_vals) / len(kr_vals) if kr_vals else 0.0
+                kr_std = (sum((v - kr_mean) ** 2 for v in kr_vals) / len(kr_vals)) ** 0.5 \
+                    if kr_vals else 0.0
+                prior_cells = source_cells[(model, budget, tier)]
+                n_prior = sum(c["episodes"] for c in prior_cells)
+                invalid_rate = sum(c["invalid_rate"] * c["episodes"] for c in prior_cells) / n_prior
+                cells.append({
+                    "model": model, "B": budget, "tier": tier, "episodes": len(cell_eps),
+                    "KR": round(kr_mean, 2), "kr_std": round(kr_std, 2),
+                    "pass_1": round(sum(v >= 60.0 for v in kr_vals) / max(1, len(kr_vals)), 4),
+                    "completion_rate": round(sum(e["served"] / e["total"] for e in cell_eps)
+                                             / len(cell_eps), 4),
+                    "invalid_rate": round(invalid_rate, 4),
+                })
         for m, mes in by_model.items():
             if m in EXCLUDED:
                 continue
+            validation_cost = sum(e["ep_cost"] for e in mes)
             stats[m] = {
                 "ci": bootstrap_ci(mes),
                 "serve": round(100 * sum(e["served"] for e in mes) / max(1, sum(e["total"] for e in mes))),
                 "reason_ep": sum(e["ep_reason"] for e in mes) // max(1, len(mes)),
-                "cost": round(sum(e["ep_cost"] for e in mes), 2),
-                "source": name,
+                # Keep the displayed cost comparable to every one-trial/48-episode board row.
+                "cost": round(validation_cost / len(names), 2),
+                "validation_cost": round(validation_cost, 2),
+                "source": " + ".join(names),
             }
 
     # Carry over rows added out-of-band — committed straight to board.json with their run data not
@@ -126,8 +162,7 @@ def main() -> int:
 
     out = {
         "name": "board",
-        "note": "current combined board = frozen starter run + 2026-06-11 patch runs "
-                "(direct OpenAI/Anthropic keys + OpenRouter top-up)",
+        "note": "current combined board = frozen starter run + direct-provider/OpenRouter patch runs",
         "ruleset": starter["ruleset"],
         "versions": starter["versions"],
         "total_cost_usd": round(total_cost, 2),
@@ -148,10 +183,12 @@ def main() -> int:
         f"track RP (experimental β) · {n_eps} episodes · total ${total_cost:.2f} · "
         "= [starter run](starter.md) + 2026-06-11 patch (gpt-5.4 family & haiku, nemotron) "
         "+ 2026-06-30 claude-sonnet-5 + 2026-07-03 GLM 5.2 (re-run reasoning-off) "
-        "+ 2026-07-03 gemini-3.5-flash reasoning-off (direct Gemini API)",
+        "+ 2026-07-03 gemini-3.5-flash reasoning-off + 2026-07-21 gemini-3.6-flash low "
+        "(direct Gemini API; 2 matched trials)",
         "",
-        "KR = 100·clip((S−S_null)/(S_ref−S_null)), mean over seeds. `·think` = reasoning on "
-        "(low effort). Not on the board: `gpt-5.4·think` (provider quota died mid-run — pending), "
+        "KR = 100·clip((S−S_null)/(S_ref−S_null)), mean over seeds. `·think` = reasoning on; "
+        "`·low` = explicitly low reasoning. Not on the board: `gpt-5.4·think` (provider quota "
+        "died mid-run — pending), "
         "`nemotron-3-ultra` (no tool_choice:required endpoint on OpenRouter), `gpt-oss-120b` "
         "reasoning-off (provider: reasoning is mandatory), `claude-sonnet-4.6·think†` (runs as a "
         "flagged deviation under tool_choice:auto since Anthropic forbids thinking with forced "

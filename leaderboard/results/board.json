@@ -1,6 +1,6 @@
 {
   "name": "board",
-  "note": "current combined board = frozen starter run + 2026-06-11 patch runs (direct OpenAI/Anthropic keys + OpenRouter top-up)",
+  "note": "current combined board = frozen starter run + direct-provider/OpenRouter patch runs",
   "ruleset": "33034952fa7f",
   "versions": {
     "package": "0.1.0",
@@ -11,7 +11,7 @@
     "generator": "0.1",
     "tokenizer": "tiktoken-cl100k_base-v1"
   },
-  "total_cost_usd": 155.3,
+  "total_cost_usd": 173.23,
   "excluded": {
     "gpt-5.4\u00b7think": "OpenAI quota exhausted mid-config \u2014 episodes quarantined, pending rerun",
     "claude-sonnet-4.6\u00b7think\u2020": "Anthropic credit exhausted mid-config \u2014 B=5 + 6 hard-B1 episodes quarantined, pending rerun (row incomplete)",
@@ -900,6 +900,50 @@
       "pass_1": 0.0833,
       "completion_rate": 0.6111,
       "invalid_rate": 0.2199
+    },
+    {
+      "model": "gemini-3.6-flash\u00b7low",
+      "B": 1.0,
+      "tier": "medium",
+      "episodes": 24,
+      "KR": 33.73,
+      "kr_std": 26.86,
+      "pass_1": 0.1667,
+      "completion_rate": 0.7014,
+      "invalid_rate": 0.1167
+    },
+    {
+      "model": "gemini-3.6-flash\u00b7low",
+      "B": 1.0,
+      "tier": "hard",
+      "episodes": 24,
+      "KR": 14.26,
+      "kr_std": 19.6,
+      "pass_1": 0.0417,
+      "completion_rate": 0.5129,
+      "invalid_rate": 0.159
+    },
+    {
+      "model": "gemini-3.6-flash\u00b7low",
+      "B": 5.0,
+      "tier": "medium",
+      "episodes": 24,
+      "KR": 36.7,
+      "kr_std": 21.04,
+      "pass_1": 0.125,
+      "completion_rate": 0.8417,
+      "invalid_rate": 0.1337
+    },
+    {
+      "model": "gemini-3.6-flash\u00b7low",
+      "B": 5.0,
+      "tier": "hard",
+      "episodes": 24,
+      "KR": 24.92,
+      "kr_std": 19.64,
+      "pass_1": 0.0417,
+      "completion_rate": 0.8581,
+      "invalid_rate": 0.166
     }
   ],
   "model_stats": {
@@ -978,6 +1022,7 @@
       "serve": 14,
       "reason_ep": 0,
       "cost": 5.98,
+      "validation_cost": 5.98,
       "source": "openai_patch"
     },
     "llama-4-scout": {
@@ -992,6 +1037,7 @@
       "serve": 77,
       "reason_ep": 14886,
       "cost": 6.5,
+      "validation_cost": 6.5,
       "source": "openai_patch"
     },
     "gpt-5.4": {
@@ -999,6 +1045,7 @@
       "serve": 71,
       "reason_ep": 0,
       "cost": 15.43,
+      "validation_cost": 15.43,
       "source": "openai_patch"
     },
     "claude-haiku-4.5": {
@@ -1006,6 +1053,7 @@
       "serve": 36,
       "reason_ep": 0,
       "cost": 6.74,
+      "validation_cost": 6.74,
       "source": "anthropic_patch"
     },
     "nemotron-3-nano": {
@@ -1013,6 +1061,7 @@
       "serve": 0,
       "reason_ep": 0,
       "cost": 0.17,
+      "validation_cost": 0.17,
       "source": "openrouter_patch"
     },
     "nemotron-3-super": {
@@ -1020,6 +1069,7 @@
       "serve": 29,
       "reason_ep": 0,
       "cost": 0.36,
+      "validation_cost": 0.36,
       "source": "openrouter_patch"
     },
     "claude-sonnet-5": {
@@ -1027,6 +1077,7 @@
       "serve": 44,
       "reason_ep": 0,
       "cost": 22.58,
+      "validation_cost": 22.58,
       "source": "sonnet5_patch"
     },
     "glm-5.2": {
@@ -1034,6 +1085,7 @@
       "serve": 67,
       "reason_ep": 0,
       "cost": 5.09,
+      "validation_cost": 5.09,
       "source": "glm_offboth"
     },
     "gemini-3.5-flash": {
@@ -1041,7 +1093,16 @@
       "serve": 57,
       "reason_ep": 0,
       "cost": 5.33,
+      "validation_cost": 5.33,
       "source": "gemini35_off"
+    },
+    "gemini-3.6-flash\u00b7low": {
+      "ci": 6.142916666666661,
+      "serve": 73,
+      "reason_ep": 9408,
+      "cost": 8.97,
+      "validation_cost": 17.93,
+      "source": "gemini36_low + gemini36_low_rep2"
     }
   }
 }

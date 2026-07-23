@@ -1,9 +1,8 @@
 /* sprites.js — asset manifest + resolver.
  *
- * The viewer is fully playable with emoji/CSS fallbacks (no binary assets needed). When real
- * sprites are generated (Gemini "nano-banana" -> PNG -> background removed -> ui/assets/), fill in
- * the matching entry in MANIFEST below and it overrides the emoji automatically. Missing or
- * broken images fall back to emoji at render time (the <img> onerror swaps in the emoji span).
+ * The viewer is fully playable with emoji/CSS fallbacks. The generated Midnight Food Truck
+ * sprites in assets/ override those fallbacks without changing replay data. Missing or broken
+ * images fall back to emoji at render time.
  *
  * Key conventions:
  *   station:<TYPE>          ING | BOARD | STOVE | PLATE | PASS | BIN
@@ -19,8 +18,7 @@ const KR = window.KR || (window.KR = {});
 KR.sprites = (() => {
   const BASE = "assets/";
 
-  // Filled at runtime from assets/manifest.json (written by generate_sprites.py); see the
-  // key conventions in the header. Empty = pure emoji mode.
+  // Filled at runtime from assets/manifest.json. Empty = pure emoji mode.
   const MANIFEST = {};
 
   // Emoji fallbacks — chosen so every entity reads clearly without any art pipeline.

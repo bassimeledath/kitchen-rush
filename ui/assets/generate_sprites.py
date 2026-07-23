@@ -10,9 +10,9 @@ Workflow:
     export GEMINI_API_KEY=...
     pip install pillow
     # dry-run the slicer on one sheet first:
-    python3 ui/assets/generate_sprites.py --anchor /tmp/style_C_bold.png --only stations
+    python3 ui/assets/generate_sprites.py --anchor /tmp/midnight_food_truck_anchor.png --only stations
     # then the rest:
-    python3 ui/assets/generate_sprites.py --anchor /tmp/style_C_bold.png
+    python3 ui/assets/generate_sprites.py --anchor /tmp/midnight_food_truck_anchor.png
 
 Each run also drops /tmp/sheet_<name>.png (raw) and /tmp/sheet_<name>_sliced.png (per-cell
 preview) so you can verify slicing before trusting it.
@@ -33,8 +33,9 @@ from pathlib import Path
 
 ASSETS = Path(__file__).resolve().parent
 
-STYLE = ("Bold cute pixel-art style: thick solid black outlines, flat vibrant candy colors, "
-         "minimal shading, clean chunky 16-bit shapes.")
+STYLE = ("Authored indie-game pixel art for a compact street-food truck after dark: clean chunky "
+         "pixels, consistent three-quarter top-down perspective, selective dark outlines, two-step "
+         "shading, petrol-teal enamel, tomato red, cool steel, warm cream and small yellow accents.")
 
 SHEET_PROMPT = (
     "A {cols}x{rows} grid sprite sheet ({cols} columns, {rows} rows) on a SOLID FLAT pure-magenta "
@@ -57,21 +58,21 @@ SHEETS: dict[str, tuple[int, int, list[tuple[str, str, str]]]] = {
         ("fx:burst",  "fx_burst.png",  "a bright yellow four-point sparkle star burst"),
     ]),
     "stations": (3, 2, [
-        ("station:ING",   "station_ing.png",   "a wooden pantry shelf stacked with ingredient crates"),
-        ("station:BOARD", "station_board.png", "a wooden cutting board with a chef's knife"),
-        ("station:STOVE", "station_stove.png", "a metal stove range with two burners and blue flames"),
-        ("station:PLATE", "station_plate.png", "a neat stack of clean round white plates"),
-        ("station:PASS",  "station_pass.png",  "a serving pass window with a silver order bell"),
-        ("station:BIN",   "station_bin.png",   "a metal kitchen trash bin"),
+        ("station:ING",   "station_ing.png",   "a petrol-teal refrigerated food-truck ingredient station with six simple produce bins"),
+        ("station:BOARD", "station_board.png", "a wooden cutting board inset into a teal metal worktop with a chef's knife"),
+        ("station:STOVE", "station_stove.png", "a compact stainless food-truck gas burner with a teal enamel casing"),
+        ("station:PLATE", "station_plate.png", "a neat stack of cream enamel plates with thin teal rims"),
+        ("station:PASS",  "station_pass.png",  "a compact food-truck serving hatch with a silver order bell"),
+        ("station:BIN",   "station_bin.png",   "a compact petrol-teal kitchen waste bin"),
     ]),
     "chef_face": (4, 1, [
-        ("chef:front", "chef_front.png", "a cute chef with a tall white hat and red neckerchief facing the viewer, walking pose, empty hands"),
-        ("chef:back",  "chef_back.png",  "the SAME chef seen from behind facing away, walking pose, empty hands"),
-        ("chef:left",  "chef_left.png",  "the SAME chef in side profile facing left, walking pose, empty hands"),
-        ("chef:right", "chef_right.png", "the SAME chef in side profile facing right, walking pose, empty hands"),
+        ("chef:front", "chef_front.png", "a confident street-food cook in a short cream paper cap, petrol-teal work shirt and tomato-red apron facing the viewer, empty hands"),
+        ("chef:back",  "chef_back.png",  "the SAME street-food cook seen from behind facing away, empty hands"),
+        ("chef:left",  "chef_left.png",  "the SAME street-food cook in side profile facing left, empty hands"),
+        ("chef:right", "chef_right.png", "the SAME street-food cook in side profile facing right, empty hands"),
     ]),
     "chef_carry": (4, 1, [
-        ("chef:carry:front", "chef_carry_front.png", "the SAME cute chef facing the viewer, holding an EMPTY round serving tray forward with both hands"),
+        ("chef:carry:front", "chef_carry_front.png", "the SAME street-food cook facing the viewer, holding an EMPTY round serving tray forward with both hands"),
         ("chef:carry:back",  "chef_carry_back.png",  "the SAME chef seen from behind, holding an EMPTY round serving tray forward"),
         ("chef:carry:left",  "chef_carry_left.png",  "the SAME chef in side profile facing left, holding an EMPTY round serving tray forward"),
         ("chef:carry:right", "chef_carry_right.png", "the SAME chef in side profile facing right, holding an EMPTY round serving tray forward"),
@@ -196,7 +197,7 @@ def slice_and_save(raw: bytes, cols: int, rows: int, cells: list, size: int,
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Generate Kitchen Rush sprite sheets via Gemini image gen.")
     ap.add_argument("--model", default=os.environ.get("KR_IMAGE_MODEL", "gemini-3-pro-image-preview"))
-    ap.add_argument("--anchor", default=os.environ.get("KR_ANCHOR", "/tmp/style_C_bold.png"),
+    ap.add_argument("--anchor", default=os.environ.get("KR_ANCHOR", "/tmp/midnight_food_truck_anchor.png"),
                     help="style-anchor image fed as a reference into every sheet")
     ap.add_argument("--size", type=int, default=256)
     ap.add_argument("--only", nargs="*", default=None, help="subset of sheet names: " + ", ".join(SHEETS))

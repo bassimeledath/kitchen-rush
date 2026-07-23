@@ -53,7 +53,7 @@ class LiteLLMClient:
         self.extra = kwargs
 
     def generate(self, *, system: str, messages: list[dict], tools: list[dict],
-                 temperature: float = 0.2, timeout: float = 90.0, num_retries: int = 2,
+                 temperature: float | None = 0.2, timeout: float = 90.0, num_retries: int = 2,
                  tool_choice: str = "required", max_tokens: int = MAX_OUTPUT_TOKENS,
                  **kwargs: Any) -> ModelResponse:
         try:
@@ -77,7 +77,7 @@ class LiteLLMClient:
         )
         # Newer reasoning models (e.g. Opus 4.7) deprecate `temperature`; litellm's registry may
         # be too old to drop it. Learn once per model and stop sending it thereafter.
-        if self.litellm_model not in _NO_TEMPERATURE:
+        if temperature is not None and self.litellm_model not in _NO_TEMPERATURE:
             params["temperature"] = temperature
         start = time.perf_counter()
         # timeout + retries guard against transient network blips (infra, not model speed).
