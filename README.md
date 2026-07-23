@@ -134,7 +134,8 @@ meaningfully ordered. `llama-4-scout` is absent (its provider errored during cal
 <sub>An earlier flat-clock generation — one shared, provider-neutral token clock, so it's fully
 reproducible but blind to real serving speed — is archived at
 [leaderboard/results/board.md](leaderboard/results/board.md) for anyone who wants a
-hardware-independent ranking instead of a deployment snapshot.</sub>
+hardware-independent ranking instead of a deployment snapshot. That archive includes a replicated
+96-episode `gemini-3.6-flash` low-reasoning result.</sub>
 
 ## Try it
 

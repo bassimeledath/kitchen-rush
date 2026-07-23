@@ -50,6 +50,8 @@ PRICES = {
     'x-ai/grok-build-0.1': (0.000001, 0.000002),
     'google/gemini-3.5-flash': (0.0000015, 0.000009),
     'gemini:gemini-3.5-flash': (0.0000015, 0.000009),   # direct Gemini API (reasoning-off route)
+    # Direct Gemini API list price, stamped 2026-07-21.
+    'gemini:gemini-3.6-flash': (0.0000015, 0.0000075),
     'qwen/qwen3-235b-a22b-thinking-2507': (0.0000001, 0.0000001),
     'openai/gpt-oss-120b': (0.000000039, 0.00000018),
     # direct-provider specs (per-token USD, provider list prices, stamped 2026-06-11)
@@ -124,6 +126,18 @@ PANELS = {
     # gemini-3.5-flash reasoning OFF — impossible on OpenRouter (mandatory), so routed direct
     # (reasoning_effort=none disables it). Complements gemini-3.5-flash·think (default/heavy).
     'gemini35off': [('gemini:gemini-3.5-flash', 'none', 'gemini-3.5-flash')],
+    # Gemini 3.6 Flash pilots used to select the low-reasoning board configuration.
+    'gemini36pilot': [
+        ('gemini:gemini-3.6-flash', 'medium', 'gemini-3.6-flash·medium'),
+        ('gemini:gemini-3.6-flash', 'high', 'gemini-3.6-flash·high'),
+    ],
+    'gemini36lowpilot': [
+        ('gemini:gemini-3.6-flash', 'minimal', 'gemini-3.6-flash·minimal'),
+        ('gemini:gemini-3.6-flash', 'low', 'gemini-3.6-flash·low'),
+    ],
+    'gemini36low': [
+        ('gemini:gemini-3.6-flash', 'low', 'gemini-3.6-flash·low'),
+    ],
     # RT feel-out: does fast silicon rescue gpt-oss-120b·think? Run on both clocks, provider-pinned.
     'oss-rt': [('openai/gpt-oss-120b', 'on', 'gpt-oss-120b·think')],
     # luna at minimal reasoning, single clean row (its settled board config).
@@ -153,7 +167,11 @@ PANELS = {
     ],
 }
 
-KEY_FOR_PROVIDER = {'openai': 'OPENAI_API_KEY', 'anthropic': 'ANTHROPIC_API_KEY'}
+KEY_FOR_PROVIDER = {
+    'openai': 'OPENAI_API_KEY',
+    'anthropic': 'ANTHROPIC_API_KEY',
+    'gemini': 'GEMINI_API_KEY',
+}
 
 
 def client_extra(mode: str) -> dict:
@@ -317,7 +335,9 @@ def main() -> int:
             eb['provider'] = {'order': [args.provider], 'allow_fallbacks': False}
             extra = {**extra, 'extra_body': eb}
         client = TallyClient(model_spec, mt, PRICES[mid], **extra)
-        agent = ModelAgent(client, track=args.track, temperature=args.temperature)
+        # Gemini 3.6 deprecates sampling parameters; None tells the adapter to omit temperature.
+        temperature = None if mid == 'gemini:gemini-3.6-flash' else args.temperature
+        agent = ModelAgent(client, track=args.track, temperature=temperature)
         t0 = time.time()
         res = run_episode(spec, agent)
         res.s_null, res.s_ref, res.trial = s_null, s_ref, trial
@@ -344,8 +364,8 @@ def main() -> int:
         if halted:
             log(f"SKIP {label} — budget cap reached")
             continue
-        # Each model's 48 episodes run concurrently; cap is checked at model boundaries (a single
-        # model's spend is bounded, and the panel is cheapest-first so the costly tail trims last).
+        # Run in worker-sized batches so spend is checked throughout a model rather than only after
+        # all episodes have already been enqueued. Calls already in a batch cannot be unspent.
         tasks = [(mid, mode, label, B, tier, seed, trial)
                  for B in budgets for tier in tiers for seed in range(seeds) for trial in range(trials)
                  if (label, B, tier, seed, trial) not in done]
@@ -353,20 +373,25 @@ def main() -> int:
             log(f"SKIP {label} — already complete (resumed)")
             continue
         m = {'eps': 0, 'in': 0, 'out': 0, 'reason': 0, 'cost': 0.0}
-        with ThreadPoolExecutor(max_workers=args.workers) as ex:
-            futs = {ex.submit(run_one, *t): t for t in tasks}
-            for fut in as_completed(futs):
-                t = futs[fut]
-                try:
-                    res, rec = fut.result()
-                except Exception as exc:  # noqa: BLE001
-                    log(f"  ERR {t[2]} B={t[3]} {t[4]} s{t[5]} t{t[6]}: {type(exc).__name__}: {str(exc)[:80]}")
-                    continue
-                with write_lock:
-                    groups.setdefault((label, rec['B'], rec['tier']), []).append(res)
-                    m['eps'] += 1; m['in'] += rec['ep_tokens_in']; m['out'] += rec['ep_tokens_out']
-                    m['reason'] += rec['ep_reason']; m['cost'] += rec['ep_cost']
-                    epfile.write(json.dumps(rec) + "\n"); epfile.flush()
+        for start in range(0, len(tasks), args.workers):
+            if grand['cost'] + m['cost'] >= args.cap:
+                halted = True
+                break
+            batch = tasks[start:start + args.workers]
+            with ThreadPoolExecutor(max_workers=min(args.workers, len(batch))) as ex:
+                futs = {ex.submit(run_one, *t): t for t in batch}
+                for fut in as_completed(futs):
+                    t = futs[fut]
+                    try:
+                        res, rec = fut.result()
+                    except Exception as exc:  # noqa: BLE001
+                        log(f"  ERR {t[2]} B={t[3]} {t[4]} s{t[5]} t{t[6]}: {type(exc).__name__}: {str(exc)[:80]}")
+                        continue
+                    with write_lock:
+                        groups.setdefault((label, rec['B'], rec['tier']), []).append(res)
+                        m['eps'] += 1; m['in'] += rec['ep_tokens_in']; m['out'] += rec['ep_tokens_out']
+                        m['reason'] += rec['ep_reason']; m['cost'] += rec['ep_cost']
+                        epfile.write(json.dumps(rec) + "\n"); epfile.flush()
         grand['cost'] += m['cost']
         log(f"DONE {label}: {m['eps']} ep  spend=${m['cost']:.2f}  cum=${grand['cost']:.2f}  "
             f"in={m['in']} out={m['out']} reason={m['reason']}")

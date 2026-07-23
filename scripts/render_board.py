@@ -32,7 +32,8 @@ def main() -> int:
     # per-model rollups
     cost = defaultdict(float); reason = defaultdict(int); modeof = {}
     served = defaultdict(int); total = defaultdict(int); ne = defaultdict(int)
-    _MODE = {'off': 'off', 'on': 'low', 'default': 'default(on)'}
+    _MODE = {'off': 'off', 'on': 'low', 'default': 'default(on)',
+             'minimal': 'minimal', 'low': 'low', 'medium': 'medium', 'high': 'high'}
     # per (model, B, tier) KR samples + completion; per-seed KR for the seed bootstrap
     krs = defaultdict(list); compl = defaultdict(list)
     seedkr: dict = defaultdict(lambda: defaultdict(dict))   # model -> seed -> {(B,tier): kr}

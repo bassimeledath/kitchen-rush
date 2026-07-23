@@ -110,7 +110,7 @@ class ModelAgent:
     """A policy that drives the engine with a ModelClient."""
 
     def __init__(self, client: ModelClient, *, track: str = "rp",
-                 temperature: float = config.DEFAULT_TEMPERATURE,
+                 temperature: float | None = config.DEFAULT_TEMPERATURE,
                  system_prompt: str = SYSTEM_PROMPT, stall_seconds: float = 30.0,
                  clock: tuple[float, float, float] | None = None,
                  num_retries: int = 2, fail_fast: bool = False) -> None:

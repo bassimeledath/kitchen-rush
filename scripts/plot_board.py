@@ -69,7 +69,7 @@ def main() -> int:
         ax.spines[["top", "right"]].set_visible(False)
         ax.grid(axis="x", color="#e6e6e6", lw=0.7)
         ax.set_axisbelow(True)
-        fig.text(0.99, 0.01, "medium+hard pooled · 24 eps/model · 95% CI · blue = tied for the lead within CI · ·think = reasoning on",
+        fig.text(0.99, 0.01, "medium+hard pooled · 24 eps/model (Gemini 3.6: 48) · 95% CI · blue = tied for the lead within CI · ·think/·low = reasoning on",
                  ha="right", fontsize=6.5, color="#777")
         fig.tight_layout()
         path = OUT / f"leaderboard_b{b:g}.png"
