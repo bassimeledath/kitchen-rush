@@ -16,6 +16,13 @@
       "source": "revised_canary audit \u00b7 150 requests verified",
       "gate_sha256": "281eff48a052609a72b727402005be429996e0750015fdbc28a33712f32bde21",
       "manifest_sha256": "e989fcfe63e2e1122f6158ac50a4152036ae534ad13100e4a7e8784b8b7e0db3"
+    },
+    "model_accounting": {
+      "key": "deepseek-v4-flash-think",
+      "model": "deepseek/deepseek-v4-flash",
+      "provider": "DeepInfra",
+      "generation_token_eligible": true,
+      "output_usage_basis": "generation_tokens"
     }
   },
   {
@@ -29,6 +36,13 @@
       "source": "revised_canary audit \u00b7 150 requests verified",
       "gate_sha256": "281eff48a052609a72b727402005be429996e0750015fdbc28a33712f32bde21",
       "manifest_sha256": "e989fcfe63e2e1122f6158ac50a4152036ae534ad13100e4a7e8784b8b7e0db3"
+    },
+    "model_accounting": {
+      "key": "claude-sonnet-4-6-think",
+      "model": "anthropic/claude-sonnet-4.6",
+      "provider": "Anthropic",
+      "generation_token_eligible": true,
+      "output_usage_basis": "generation_tokens"
     }
   },
   {
@@ -42,6 +56,13 @@
       "source": "revised_canary audit \u00b7 150 requests verified",
       "gate_sha256": "281eff48a052609a72b727402005be429996e0750015fdbc28a33712f32bde21",
       "manifest_sha256": "e989fcfe63e2e1122f6158ac50a4152036ae534ad13100e4a7e8784b8b7e0db3"
+    },
+    "model_accounting": {
+      "key": "gpt-5-4-mini-think",
+      "model": "openai/gpt-5.4-mini",
+      "provider": "OpenAI",
+      "generation_token_eligible": true,
+      "output_usage_basis": "generation_tokens"
     }
   },
   {
@@ -55,6 +76,13 @@
       "source": "revised_canary audit \u00b7 150 requests verified",
       "gate_sha256": "281eff48a052609a72b727402005be429996e0750015fdbc28a33712f32bde21",
       "manifest_sha256": "e989fcfe63e2e1122f6158ac50a4152036ae534ad13100e4a7e8784b8b7e0db3"
+    },
+    "model_accounting": {
+      "key": "gemini-3-5-flash",
+      "model": "google/gemini-3.5-flash",
+      "provider": "Google AI Studio",
+      "generation_token_eligible": true,
+      "output_usage_basis": "generation_tokens"
     }
   },
   {
@@ -68,6 +96,13 @@
       "source": "revised_canary audit \u00b7 150 requests verified",
       "gate_sha256": "281eff48a052609a72b727402005be429996e0750015fdbc28a33712f32bde21",
       "manifest_sha256": "e989fcfe63e2e1122f6158ac50a4152036ae534ad13100e4a7e8784b8b7e0db3"
+    },
+    "model_accounting": {
+      "key": "grok-build-think",
+      "model": "x-ai/grok-build-0.1",
+      "provider": "xAI",
+      "generation_token_eligible": true,
+      "output_usage_basis": "generation_tokens"
     }
   },
   {
@@ -81,6 +116,13 @@
       "source": "revised_canary audit \u00b7 150 requests verified",
       "gate_sha256": "281eff48a052609a72b727402005be429996e0750015fdbc28a33712f32bde21",
       "manifest_sha256": "e989fcfe63e2e1122f6158ac50a4152036ae534ad13100e4a7e8784b8b7e0db3"
+    },
+    "model_accounting": {
+      "key": "jev",
+      "model": "jev-1.13.0",
+      "provider": "TypeSafe",
+      "generation_token_eligible": false,
+      "output_usage_basis": "provider_reported_output_units"
     }
   }
 ]

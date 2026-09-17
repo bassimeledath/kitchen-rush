@@ -17,6 +17,22 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def model_accounting(model):
+    """Public eligibility comes from the audited provider configuration, not its label."""
+    require(
+        isinstance(model.get("provider"), str) and bool(model["provider"]),
+        "replay is missing provider accounting identity",
+    )
+    eligible = model["provider"] != "TypeSafe"
+    return dict(
+        key=model["key"],
+        model=model["model"],
+        provider=model["provider"],
+        generation_token_eligible=eligible,
+        output_usage_basis="generation_tokens" if eligible else "provider_reported_output_units",
+    )
+
+
 def public_replay(episode, *, label, source):
     fields = (
         "protocol",
@@ -145,6 +161,7 @@ def export(batch, seed, size, dollars, tokens):
                 label=f"{label} · {diagnostic} · {allowance}",
                 kind="model",
                 sha256=sha(target),
+                model_accounting=model_accounting(episode["model"]),
                 audit=dict(
                     status="passed",
                     protocol_hash=gate["protocol_hash"],
