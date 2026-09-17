@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import base64
 import hashlib
 import importlib.util
 import io
@@ -38,12 +37,24 @@ _spec = importlib.util.spec_from_file_location(
 guard = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(guard)
 
-BOOTSTRAP = """import base64,io,json,runpy,sys,tempfile,zipfile
+BOOTSTRAP = """import hashlib,io,json,runpy,sys,tempfile,zipfile
+p=json.loads(sys.argv[1])
+b=sys.stdin.buffer.read(2097153)
+if len(b)>2097152 or hashlib.sha256(b).hexdigest()!=p['source_archive_sha256']:
+ raise ValueError('source_transfer_integrity')
 with tempfile.TemporaryDirectory() as d:
- z=zipfile.ZipFile(io.BytesIO(base64.b64decode(sys.argv[1])))
+ z=zipfile.ZipFile(io.BytesIO(b))
  z.extractall(d)
- runpy.run_path(d+'/scripts/phonellm_episode_diagnostic.py',run_name='phone_worker')['worker'](json.loads(sys.argv[2]))
+ runpy.run_path(d+'/scripts/phonellm_episode_diagnostic.py',run_name='phone_worker')['worker'](p)
 """
+
+
+def launch_args(planned):
+    args = ("python", "-c", BOOTSTRAP, json.dumps(planned))
+    # Modal 1.5.2 validates the TOTAL CMD, not a per-argument Linux limit.
+    if sum(len(arg.encode()) for arg in args) > 65536:
+        raise ValueError("sandbox_cmd_too_large")
+    return args
 
 
 def bundle():
@@ -71,6 +82,7 @@ def plan():
         rank_eligible=False,
         b80_eligible=False,
         dollar_admission=False,
+        source_transport="stdin-zip-sha256-v1",
         worker_sha256=hashlib.sha256(BOOTSTRAP.encode()).hexdigest(),
         source_archive_sha256=hashlib.sha256(bundle()).hexdigest(),
         guard_source_sha256=hashlib.sha256(
@@ -423,11 +435,12 @@ def save(path, value):
 def launch(planned, receipt_path, out):
     if planned != plan():
         raise ValueError("plan_changed")
+    args = launch_args(planned)
     receipt = json.loads(receipt_path.read_text())
     reserve = guard.check_receipt(receipt, planned)
     source = bundle()
-    if len(base64.b64encode(source)) > 120000:
-        raise ValueError("source_argument_too_large")
+    if len(source) > 2097152:
+        raise ValueError("source_transfer_too_large")
     if hashlib.sha256(source).hexdigest() != planned["source_archive_sha256"]:
         raise ValueError("source_changed")
     claim = Path(receipt["ledger_path"]).resolve().parent / (
@@ -471,11 +484,7 @@ def launch(planned, receipt_path, out):
             "kitchenrush-phonellm-full-episode-diagnostic", create_if_missing=True
         )
         sandbox = modal.Sandbox.create(
-            "python",
-            "-c",
-            BOOTSTRAP,
-            base64.b64encode(source).decode(),
-            json.dumps(planned),
+            *args,
             app=app,
             name="episode-" + guard.sha(receipt["reservation_id"])[:20],
             tags={
@@ -494,6 +503,11 @@ def launch(planned, receipt_path, out):
             unencrypted_ports=[],
         )
         result.update(sandbox_id=sandbox.object_id, local_after_create_unix=time.time())
+        save(out / "result.json", result)
+        sandbox.stdin.write(source)
+        sandbox.stdin.write_eof()
+        sandbox.stdin.drain()
+        result["source_transfer_complete"] = True
         save(out / "result.json", result)
         for count, line in enumerate(sandbox.stdout):
             if count >= 1500 or len(line) > 16 * 1024 * 1024:

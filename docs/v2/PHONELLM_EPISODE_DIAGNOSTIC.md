@@ -4,6 +4,8 @@ Runs **three predeclared development kitchens**, sizes 2/3/4 and seeds 74002/740
 
 The separate runner leaves the release roster, campaign, core and original probe unchanged. It archives the exact source and streams request/response/action evidence before independently replaying completed episodes. Failed/missing episodes remain explicit; their quality is not substituted with zero. All hosted cost fields remain `null` until gross provider billing is reconciled.
 
+The source ZIP travels through the sandbox's documented stdin writer; its SHA256 is checked before execution. The complete command is checked against Modal 1.5.2's 65,536-byte argument limit before the receipt is claimed. The first diagnostic launch exceeded that limit and failed locally before any SandboxCreate RPC; its archived evidence and zero-hosting-cost diagnosis remain intact. A corrected launch needs a fresh plan, reservation, receipt and output directory.
+
 ```sh
 # Offline plan; no Modal import, inference, or ledger write.
 PYTHONPATH=src python scripts/phonellm_episode_diagnostic.py

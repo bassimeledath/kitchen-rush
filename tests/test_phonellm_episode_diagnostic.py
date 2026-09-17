@@ -3,9 +3,12 @@
 import copy
 import hashlib
 import importlib.util
+import io
 import json
 import sqlite3
+import subprocess
 import sys
+import zipfile
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -124,6 +127,11 @@ def test_fake_sandbox_full_lifecycle_receipt_and_single_use(tmp_path):
     calls = []
     sandbox = SimpleNamespace(
         object_id="sb-fake",
+        stdin=SimpleNamespace(
+            write=lambda value: calls.append(("stdin_write", value)),
+            write_eof=lambda: calls.append(("stdin_eof", None)),
+            drain=lambda: calls.append(("stdin_drain", None)),
+        ),
         stdout=events,
         returncode=0,
         wait=lambda: None,
@@ -145,7 +153,10 @@ def test_fake_sandbox_full_lifecycle_receipt_and_single_use(tmp_path):
         result = phone.launch(p, rp, tmp_path / "out")
         with pytest.raises(FileExistsError):
             phone.launch(p, rp, tmp_path / "again")
-    assert [c[0] for c in calls] == ["create", "terminate"]
+    assert [c[0] for c in calls] == [
+        "create", "stdin_write", "stdin_eof", "stdin_drain", "terminate"
+    ]
+    assert calls[1][1] == phone.bundle() and result["source_transfer_complete"]
     assert phone.verify_saved(tmp_path / "out")["episodes"] == 3
     assert result["all_three_complete_and_verified"] and result["known_total_cost_usd"] is None
     assert result["cost_per_scheduled_kitchen_usd"] is None and result["scheduled_kitchens"] == 3
@@ -162,10 +173,6 @@ def test_fake_sandbox_full_lifecycle_receipt_and_single_use(tmp_path):
 
 
 def test_source_bundle_reproduces_plan_without_checkout(tmp_path):
-    import io
-    import subprocess
-    import zipfile
-
     with zipfile.ZipFile(io.BytesIO(phone.bundle())) as archive:
         archive.extractall(tmp_path)
     result = subprocess.run(
@@ -176,3 +183,45 @@ def test_source_bundle_reproduces_plan_without_checkout(tmp_path):
         check=True,
     )
     assert json.loads(result.stdout)["plan"] == phone.plan()
+
+
+def test_stdin_bootstrap_integrity_and_actual_modal_cmd_limit():
+    """Exercise actual SDK validation offline; no client or authentication is loaded."""
+    sdk_python = Path.home() / ".local/share/uv/tools/modal/bin/python"
+    if not sdk_python.exists():
+        pytest.skip("Installed Modal SDK runtime is unavailable")
+    args = phone.launch_args(phone.plan())
+    validate = """import json,sys
+from modal.sandbox import _validate_exec_args,ARG_MAX_BYTES
+from modal.exception import InvalidError
+a=json.load(sys.stdin)
+_validate_exec_args(a)
+assert ARG_MAX_BYTES==65536
+try:
+ _validate_exec_args(['x'*32769,'x'*32768])
+except InvalidError:
+ pass
+else:
+ raise AssertionError('total argument limit was not enforced')
+print(sum(map(len,a)))
+"""
+    checked = subprocess.run(
+        [str(sdk_python), "-c", validate], input=json.dumps(args), text=True,
+        capture_output=True, check=True,
+    )
+    assert int(checked.stdout) < 65536
+    with pytest.raises(ValueError, match="sandbox_cmd_too_large"):
+        phone.launch_args({"oversized": "x" * 65536})
+    archive = io.BytesIO()
+    with zipfile.ZipFile(archive, "w") as z:
+        z.writestr(
+            "scripts/phonellm_episode_diagnostic.py",
+            "def worker(p):\n print(p['marker'])\n",
+        )
+    source = archive.getvalue()
+    p = dict(source_archive_sha256=hashlib.sha256(source).hexdigest(), marker="verified")
+    cmd = [sys.executable, "-c", phone.BOOTSTRAP, json.dumps(p)]
+    run = subprocess.run(cmd, input=source, capture_output=True, check=True)
+    assert run.stdout == b"verified\n"
+    bad = subprocess.run(cmd, input=source + b"tampered", capture_output=True)
+    assert bad.returncode != 0 and b"source_transfer_integrity" in bad.stderr
