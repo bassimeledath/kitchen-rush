@@ -75,7 +75,7 @@ def prior_accounting():
     return total / SCALE
 
 
-def orchestration_descriptor():
+def orchestration_descriptor(*, funding=False):
     members = {
         name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
         for name in (
@@ -84,6 +84,9 @@ def orchestration_descriptor():
             "scripts/audit_roster_v2.py",
         )
     }
+    if funding:
+        name = "scripts/funding_recovery_v2.py"
+        members[name] = hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
     identity = digest(dict(protocol_hash=protocol_hash(), scripts=members))
     return dict(version=1, scripts=members, archive=f"data/v2/release-r2/source-{identity}.zip")
 
@@ -221,11 +224,13 @@ def plan(batch, *, orchestration=None):
 
 def archive_source(manifest):
     descriptor = manifest["orchestration"]
-    if descriptor != orchestration_descriptor():
-        from audit_release_v2 import verify_amendment, verify_archive
+    if descriptor != orchestration_descriptor() and descriptor != orchestration_descriptor(
+        funding=True
+    ):
+        from audit_release_v2 import verify_archive, verify_current_orchestration
 
         verify_archive(ROOT, manifest)
-        verify_amendment(ROOT, manifest, current=True)
+        verify_current_orchestration(ROOT, manifest)
         return
     archive = ROOT / descriptor["archive"]
     files = sorted((ROOT / "src").rglob("*.py"))
@@ -284,24 +289,45 @@ def dispatch_width(jobs, manifest, ledger, workers):
     return width
 
 
-def authorize_recovery(batch, job_id, note, peer_job=None):
+def authorize_recovery(batch, job_id, note, peer_job=None, funded_evidence=None):
     """Manual disposition only: validate evidence and retain liability, never dispatch."""
     from audit_release_v2 import (
         recovery_paths,
-        verify_amendment,
         verify_archive,
         verify_campaign,
+        verify_current_orchestration,
         verify_episode,
         verify_peer_pause,
     )
+    from funding_recovery_v2 import (
+        FUNDING_JOB,
+        ORIGINAL_HASHES,
+        PEER_POLICY,
+        POLICY,
+        ref,
+        verify_funded,
+    )
 
+    funding = job_id in ORIGINAL_HASHES
     manifest_path = DATA / f"{batch}-manifest.json"
     manifest = json.loads(manifest_path.read_text())
     verify_campaign(ROOT, manifest)
     verify_archive(ROOT, manifest)
     amendment = None
     if orchestration_descriptor() != manifest["orchestration"] or peer_job:
-        amendment = verify_amendment(ROOT, manifest, current=True)
+        amendment = verify_current_orchestration(ROOT, manifest)
+    if funding:
+        from funding_recovery_v2 import verify_amendment as verify_funding
+
+        amendment = verify_funding(ROOT, manifest, current=True)
+        if not funded_evidence:
+            raise ValueError("funding recovery requires fresh funded-account evidence")
+        funded_ref = ref(ROOT, Path(funded_evidence).resolve())
+        verify_funded(ROOT, funded_ref, 6.24576, fresh=True)
+        if (job_id == FUNDING_JOB and peer_job) or (
+            job_id != FUNDING_JOB and peer_job != FUNDING_JOB
+        ):
+            raise ValueError("funding recovery peer linkage differs")
     matches = [job for job in manifest["jobs"] if job["id"] == job_id]
     if len(matches) != 1 or not note.strip():
         raise ValueError("recovery requires one canonical manifest job and review note")
@@ -322,10 +348,19 @@ def authorize_recovery(batch, job_id, note, peer_job=None):
     used = set()
     if peer_job:
         snapshot = dict(row_count=len(entries), rows_sha256=digest(list(entries.items())))
-        verify_peer_pause(ROOT, manifest, job, ep, entries, snapshot, peer_job)
+        verify_peer_pause(ROOT, manifest, job, ep, entries, snapshot, peer_job, funding=funding)
         verify_episode(ep, job, manifest, entries, used, paused=True)
     else:
-        verify_episode(ep, job, manifest, entries, used, failed=True, allow_uncertain=True)
+        verify_episode(
+            ep,
+            job,
+            manifest,
+            entries,
+            used,
+            failed=not funding,
+            funding=funding,
+            allow_uncertain=not funding,
+        )
     if used != {rid for rid, row in entries.items() if row[0] == job_id}:
         raise ValueError("original attempt has unaccounted requests")
     if not peer_job:
@@ -333,7 +368,9 @@ def authorize_recovery(batch, job_id, note, peer_job=None):
         if entries[failed_rid][4] == "uncertain":
             ledger.retain_failed_liability(failed_rid)
     record = dict(
-        policy="manual-peer-pause-replacement-once-1" if peer_job else manifest["recovery_policy"],
+        policy=(PEER_POLICY if peer_job else POLICY)
+        if funding
+        else ("manual-peer-pause-replacement-once-1" if peer_job else manifest["recovery_policy"]),
         job=job_id,
         original_sha256=hashlib.sha256(original_path.read_bytes()).hexdigest(),
         manifest_sha256=hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
@@ -347,11 +384,14 @@ def authorize_recovery(batch, job_id, note, peer_job=None):
             accounting_snapshot=snapshot,
             amendment_sha256=amendment["sha256"],
         )
+    if funding:
+        record.update(amendment_sha256=amendment["sha256"], funded_evidence=funded_ref)
     disposition.parent.mkdir(parents=True, exist_ok=True)
     with disposition.open("x") as file:
         json.dump(record, file, indent=2, sort_keys=True)
         file.write("\n")
-    (DATA / f"{batch}-gate.json").unlink(missing_ok=True)
+    if not funding:
+        (DATA / f"{batch}-gate.json").unlink(missing_ok=True)
     print(json.dumps(dict(status="replacement_authorized_not_dispatched", **record)), flush=True)
 
 
@@ -389,6 +429,21 @@ def authorize_peer_amendment(batch, note):
     )
 
 
+def authorize_funding_amendment(batch, note, evidence):
+    from funding_recovery_v2 import authorize
+
+    manifest = json.loads((DATA / f"{batch}-manifest.json").read_text())
+    result = authorize(
+        ROOT,
+        manifest,
+        orchestration_descriptor(funding=True),
+        archive_source,
+        note,
+        Path(evidence).resolve(),
+    )
+    print(json.dumps(dict(status="funding_amendment_recorded_no_dispatch", **result)), flush=True)
+
+
 def paid(batch, workers):
     manifest = plan(batch)
     campaign = {k: manifest[k] for k in CAMPAIGN_FIELDS}
@@ -398,7 +453,9 @@ def paid(batch, workers):
             raise ValueError("campaign configuration changed; do not reuse prior gates")
     elif batch != "revised_canary":
         raise ValueError("campaign must start with the revised canary")
-    gate_path = DATA / f"{manifest['previous']}-gate.json"
+    from funding_recovery_v2 import gate_path as checkpoint_path
+
+    gate_path = checkpoint_path(ROOT, manifest["previous"])
     if not gate_path.exists():
         raise ValueError("previous checkpoint audit missing")
     gate = json.loads(gate_path.read_text())
@@ -417,7 +474,8 @@ def paid(batch, workers):
     manifest_path = DATA / f"{batch}-manifest.json"
     if manifest_path.exists() and json.loads(manifest_path.read_text()) != manifest:
         raise ValueError("manifest changed: do not mix or overwrite experiments")
-    write_json(manifest_path, manifest)
+    if not manifest_path.exists():
+        write_json(manifest_path, manifest)
     archive_source(manifest)
     if not campaign_path.exists():
         with campaign_path.open("x") as file:
@@ -487,7 +545,11 @@ def paid(batch, workers):
                     flush=True,
                 )
                 return
-            results = list(pool.map(run, pending[start : start + width]))
+            group = pending[start : start + width]
+            from funding_recovery_v2 import prepare_dispatch
+
+            prepare_dispatch(ROOT, manifest, group)
+            results = list(pool.map(run, group))
             start += width
             for ep in results:
                 print(
@@ -511,13 +573,24 @@ def paid(batch, workers):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "command", choices=("offline", "plan", "run", "recover", "amend-peer-pause")
+        "command",
+        choices=(
+            "offline",
+            "plan",
+            "run",
+            "recover",
+            "amend-peer-pause",
+            "amend-funding-pause",
+            "funding-check",
+        ),
     )
     parser.add_argument("--batch", default="revised_canary")
     parser.add_argument("--workers", type=int, choices=(1, 2, 3), default=1)
     parser.add_argument("--job")
     parser.add_argument("--note")
     parser.add_argument("--peer-job")
+    parser.add_argument("--funded-evidence", type=Path)
+    parser.add_argument("--required-usd", type=float, default=6.24576)
     args = parser.parse_args()
     DATA.mkdir(parents=True, exist_ok=True)
     if args.command == "offline":
@@ -527,7 +600,16 @@ def main():
     elif args.command == "recover":
         if not args.job or not args.note:
             parser.error("recover requires --job and --note")
-        authorize_recovery(args.batch, args.job, args.note, args.peer_job)
+        authorize_recovery(args.batch, args.job, args.note, args.peer_job, args.funded_evidence)
+    elif args.command == "amend-funding-pause":
+        if not args.note or not args.funded_evidence:
+            parser.error("amend-funding-pause requires --note and --funded-evidence")
+        authorize_funding_amendment(args.batch, args.note, args.funded_evidence)
+    elif args.command == "funding-check":
+        from funding_recovery_v2 import collect_funded
+
+        load_env(ROOT / ".env")
+        print(json.dumps(collect_funded(ROOT, args.required_usd)), flush=True)
     elif args.command == "amend-peer-pause":
         if not args.note:
             parser.error("amend-peer-pause requires --note")

@@ -12,6 +12,7 @@ import asyncio
 import hashlib
 import importlib.util
 import json
+import math
 import os
 import time
 from datetime import datetime, timezone
@@ -22,6 +23,7 @@ FOLDER = ROOT / "runs/v2/phonellm-episodes-20260917"
 RESULT = FOLDER / "execution-attempt2/result.json"
 RECEIPT = FOLDER / "receipt-attempt2.json"
 OUTPUT = FOLDER / "gross-billing-attempt2.json"
+ATTESTATION = FOLDER / "termination-attestation.json"
 APP = "kitchenrush-phonellm-full-episode-diagnostic"
 RESERVATION = "phonellm-full-episodes-20260917-2"
 UTC = timezone.utc  # noqa: UP017 -- installed Modal uses Python 3.10
@@ -48,9 +50,37 @@ def evidence():
         or not sandbox.startswith("sb-")
     ):
         raise ValueError("diagnostic result/receipt binding invalid")
+    terminal_evidence = {"terminal_exit_source": "original_result"}
+    lifecycle = result
+    if result.get("exit_code") is None:
+        attestation_raw = ATTESTATION.read_bytes()
+        attestation = json.loads(attestation_raw)
+        observed = attestation.get("observed_at_unix")
+        if (
+            result.get("termination_confirmed") is not True
+            or attestation.get("result_sha256") != hashlib.sha256(raw).hexdigest()
+            or attestation.get("sandbox_id") != sandbox
+            or attestation.get("sdk") != "1.5.2"
+            or attestation.get("method") != "Sandbox.poll"
+            or attestation.get("terminal") is not True
+            or type(attestation.get("exit_code")) is not int
+            or type(observed) not in (int, float)
+            or not math.isfinite(observed)
+            or observed < result["local_after_terminate_unix"]
+        ):
+            raise ValueError("invalid terminal poll attestation")
+        # Only an in-memory validation copy gains the provider-observed exit code.
+        # The original failed execution result remains immutable and unsuccessful.
+        lifecycle = {**result, "exit_code": attestation["exit_code"]}
+        terminal_evidence = {
+            "terminal_exit_source": "separate_read_only_sandbox_poll",
+            "terminal_attestation_sha256": hashlib.sha256(attestation_raw).hexdigest(),
+            "attested_exit_code": attestation["exit_code"],
+            "attestation_observed_at_unix": observed,
+        }
     # This is an isolated imported module; the first probe's script/process is unchanged.
     shared.SANDBOX = sandbox
-    start, end, earliest = shared.query_window(result)
+    start, end, earliest = shared.query_window(lifecycle)
     return (
         result,
         receipt,
@@ -58,6 +88,7 @@ def evidence():
         end,
         earliest,
         {
+            **terminal_evidence,
             "result_sha256": hashlib.sha256(raw).hexdigest(),
             "receipt_sha256": hashlib.sha256(receipt_raw).hexdigest(),
             "plan_sha256": receipt["plan_sha256"],

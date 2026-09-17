@@ -58,6 +58,7 @@
             "empirical_cost_quality_frontier": false,
             "episodes": 1,
             "first_attempt_completed_jobs": 1,
+            "funding_pauses": 0,
             "generative_requests": 11,
             "mean_accepted_cost_usd": 0.1377,
             "mean_accounted_cost_usd": 0.150342,
@@ -98,6 +99,7 @@
             "empirical_cost_quality_frontier": true,
             "episodes": 1,
             "first_attempt_completed_jobs": 0,
+            "funding_pauses": 0,
             "generative_requests": 30,
             "mean_accepted_cost_usd": 0.01922166,
             "mean_accounted_cost_usd": 0.022581774000000002,
@@ -138,6 +140,7 @@
             "empirical_cost_quality_frontier": false,
             "episodes": 1,
             "first_attempt_completed_jobs": 1,
+            "funding_pauses": 0,
             "generative_requests": 25,
             "mean_accepted_cost_usd": 0.0986025,
             "mean_accounted_cost_usd": 0.0986025,
@@ -178,6 +181,7 @@
             "empirical_cost_quality_frontier": false,
             "episodes": 1,
             "first_attempt_completed_jobs": 0,
+            "funding_pauses": 0,
             "generative_requests": 23,
             "mean_accepted_cost_usd": 0.08404575,
             "mean_accounted_cost_usd": 0.48450000000000004,
@@ -218,6 +222,7 @@
             "empirical_cost_quality_frontier": false,
             "episodes": 1,
             "first_attempt_completed_jobs": 1,
+            "funding_pauses": 0,
             "generative_requests": 17,
             "mean_accepted_cost_usd": 0.1474248,
             "mean_accounted_cost_usd": 0.1539444,
@@ -258,6 +263,7 @@
             "empirical_cost_quality_frontier": true,
             "episodes": 1,
             "first_attempt_completed_jobs": 1,
+            "funding_pauses": 0,
             "generative_requests": 0,
             "mean_accepted_cost_usd": 0.004742388,
             "mean_accounted_cost_usd": 0.004742388,
@@ -338,6 +344,7 @@
           "unknown_response_usage": true
         }
       ],
+      "funding_operational_amendment": null,
       "gate_sha256": "281eff48a052609a72b727402005be429996e0750015fdbc28a33712f32bde21",
       "manifest_sha256": "e989fcfe63e2e1122f6158ac50a4152036ae534ad13100e4a7e8784b8b7e0db3",
       "operational_amendment": {
@@ -3125,50 +3132,115 @@
     }
   },
   "spending": {
-    "current_accounted_usd": 5.914713062,
-    "current_failed_or_incomplete_usd": 5.4038143640000005,
+    "current_accounted_usd": 17.472764062,
+    "current_failed_or_incomplete_usd": 16.961865363999998,
     "current_missing_artifact_usd": 0,
-    "current_unresolved_or_unknown_usd": 5.373728,
+    "current_unresolved_or_unknown_usd": 16.619488,
     "failed_attempts": [
+      {
+        "accounted_usd": 0.0,
+        "episode": "phonellm-full-episodes-20260917-1",
+        "failure_kind": "incomplete",
+        "known_charges_usd": 0.0,
+        "partial_quality_unranked": null,
+        "rank_eligible": false,
+        "status": "local_launch_rejected",
+        "unknown_liability_usd": 0.0
+      },
+      {
+        "accounted_usd": 5.0,
+        "episode": "phonellm-full-episodes-20260917-2",
+        "failure_kind": "incomplete",
+        "known_charges_usd": 0.0,
+        "partial_quality_unranked": null,
+        "rank_eligible": false,
+        "status": "billing_pending",
+        "unknown_liability_usd": 5.0
+      },
       {
         "accounted_usd": 5.0,
         "episode": "phonellm-sandbox-probe-20260917-1",
+        "failure_kind": "incomplete",
         "known_charges_usd": 0.0,
+        "partial_quality_unranked": null,
+        "rank_eligible": false,
         "status": "billing_pending",
         "unknown_liability_usd": 5.0
       },
       {
         "accounted_usd": 0.003360114,
         "episode": "revised_canary-deepseek-v4-flash-think-60000-3-0-d0.15-tNone",
+        "failure_kind": "peer_accounting_pause",
         "known_charges_usd": 0.003360114,
+        "partial_quality_unranked": 0,
+        "rank_eligible": false,
         "status": "incomplete",
         "unknown_liability_usd": 0.0
       },
       {
         "accounted_usd": 0.40045425,
         "episode": "revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone",
+        "failure_kind": "provider_failure",
         "known_charges_usd": 0.02672625,
+        "partial_quality_unranked": 33.33333333333333,
+        "rank_eligible": false,
         "status": "quarantined",
         "unknown_liability_usd": 0.373728
+      },
+      {
+        "accounted_usd": 0.159879,
+        "episode": "roster_canary-claude-haiku-4-5-60100-3-0-d0.4-tNone",
+        "failure_kind": "peer_accounting_pause",
+        "known_charges_usd": 0.159879,
+        "partial_quality_unranked": 0,
+        "rank_eligible": false,
+        "status": "incomplete",
+        "unknown_liability_usd": 0.0
+      },
+      {
+        "accounted_usd": 0.089232,
+        "episode": "roster_canary-claude-sonnet-4-6-60100-3-0-d0.4-tNone",
+        "failure_kind": "peer_accounting_pause",
+        "known_charges_usd": 0.089232,
+        "partial_quality_unranked": 0,
+        "rank_eligible": false,
+        "status": "incomplete",
+        "unknown_liability_usd": 0.0
+      },
+      {
+        "accounted_usd": 6.30894,
+        "episode": "roster_canary-claude-sonnet-4-6-think-60100-3-0-d0.4-tNone",
+        "failure_kind": "funding_pause",
+        "known_charges_usd": 0.06318,
+        "partial_quality_unranked": 33.33333333333333,
+        "rank_eligible": false,
+        "status": "quarantined",
+        "unknown_liability_usd": 6.24576
       }
     ],
     "historical_failed_attempts": [
       {
         "accounted_usd": 0.100665324,
         "episode": "roster_canary-deepseek-v4-flash-think-56300-3-0-d0.4-tNone",
+        "failure_kind": "provider_failure",
         "known_charges_usd": 0.005924844,
+        "partial_quality_unranked": 0,
+        "rank_eligible": false,
         "status": "quarantined",
         "unknown_liability_usd": 0.09474048
       },
       {
         "accounted_usd": 0.10091775,
         "episode": "canary-mini-42000-0-d0.4-tNone",
+        "failure_kind": "provider_failure",
         "known_charges_usd": 0.0822045,
+        "partial_quality_unranked": 33.33333333333333,
+        "rank_eligible": false,
         "status": "quarantined",
         "unknown_liability_usd": 0.01871325
       }
     ],
     "prior_accounted_usd": 16.175129022,
-    "total_accounted_usd": 22.089842084
+    "total_accounted_usd": 33.647893084
   }
 }

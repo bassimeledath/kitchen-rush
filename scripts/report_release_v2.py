@@ -100,6 +100,9 @@ def aggregate(episodes):
         row["provider_failures"] = sum(
             e.get("_prior_attempt", {}).get("failure_kind") == "provider_failure" for e in cell
         )
+        row["funding_pauses"] = sum(
+            e.get("_prior_attempt", {}).get("failure_kind") == "funding_pause" for e in cell
+        )
         row["peer_accounting_pauses"] = sum(
             e.get("_prior_attempt", {}).get("failure_kind") == "peer_accounting_pause" for e in cell
         )
@@ -459,6 +462,18 @@ def spending(root):
                     "accounted_usd": liability / 1e9,
                     "known_charges_usd": sum(r[2] or 0 for r in group) / 1e9,
                     "unknown_liability_usd": unknown / 1e9,
+                    "failure_kind": (
+                        "funding_pause"
+                        if episode
+                        and episode.get("error") == "ProviderError: HTTP 402; no automatic retry"
+                        else "operational_spending_gate"
+                        if episode and episode.get("reason") == "operational_spending_gate"
+                        else "provider_or_accounting_failure"
+                        if episode and episode.get("status") == "quarantined"
+                        else "incomplete"
+                    ),
+                    "partial_quality_unranked": episode.get("quality") if episode else None,
+                    "rank_eligible": False,
                 }
                 result[
                     "failed_attempts" if prefix == "current" else "historical_failed_attempts"
@@ -483,7 +498,9 @@ def build(batches, *, root=ROOT):
     identities = defaultdict(set)
     provenance = []
     for batch in batches:
-        gate_path = root / f"data/v2/release-r2/{batch}-gate.json"
+        from funding_recovery_v2 import gate_path as checkpoint_path
+
+        gate_path = checkpoint_path(root, batch)
         require(gate_path.is_file(), f"missing independent gate: {batch}")
         stored = load(gate_path)
         fresh = audit(batch, root=root, write_gate=False)
@@ -502,6 +519,11 @@ def build(batches, *, root=ROOT):
             "operational_amendment",
         ):
             require(stored[field] == fresh[field], f"stale independent gate field {batch}/{field}")
+        require(
+            stored.get("funding_operational_amendment")
+            == fresh.get("funding_operational_amendment"),
+            "stale funding amendment gate",
+        )
         manifest_path = root / f"data/v2/release-r2/{batch}-manifest.json"
         manifest = load(manifest_path)
         name, title, split = COHORTS[batch]
@@ -551,6 +573,7 @@ def build(batches, *, root=ROOT):
                 "attempt_count": fresh["attempt_count"],
                 "failed_attempts": fresh["failed_attempts"],
                 "operational_amendment": fresh["operational_amendment"],
+                "funding_operational_amendment": fresh.get("funding_operational_amendment"),
             }
         )
     require(len({p["protocol_hash"] for p in provenance}) == 1, "mixed protocol generations")
@@ -591,7 +614,8 @@ def build(batches, *, root=ROOT):
         "Quality comes from the audited completed attempt. Unknown charges are shown as "
         "retained-liability extents; these are accounting envelopes, not confidence intervals "
         "or guaranteed bill ceilings. Unresolved-cost points cannot enter the exact frontier. "
-        "A documented transport failure permits one replacement of the same job; "
+        "A documented transport failure or the specifically amended funding interruption permits "
+        "one replacement of the same job; "
         "the original trace and all liability remain in the campaign accounting. "
         "Scores never qualify for a retry. "
         "No latency enters scoring or figures.",
@@ -692,20 +716,22 @@ def build(batches, *, root=ROOT):
             "weighting as quality. Replacements do not add independent statistical samples. "
             "A fully audited batch requires every scheduled job to finish; partial batches "
             "are not silently reduced to successful jobs. Peer accounting pauses are harness "
-            "interruptions, not provider failures.",
+            "interruptions. The recorded HTTP402 funding pause is reported separately.",
             "",
             "| Configuration / allowance | Completed / scheduled jobs | "
             "First-attempt completions | "
-            "Attempts | Provider failures | Peer pauses | Completed-attempt cost | "
+            "Attempts | Provider failures | Funding pauses | Peer pauses | "
+            "Completed-attempt cost | "
             "Known all-attempt cost | Unknown retained liability |",
-            "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
+            "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
         ]
         for row in summary["rows"]:
             lines.append(
                 f"| {codes[row['model']]} / {row['budget']:g} {row['budget_kind']} | "
                 f"{row['completed_jobs']}/{row['scheduled_jobs']} | "
                 f"{row['first_attempt_completed_jobs']} | {row['attempts']} | "
-                f"{row['provider_failures']} | {row['peer_accounting_pauses']} | "
+                f"{row['provider_failures']} | {row['funding_pauses']} | "
+                f"{row['peer_accounting_pauses']} | "
                 f"${row['mean_completed_attempt_cost_usd']:.6f} | "
                 f"${row['mean_cost_usd']:.6f} | ${row['mean_retained_liability_usd']:.6f} |"
             )
@@ -759,16 +785,20 @@ def build(batches, *, root=ROOT):
         "reported input usage × frozen published tariff; OpenRouter uses reported usage.cost. "
         "TypeSafe's operational reserve is an estimate, not a guaranteed provider spending cap.",
         "",
-        "| Protocol | Attempt | Status | Known charges | Unknown liability |",
-        "|---|---|---|---:|---:|",
+        "| Protocol | Attempt | Status / cause | Partial Q (unranked) | "
+        "Known charges | Unknown liability |",
+        "|---|---|---|---:|---:|---:|",
     ]
     failures = [("Current", e) for e in totals["failed_attempts"]]
     failures += [("Historical", e) for e in totals["historical_failed_attempts"]]
     if not failures:
-        lines.append("| Both | — | No failed or incomplete attempts found | $0 | $0 |")
+        lines.append("| Both | — | No failed or incomplete attempts found | — | $0 | $0 |")
     for prefix, entry in failures:
+        partial = entry["partial_quality_unranked"]
+        partial = partial if partial is not None else "—"
         lines.append(
-            f"| {prefix} | {entry['episode']} | {entry['status']} | "
+            f"| {prefix} | {entry['episode']} | {entry['status']} / {entry['failure_kind']} | "
+            f"{partial} | "
             f"${entry['known_charges_usd']:.6f} | ${entry['unknown_liability_usd']:.6f} |"
         )
     lines += [

@@ -8,7 +8,7 @@ Canaries and pilots are diagnostic controls. Main and confirmation results remai
 
 Quality is 100 × max(0, (completed orders − 0.1 × invalid actions) / requested orders). Trials average within kitchen, kitchens within recipe-size family, then families equally. Error bars are exploratory pointwise 95% within-family seed bootstrap intervals; fewer than two independent seeds in any represented family means unavailable. Few seeds cannot establish stable ranks.
 
-Dollar allowances fund the accepted action prefix. The first response crossing the allowance is paid but not executed. **Graphs include known charges from every attempt of each scheduled job, including boundary responses and interrupted prefixes.** Quality comes from the audited completed attempt. Unknown charges are shown as retained-liability extents; these are accounting envelopes, not confidence intervals or guaranteed bill ceilings. Unresolved-cost points cannot enter the exact frontier. A documented transport failure permits one replacement of the same job; the original trace and all liability remain in the campaign accounting. Scores never qualify for a retry. No latency enters scoring or figures.
+Dollar allowances fund the accepted action prefix. The first response crossing the allowance is paid but not executed. **Graphs include known charges from every attempt of each scheduled job, including boundary responses and interrupted prefixes.** Quality comes from the audited completed attempt. Unknown charges are shown as retained-liability extents; these are accounting envelopes, not confidence intervals or guaranteed bill ceilings. Unresolved-cost points cannot enter the exact frontier. A documented transport failure or the specifically amended funding interruption permits one replacement of the same job; the original trace and all liability remain in the campaign accounting. Scores never qualify for a retry. No latency enters scoring or figures.
 
 ## Full roster coverage
 
@@ -68,16 +68,16 @@ The frontier uses observed means and a no-call ($0, quality 0) reference. This r
 
 ### Attempts and cost accounting
 
-Costs sum attempts within each scheduled job, then use the same kitchen/family weighting as quality. Replacements do not add independent statistical samples. A fully audited batch requires every scheduled job to finish; partial batches are not silently reduced to successful jobs. Peer accounting pauses are harness interruptions, not provider failures.
+Costs sum attempts within each scheduled job, then use the same kitchen/family weighting as quality. Replacements do not add independent statistical samples. A fully audited batch requires every scheduled job to finish; partial batches are not silently reduced to successful jobs. Peer accounting pauses are harness interruptions. The recorded HTTP402 funding pause is reported separately.
 
-| Configuration / allowance | Completed / scheduled jobs | First-attempt completions | Attempts | Provider failures | Peer pauses | Completed-attempt cost | Known all-attempt cost | Unknown retained liability |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| M03 / 0.15 USD | 1/1 | 1 | 1 | 0 | 0 | $0.150342 | $0.150342 | $0.000000 |
-| M06 / 0.15 USD | 1/1 | 0 | 2 | 0 | 1 | $0.019222 | $0.022582 | $0.000000 |
-| M09 / 0.15 USD | 1/1 | 1 | 1 | 0 | 0 | $0.098602 | $0.098602 | $0.000000 |
-| M18 / 0.15 USD | 1/1 | 0 | 2 | 1 | 0 | $0.084046 | $0.110772 | $0.373728 |
-| M22 / 0.15 USD | 1/1 | 1 | 1 | 0 | 0 | $0.153944 | $0.153944 | $0.000000 |
-| M23 / 0.15 USD | 1/1 | 1 | 1 | 0 | 0 | $0.004742 | $0.004742 | $0.000000 |
+| Configuration / allowance | Completed / scheduled jobs | First-attempt completions | Attempts | Provider failures | Funding pauses | Peer pauses | Completed-attempt cost | Known all-attempt cost | Unknown retained liability |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| M03 / 0.15 USD | 1/1 | 1 | 1 | 0 | 0 | 0 | $0.150342 | $0.150342 | $0.000000 |
+| M06 / 0.15 USD | 1/1 | 0 | 2 | 0 | 0 | 1 | $0.019222 | $0.022582 | $0.000000 |
+| M09 / 0.15 USD | 1/1 | 1 | 1 | 0 | 0 | 0 | $0.098602 | $0.098602 | $0.000000 |
+| M18 / 0.15 USD | 1/1 | 0 | 2 | 1 | 0 | 0 | $0.084046 | $0.110772 | $0.373728 |
+| M22 / 0.15 USD | 1/1 | 1 | 1 | 0 | 0 | 0 | $0.153944 | $0.153944 | $0.000000 |
+| M23 / 0.15 USD | 1/1 | 1 | 1 | 0 | 0 | 0 | $0.004742 | $0.004742 | $0.000000 |
 
 ### B80
 
@@ -131,17 +131,22 @@ Recomputed from raw completed/invalid counts. The headline remains λ=0.1; clipp
 
 ## Spending and failed attempts
 
-Total accounted: **$22.089842 / $200**. Brought forward from earlier protocols: $16.175129; current protocol: $5.914713. Current failed/incomplete attempts: $5.403814. Current unknown liability: $5.373728. These are campaign totals, including batches not selected for this report.
+Total accounted: **$33.647893 / $200**. Brought forward from earlier protocols: $16.175129; current protocol: $17.472764. Current failed/incomplete attempts: $16.961865. Current unknown liability: $16.619488. These are campaign totals, including batches not selected for this report.
 
 Known charges and retained unknown liabilities are separate. Jev dollar charges use reported input usage × frozen published tariff; OpenRouter uses reported usage.cost. TypeSafe's operational reserve is an estimate, not a guaranteed provider spending cap.
 
-| Protocol | Attempt | Status | Known charges | Unknown liability |
-|---|---|---|---:|---:|
-| Current | phonellm-sandbox-probe-20260917-1 | billing_pending | $0.000000 | $5.000000 |
-| Current | revised_canary-deepseek-v4-flash-think-60000-3-0-d0.15-tNone | incomplete | $0.003360 | $0.000000 |
-| Current | revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone | quarantined | $0.026726 | $0.373728 |
-| Historical | roster_canary-deepseek-v4-flash-think-56300-3-0-d0.4-tNone | quarantined | $0.005925 | $0.094740 |
-| Historical | canary-mini-42000-0-d0.4-tNone | quarantined | $0.082204 | $0.018713 |
+| Protocol | Attempt | Status / cause | Partial Q (unranked) | Known charges | Unknown liability |
+|---|---|---|---:|---:|---:|
+| Current | phonellm-full-episodes-20260917-1 | local_launch_rejected / incomplete | — | $0.000000 | $0.000000 |
+| Current | phonellm-full-episodes-20260917-2 | billing_pending / incomplete | — | $0.000000 | $5.000000 |
+| Current | phonellm-sandbox-probe-20260917-1 | billing_pending / incomplete | — | $0.000000 | $5.000000 |
+| Current | revised_canary-deepseek-v4-flash-think-60000-3-0-d0.15-tNone | incomplete / peer_accounting_pause | 0 | $0.003360 | $0.000000 |
+| Current | revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone | quarantined / provider_failure | 33.33333333333333 | $0.026726 | $0.373728 |
+| Current | roster_canary-claude-haiku-4-5-60100-3-0-d0.4-tNone | incomplete / peer_accounting_pause | 0 | $0.159879 | $0.000000 |
+| Current | roster_canary-claude-sonnet-4-6-60100-3-0-d0.4-tNone | incomplete / peer_accounting_pause | 0 | $0.089232 | $0.000000 |
+| Current | roster_canary-claude-sonnet-4-6-think-60100-3-0-d0.4-tNone | quarantined / funding_pause | 33.33333333333333 | $0.063180 | $6.245760 |
+| Historical | roster_canary-deepseek-v4-flash-think-56300-3-0-d0.4-tNone | quarantined / provider_failure | 0 | $0.005925 | $0.094740 |
+| Historical | canary-mini-42000-0-d0.4-tNone | quarantined / provider_failure | 33.33333333333333 | $0.082204 | $0.018713 |
 
 ## Provenance
 

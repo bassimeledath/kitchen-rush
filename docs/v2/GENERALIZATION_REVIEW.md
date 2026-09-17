@@ -58,7 +58,7 @@ reward. Avoid claiming every legacy diagnostic has been redefined around instanc
 From the v2 worktree:
 
 ```sh
-/Users/bassime/Desktop/fullstack/kitchen-rush/.venv/bin/python scripts/audit_generalization_v2.py --output data/v2/release-r2/generalization-audit.json
+python scripts/audit_generalization_v2.py --output data/v2/release-r2/generalization-audit.json
 ```
 
 [Audit script](../../scripts/audit_generalization_v2.py) ·

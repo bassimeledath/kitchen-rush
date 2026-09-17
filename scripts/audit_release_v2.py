@@ -236,6 +236,15 @@ def verify_amendment(root, manifest, *, current=False):
     )
 
 
+def verify_current_orchestration(root, manifest):
+    from funding_recovery_v2 import AMENDMENT
+    from funding_recovery_v2 import verify_amendment as verify_funding
+
+    if (root / AMENDMENT).exists():
+        return verify_funding(root, manifest, current=True)
+    return verify_amendment(root, manifest, current=True)
+
+
 def verify_campaign(root, manifest):
     roster_path = root / "data/v2/release-r2-roster.json"
     roster = read_json(roster_path)
@@ -348,9 +357,23 @@ def eligible_transport_failure(ep):
 
 
 def verify_episode(
-    ep, job, manifest, ledger, used_requests, *, failed=False, allow_uncertain=False, paused=False
+    ep,
+    job,
+    manifest,
+    ledger,
+    used_requests,
+    *,
+    failed=False,
+    allow_uncertain=False,
+    paused=False,
+    funding=False,
 ):
-    if failed:
+    if funding:
+        from funding_recovery_v2 import eligible_funding_failure
+
+        eligible_funding_failure(ep, job)
+        failed = True
+    elif failed:
         eligible_transport_failure(ep)
     label = job["id"]
     require(
@@ -575,7 +598,14 @@ def recovery_paths(root, batch, job_id):
     )
 
 
-def verify_peer_pause(root, manifest, job, ep, ledger, snapshot, peer_job):
+def verify_peer_pause(root, manifest, job, ep, ledger, snapshot, peer_job, *, funding=False):
+    from funding_recovery_v2 import FUNDING_JOB, ORIGINAL_HASHES, POLICY
+
+    if funding:
+        require(
+            job["id"] in ORIGINAL_HASHES and job["id"] != FUNDING_JOB and peer_job == FUNDING_JOB,
+            "funding peer outside incident scope",
+        )
     verify_episode(ep, job, manifest, ledger, set(), paused=True)
     require(peer_job != job["id"], "pause cannot cite itself")
     peers = [j for j in manifest["jobs"] if j["id"] == peer_job]
@@ -583,12 +613,15 @@ def verify_peer_pause(root, manifest, job, ep, ledger, snapshot, peer_job):
     peer_disposition, _ = recovery_paths(root, manifest["batch"], peer_job)
     require(
         peer_disposition.is_file()
-        and read_json(peer_disposition).get("policy") == "manual-transport-replacement-once-1",
+        and read_json(peer_disposition).get("policy")
+        == (POLICY if funding else "manual-transport-replacement-once-1"),
         "peer transport failure needs its own retained-liability disposition",
     )
     recovery_record(root, manifest, peers[0])
     peer_path = root / f"runs/v2/release-r2/{manifest['batch']}/{peer_job}.json"
-    verify_episode(read_json(peer_path), peers[0], manifest, ledger, set(), failed=True)
+    verify_episode(
+        read_json(peer_path), peers[0], manifest, ledger, set(), failed=not funding, funding=funding
+    )
     count = snapshot["row_count"]
     require(type(count) is int and 0 < count <= len(ledger), "invalid accounting snapshot count")
     rows = list(ledger.items())[:count]
@@ -622,6 +655,9 @@ def verify_peer_pause(root, manifest, job, ep, ledger, snapshot, peer_job):
 
 
 def recovery_record(root, manifest, job):
+    from funding_recovery_v2 import PEER_POLICY, POLICY, verify_funded
+    from funding_recovery_v2 import verify_amendment as verify_funding
+
     disposition, replacement = recovery_paths(root, manifest["batch"], job["id"])
     if not disposition.exists():
         require(not replacement.exists(), "replacement has no manual disposition")
@@ -631,7 +667,12 @@ def recovery_record(root, manifest, job):
     manifest_path = root / f"data/v2/release-r2/{manifest['batch']}-manifest.json"
     require(
         record.get("policy")
-        in ("manual-transport-replacement-once-1", "manual-peer-pause-replacement-once-1")
+        in (
+            "manual-transport-replacement-once-1",
+            "manual-peer-pause-replacement-once-1",
+            POLICY,
+            PEER_POLICY,
+        )
         and record.get("job") == job["id"]
         and record.get("replacement_id") == job["id"] + "--attempt2"
         and record.get("replacement_path") == replacement.relative_to(root).as_posix()
@@ -640,10 +681,22 @@ def recovery_record(root, manifest, job):
         and bool(record.get("review_note", "").strip()),
         "invalid recovery disposition",
     )
-    if record["policy"] == "manual-transport-replacement-once-1":
+    funding = record["policy"] in (POLICY, PEER_POLICY)
+    if funding:
+        amendment = verify_funding(root, manifest)
+        require(
+            record.get("amendment_sha256") == amendment["sha256"],
+            "funding amendment binding differs",
+        )
+        verify_funded(root, record["funded_evidence"], 6.24576)
+    if record["policy"] == POLICY:
+        from funding_recovery_v2 import eligible_funding_failure
+
+        eligible_funding_failure(read_json(original_path), job)
+    elif record["policy"] == "manual-transport-replacement-once-1":
         eligible_transport_failure(read_json(original_path))
     else:
-        amendment = verify_amendment(root, manifest)
+        amendment = verify_funding(root, manifest) if funding else verify_amendment(root, manifest)
         require(
             record.get("amendment_sha256") == amendment["sha256"], "pause amendment binding differs"
         )
@@ -658,7 +711,12 @@ def recovery_record(root, manifest, job):
             ledger,
             record["accounting_snapshot"],
             record["peer_failure_job"],
+            funding=funding,
         )
+    if funding and replacement.exists():
+        from funding_recovery_v2 import verify_dispatch
+
+        verify_dispatch(root, manifest, job, record)
     return record
 
 
@@ -701,9 +759,13 @@ def release_summary(episodes, failed_attempts):
 
 def audit(batch, *, root=ROOT, write_gate=True):
     require(Path(batch).name == batch and batch not in (".", ".."), "invalid batch name")
+    from funding_recovery_v2 import AMENDMENT, PEER_POLICY, POLICY, gate_path
+    from funding_recovery_v2 import verify_amendment as verify_funding
+
+    target = gate_path(root, batch)
     if write_gate:
         # A failed re-audit must not leave an earlier successful gate looking current.
-        (root / f"data/v2/release-r2/{batch}-gate.json").unlink(missing_ok=True)
+        target.unlink(missing_ok=True)
     manifest_path = root / f"data/v2/release-r2/{batch}-manifest.json"
     manifest = read_json(manifest_path)
     require(manifest["batch"] == batch, "batch label mismatch")
@@ -713,6 +775,11 @@ def audit(batch, *, root=ROOT, write_gate=True):
     amendment = (
         verify_amendment(root, manifest)
         if (root / "data/v2/release-r2/peer-pause-amendment.json").exists()
+        else None
+    )
+    funding_amendment = (
+        verify_funding(root, manifest)
+        if batch == "roster_canary" and (root / AMENDMENT).exists()
         else None
     )
     opening = manifest["opening_balance"]
@@ -766,7 +833,9 @@ def audit(batch, *, root=ROOT, write_gate=True):
                 ledger,
                 used_requests,
                 failed=disposition["policy"] == "manual-transport-replacement-once-1",
-                paused=disposition["policy"] == "manual-peer-pause-replacement-once-1",
+                paused=disposition["policy"]
+                in ("manual-peer-pause-replacement-once-1", PEER_POLICY),
+                funding=disposition["policy"] == POLICY,
             )
             known = sum(money(r["cost_usd"]) for r in ep["requests"] if "cost_usd" in r)
             failed_attempts.append(
@@ -777,12 +846,15 @@ def audit(batch, *, root=ROOT, write_gate=True):
                     known_input_tokens=ep["input_tokens"],
                     known_output_tokens=ep["output_tokens"],
                     unknown_response_usage=disposition["policy"]
-                    == "manual-transport-replacement-once-1",
+                    in ("manual-transport-replacement-once-1", POLICY),
                     original_path=original_path.relative_to(root).as_posix(),
                     original_sha256=disposition["original_sha256"],
                     error=ep.get("error", ep["reason"]),
                     failure_kind="peer_accounting_pause"
-                    if disposition["policy"] == "manual-peer-pause-replacement-once-1"
+                    if disposition["policy"]
+                    in ("manual-peer-pause-replacement-once-1", PEER_POLICY)
+                    else "funding_pause"
+                    if disposition["policy"] == POLICY
                     else "provider_failure",
                     accounted_usd=failure_units / SCALE,
                     known_cost_usd=known / SCALE,
@@ -856,8 +928,22 @@ def audit(batch, *, root=ROOT, write_gate=True):
         "ledger": snapshot,
         "summary": release_summary(episodes, failed_attempts),
     }
+    if funding_amendment:
+        # Every additional authorization proof remains explicit exportable audit evidence.
+        evidence_files = set(funding_amendment["evidence_files"])
+        for job in manifest["jobs"]:
+            record = recovery_record(root, manifest, job)
+            if record and record["policy"] in (POLICY, PEER_POLICY):
+                from funding_recovery_v2 import dispatch_path, verify_dispatch
+
+                evidence_files.add(record["funded_evidence"]["path"])
+                evidence_files.add(dispatch_path(root, job).relative_to(root).as_posix())
+                evidence_files.add(
+                    verify_dispatch(root, manifest, job, record)["funded_evidence"]["path"]
+                )
+        funding_amendment["evidence_files"] = sorted(evidence_files)
+        result["funding_operational_amendment"] = funding_amendment
     if write_gate:
-        target = root / f"data/v2/release-r2/{batch}-gate.json"
         temporary = target.with_suffix(".json.tmp")
         temporary.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
         temporary.replace(target)
