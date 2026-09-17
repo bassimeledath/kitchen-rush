@@ -1,0 +1,15 @@
+{
+  "accounting_snapshot": {
+    "row_count": 24,
+    "rows_sha256": "8fabc01983115ac518ad514197c967f491d98d7bd2e773af46d96132ccfff357"
+  },
+  "amendment_sha256": "09f12f33c2c85fc3a9b4fc54680b653813f027d409dc68d1bb02f81f03fd74f5",
+  "job": "revised_canary-deepseek-v4-flash-think-60000-3-0-d0.15-tNone",
+  "manifest_sha256": "e989fcfe63e2e1122f6158ac50a4152036ae534ad13100e4a7e8784b8b7e0db3",
+  "original_sha256": "5d2ff7030d772bdf383f9892d690380df7003d1004fe77b53e476828fd806d5b",
+  "peer_failure_job": "revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone",
+  "policy": "manual-peer-pause-replacement-once-1",
+  "replacement_id": "revised_canary-deepseek-v4-flash-think-60000-3-0-d0.15-tNone--attempt2",
+  "replacement_path": "runs/v2/release-r2/revised_canary/attempts/revised_canary-deepseek-v4-flash-think-60000-3-0-d0.15-tNone--attempt2.json",
+  "review_note": "Independent audit verified four settled actions and a live task paused by the Mini accounting uncertainty. The next reservation fits after retained-liability disposition; preserve all original charges and permit one identical replacement."
+}

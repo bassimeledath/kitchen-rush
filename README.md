@@ -36,7 +36,8 @@ assistance. This evaluates action selection, not unconstrained tool-argument gen
 **Dollar view:** execute a selected action only if cumulative actual inference charges fit
 the episode allowance. The first response crossing it is paid and archived, but not executed.
 Actual cost therefore includes a possible extra boundary request. Compare quality against
-actual cost and show the empirical Pareto frontier. Equal dollars do not mean equal compute.
+known costs across every attempt of a scheduled job. Show unresolved charges separately;
+only resolved-cost points enter the empirical Pareto frontier. Equal dollars do not mean equal compute.
 
 **Token view:** enforce an episode allowance of generated tokens, including reported reasoning
 once. Input tokens are reported separately and included in cost. Jev has no token-efficiency
@@ -46,7 +47,8 @@ shared dollar view. Provider failures are unscored and reported with their spend
 **B80** is the smallest tested token allowance reaching mean quality 80. Conservative B80
 requires the lower 95% confidence bound to reach 80. No interpolation; report “not reached
 within tested budgets” when appropriate. A dollar backstop that cuts a token run short makes
-it cost-censored and ineligible to establish B80.
+it cost-censored and ineligible to establish B80. Cells containing replacement attempts are
+also ineligible: a restarted wallet cannot prove the whole job fit the original token allowance.
 
 ## Scoring
 
@@ -66,7 +68,7 @@ exploratory. Every episode must reproduce its actions, frames and final score ex
 
 ## Validation before rankings
 
-The current implementation passes 111 tests. An independent offline study exercised 1,200
+The current implementation passes 114 tests. An independent offline study exercised 1,200
 kitchens and replayed three policies on each: a public-rule reader completed all perfectly;
 a table containing every recipe but fixed preparation/timing averaged 24.7 quality. A stronger
 controller with adaptive timing reached 82.6. These results expose brittle scripts and also

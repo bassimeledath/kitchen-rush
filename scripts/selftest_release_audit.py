@@ -326,9 +326,7 @@ with TemporaryDirectory() as td:
         else:
             raise AssertionError("recovered original tamper passed")
         original_path.write_bytes(failed_bytes)
-        print(
-            "manual429 recovery and prohibited-retry tests passed"
-        )
+        print("manual429 recovery and prohibited-retry tests passed")
 
         ex.ROOT = rr
         ex.audit = lambda batch, **kwargs: a.audit(batch, root=rr, **kwargs)
@@ -338,3 +336,108 @@ with TemporaryDirectory() as td:
             assert replacement.relative_to(rr).as_posix() in bundle.namelist()
             assert disposition.relative_to(rr).as_posix() in bundle.namelist()
         print("recovery export includes original, replacement, disposition, and all liabilities")
+
+    with TemporaryDirectory() as peer_directory:
+        pr = Path(peer_directory)
+        shutil.copytree(r, pr, dirs_exist_ok=True)
+        peer_ledger = Ledger(pr / "runs/v2/release-r2/spend.sqlite", cap=200, opening_balance=3.25)
+        failed_job, paused_job = m["jobs"][0], m["jobs"][2]
+        for chosen in (failed_job, paused_job):
+            (pr / f"runs/v2/release-r2/{b}/{chosen['id']}.json").unlink()
+            with peer_ledger.connect() as con:
+                con.execute("DELETE FROM requests WHERE episode=?", (chosen["id"],))
+
+        class ConcurrentPeer(Fake):
+            def evaluate(self, payload):
+                run_episode(
+                    generate(failed_job["seed"], failed_job["split"], failed_job["size"]),
+                    FakeFailure(Model(**m["models"][failed_job["model"]])),
+                    episode_id=failed_job["id"],
+                    stage=m["stage"],
+                    dollar_cap=failed_job["dollar_cap"],
+                    ledger=peer_ledger,
+                    output=pr / f"runs/v2/release-r2/{b}/{failed_job['id']}.json",
+                )
+                return super().evaluate(payload)
+
+        paused_path = pr / f"runs/v2/release-r2/{b}/{paused_job['id']}.json"
+        pause = run_episode(
+            generate(paused_job["seed"], paused_job["split"], paused_job["size"]),
+            ConcurrentPeer(Model(**m["models"][paused_job["model"]])),
+            episode_id=paused_job["id"],
+            stage=m["stage"],
+            dollar_cap=paused_job["dollar_cap"],
+            ledger=peer_ledger,
+            output=paused_path,
+        )
+        assert pause["status"] == "incomplete" and pause["reason"] == "operational_spending_gate"
+        assert len(pause["requests"]) == 1
+        preserved = {
+            path: path.read_bytes()
+            for path in (
+                paused_path,
+                pr / f"runs/v2/release-r2/{b}/{failed_job['id']}.json",
+                pr / f"data/v2/release-r2/{b}-manifest.json",
+                pr / "data/v2/release-r2/campaign.json",
+                pr / m["orchestration"]["archive"],
+            )
+        }
+        driver = pr / "scripts/release_v2.py"
+        driver.write_bytes(driver.read_bytes() + b"\n# Explicit operational driver amendment.\n")
+        amended = mod("amendedfixture", driver)
+        assert amended.plan(b) == m
+        amended.authorize_peer_amendment(
+            b, "Synthetic simultaneous provider failure and peer pause."
+        )
+        amended.authorize_recovery(b, failed_job["id"], "Synthetic provider failure verified.")
+        amended.authorize_recovery(
+            b, paused_job["id"], "Synthetic peer pause verified.", failed_job["id"]
+        )
+        for chosen in (failed_job, paused_job):
+            _, dest = a.recovery_paths(pr, b, chosen["id"])
+            run_episode(
+                generate(chosen["seed"], chosen["split"], chosen["size"]),
+                Fake(Model(**m["models"][chosen["model"]])),
+                episode_id=chosen["id"] + "--attempt2",
+                stage=m["stage"],
+                dollar_cap=chosen["dollar_cap"],
+                ledger=peer_ledger,
+                output=dest,
+            )
+        gate = a.audit(b, root=pr)
+        assert gate["episodes"] == 6 and gate["attempt_count"] == 8
+        assert {f["failure_kind"] for f in gate["failed_attempts"]} == {
+            "provider_failure",
+            "peer_accounting_pause",
+        }
+        assert all(path.read_bytes() == content for path, content in preserved.items())
+        assert gate["operational_amendment"]["source_archive"] != m["orchestration"]["archive"]
+        print(
+            "concurrent429 -> peer pause -> immutable amendment -> both replacements audit passed"
+        )
+        amendment_path = pr / "data/v2/release-r2/peer-pause-amendment.json"
+        prior_amendment = amendment_path.read_bytes()
+        bad = json.loads(prior_amendment)
+        bad["archive_sha256"] = "0" * 64
+        amendment_path.write_text(json.dumps(bad))
+        try:
+            a.audit(b, root=pr, write_gate=False)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("amendment tamper passed")
+        amendment_path.write_bytes(prior_amendment)
+        ex.ROOT = pr
+        ex.audit = lambda batch, **kw: a.audit(batch, root=pr, **kw)
+        ex.export([b], pr / "amended-export.zip")
+        with zipfile.ZipFile(pr / "amended-export.zip") as z:
+            assert m["orchestration"]["archive"] in z.namelist()
+            assert gate["operational_amendment"]["source_archive"] in z.namelist()
+            assert amendment_path.relative_to(pr).as_posix() in z.namelist()
+        # Entire affected token cell excluded; no dropping its failed seed from a mean.
+        ep = json.loads((pr / gate["evaluated_artifacts"][paused_job["id"]]).read_text())
+        ep.update(token_cap=512, quality=100, replay_verified=True, reason="token_budget_exhausted")
+        summary = a.release_summary([ep], [dict(model=ep["model"]["key"], token_cap=512)])
+        assert summary["rows"][0]["replacement_affected"] and not summary["rows"][0]["b80_eligible"]
+        assert summary["B80"][ep["model"]["key"]]["mean"] is None
+        print("amendment tamper/export and whole-cell B80 exclusion passed")

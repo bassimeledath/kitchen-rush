@@ -13,3 +13,5 @@
 **Coverage:** 30 canonical configurations preserve all 32 historical labels. Gemini's unavailable off mode explicitly migrates to minimal. PhoneLLM remains blocked by hosting-accounting validation. One fresh kitchen per size family is exploratory; repeated calls do not create independent kitchens or justify confidence intervals.
 
 **What the first roster check caught:** the old 2,048-token call cap truncated DeepSeek reasoning before action selection, and operational reservations omitted tariff tiers. R2 uses the common supported 16,384-token safeguard and the complete text/cache tariff maxima. Old traces remain diagnostic, with their spending preserved.
+
+**Recovery:** one reviewed replacement for a transport failure or verified peer-accounting pause. Preserve every attempt and charge; report provider failures separately from harness interruptions. Replacement-affected token cells cannot establish B80.

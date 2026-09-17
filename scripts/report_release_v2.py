@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from audit_release_v2 import audit, require  # noqa: E402
+from audit_release_v2 import audit, money, require  # noqa: E402
 
 from kitchenrush.v2.analysis import summarize  # noqa: E402
 
@@ -51,6 +51,7 @@ def weighted_mean(episodes, value):
 
 
 def pareto(rows):
+    rows = [row for row in rows if not row.get("unresolved_cost", False)]
     return [
         row
         for row in rows
@@ -82,7 +83,26 @@ def aggregate(episodes):
     result = summarize(safe)
     for row in result["rows"]:
         cell = cell_episodes(safe, row)
-        row["mean_cost_usd"] = weighted_mean(cell, lambda e: e["cost_usd"])
+        row["mean_completed_attempt_cost_usd"] = weighted_mean(cell, lambda e: e["cost_usd"])
+        row["mean_cost_usd"] = weighted_mean(
+            cell, lambda e: e["cost_usd"] + e.get("_prior_attempt", {}).get("known_cost_usd", 0)
+        )
+        row["mean_retained_liability_usd"] = weighted_mean(
+            cell, lambda e: e.get("_prior_attempt", {}).get("retained_liability_usd", 0)
+        )
+        row["mean_accounted_cost_usd"] = row["mean_cost_usd"] + row["mean_retained_liability_usd"]
+        row["unresolved_cost"] = row["mean_retained_liability_usd"] > 0
+        row["replacement_affected"] = sum(bool(e.get("_prior_attempt")) for e in cell)
+        row["scheduled_jobs"] = len(cell)
+        row["completed_jobs"] = len(cell)
+        row["first_attempt_completed_jobs"] = len(cell) - row["replacement_affected"]
+        row["attempts"] = len(cell) + row["replacement_affected"]
+        row["provider_failures"] = sum(
+            e.get("_prior_attempt", {}).get("failure_kind") == "provider_failure" for e in cell
+        )
+        row["peer_accounting_pauses"] = sum(
+            e.get("_prior_attempt", {}).get("failure_kind") == "peer_accounting_pause" for e in cell
+        )
         row["mean_completion"] = weighted_mean(
             cell, lambda e: e["completed"] / len(e["spec"]["orders"])
         )
@@ -115,6 +135,25 @@ def aggregate(episodes):
             abs(row["quality"] - row["sensitivity"]["0.1"]) < 1e-10,
             "headline quality and raw penalty reconstruction disagree",
         )
+    # A replacement resets the wallet: its successful score cannot establish that the
+    # scheduled job (including the interrupted prefix) fit the nominal token allowance.
+    for model, value in result["B80"].items():
+        token_rows = [
+            r for r in result["rows"] if r["model"] == model and r["budget_kind"] == "tokens"
+        ]
+        if not token_rows:
+            continue
+        usable = sorted(
+            (r for r in token_rows if not r["dollar_censored"] and not r["replacement_affected"]),
+            key=lambda r: r["budget"],
+        )
+        value["mean"] = next((r["budget"] for r in usable if r["quality"] >= 80), None)
+        value["conservative"] = next(
+            (r["budget"] for r in usable if r["ci95"] is not None and r["ci95"][0] >= 80), None
+        )
+        value["status"] = (
+            "reached" if value["mean"] is not None else "not reached in eligible cells"
+        )
     economic = [r for r in result["rows"] if r["budget_kind"] == "USD"]
     frontier = pareto(economic)
     for row in result["rows"]:
@@ -130,9 +169,9 @@ def b80_text(model, summary, roster):
     rows = [r for r in summary["rows"] if r["model"] == model and r["budget_kind"] == "tokens"]
     if not rows:
         return "Not tested in this cohort", "Not tested"
-    usable = [r for r in rows if not r["dollar_censored"]]
+    usable = [r for r in rows if not r["dollar_censored"] and not r["replacement_affected"]]
     if not usable:
-        return "Not estimable — all token cells dollar-censored", "Not estimable"
+        return "Not estimable — cells censored or replacement-affected", "Not estimable"
     values = summary["B80"][model]
     mean = (
         f"{values['mean']:,}" if values["mean"] is not None else "Not reached within tested budgets"
@@ -187,20 +226,31 @@ def plot_cohort(name, title, summary, roster, codes, assets):
         xlabel = (
             "Generation-token allowance"
             if token
-            else "Actual mean API cost / episode (USD)"
+            else "Known total attempt cost / scheduled job (USD)"
             if view == "cost-quality"
             else "Accepted-action dollar allowance (USD)"
         )
         if view == "cost-quality":
             positive = [r for r in data if r["mean_cost_usd"] > 0]
             ax.scatter(
-                [r["mean_cost_usd"] for r in positive],
-                [r["quality"] for r in positive],
+                [r["mean_cost_usd"] for r in positive if not r["unresolved_cost"]],
+                [r["quality"] for r in positive if not r["unresolved_cost"]],
                 s=25,
                 c="#acb4c0",
                 alpha=0.75,
-                label="All evaluated configurations / allowances",
+                label="Resolved all-attempt cost",
             )
+            for index, row in enumerate(r for r in positive if r["unresolved_cost"]):
+                ax.errorbar(
+                    row["mean_cost_usd"],
+                    row["quality"],
+                    xerr=[[0], [row["mean_retained_liability_usd"]]],
+                    fmt="o",
+                    markerfacecolor="white",
+                    color="#a36622",
+                    capsize=3,
+                    label="Unknown charge: retained-liability extent" if index == 0 else None,
+                )
             ordered = sorted(
                 [r for r in frontier if r["mean_cost_usd"] > 0],
                 key=lambda r: (r["mean_cost_usd"], r["quality"]),
@@ -212,7 +262,7 @@ def plot_cohort(name, title, summary, roster, codes, assets):
                 color="#194f8d",
                 lw=1.5,
                 ms=5,
-                label="Empirical Pareto frontier",
+                label="Empirical frontier · resolved billing only",
             )
             annotated = (
                 sorted(positive, key=lambda r: (r["mean_cost_usd"], r["quality"]))
@@ -288,7 +338,7 @@ def plot_cohort(name, title, summary, roster, codes, assets):
                             alpha=0.45,
                             capsize=2,
                         )
-                    if token and row["dollar_censored"]:
+                    if token and (row["dollar_censored"] or row["replacement_affected"]):
                         ax.scatter(
                             [row["budget"]], [row["quality"]], marker="x", color="#bc3434", s=55
                         )
@@ -296,6 +346,8 @@ def plot_cohort(name, title, summary, roster, codes, assets):
             if token:
                 ax.axhline(80, color="#626e7b", ls=":", lw=1, label="B80 target")
         xs = [r["mean_cost_usd"] if view == "cost-quality" else r["budget"] for r in data]
+        if view == "cost-quality":
+            xs.extend(r["mean_accounted_cost_usd"] for r in data)
         positive = [x for x in xs if x > 0]
         if positive:
             ax.set_xscale("log")
@@ -334,14 +386,15 @@ def plot_cohort(name, title, summary, roster, codes, assets):
             )
         footer = (
             "No-call ($0, Q0) is off log axis. "
-            "Full table lists all configurations; boundary charges included."
+            "All attempts included. Quality from completed attempt.\n"
+            "Liability extent is an accounting envelope, not a CI or guaranteed bill ceiling."
             if view == "cost-quality"
             else "Intervals exploratory; unavailable below two independent seeds per family."
         )
         if len(models) > 5 and view == "dollar-budget":
             footer += " Gray lines: other configurations; full values in table."
         if token:
-            footer += " × = dollar-censored."
+            footer += " × = censored or replacement-affected."
         fig.text(0.02, 0.02, footer, fontsize=8, color="#4d5865")
         fig.savefig(assets / f"{name}-{view}.png", dpi=170, bbox_inches="tight", pad_inches=0.15)
         svg = assets / f"{name}-{view}.svg"
@@ -445,6 +498,8 @@ def build(batches, *, root=ROOT):
             "requests_verified",
             "evaluated_artifacts",
             "failed_attempts",
+            "job_resources",
+            "operational_amendment",
         ):
             require(stored[field] == fresh[field], f"stale independent gate field {batch}/{field}")
         manifest_path = root / f"data/v2/release-r2/{batch}-manifest.json"
@@ -463,7 +518,24 @@ def build(batches, *, root=ROOT):
             require(identity not in identities[name], "duplicate experiment across pooled batches")
             identities[name].add(identity)
             artifact_path = root / fresh["evaluated_artifacts"][job["id"]]
-            cohort["episodes"].append(load(artifact_path))
+            episode = load(artifact_path)
+            prior = next((f for f in fresh["failed_attempts"] if f["job"] == job["id"]), None)
+            if prior:
+                episode["_prior_attempt"] = prior
+            resources = fresh["job_resources"][job["id"]]
+            require(
+                money(episode["cost_usd"]) + money((prior or {}).get("known_cost_usd", 0))
+                == money(resources["known_cost_usd"])
+                and money((prior or {}).get("retained_liability_usd", 0))
+                == money(resources["retained_liability_usd"]),
+                "report job economics disagree with independently reconciled ledger",
+            )
+            require(
+                episode["output_tokens"] + (prior or {}).get("known_output_tokens", 0)
+                == resources["known_output_tokens"],
+                "report job token usage disagrees with independent accounting",
+            )
+            cohort["episodes"].append(episode)
         provenance.append(
             {
                 "batch": batch,
@@ -478,6 +550,7 @@ def build(batches, *, root=ROOT):
                 "failed_attempt_count": fresh["failed_attempt_count"],
                 "attempt_count": fresh["attempt_count"],
                 "failed_attempts": fresh["failed_attempts"],
+                "operational_amendment": fresh["operational_amendment"],
             }
         )
     require(len({p["protocol_hash"] for p in provenance}) == 1, "mixed protocol generations")
@@ -513,9 +586,11 @@ def build(batches, *, root=ROOT):
         "",
         "Dollar allowances fund the accepted action prefix. "
         "The first response crossing the allowance "
-        "is paid but not executed. **Actual-cost graphs include that boundary response.** "
-        "These graphs "
-        "are conditional on complete protocol runs; failed-attempt spending is listed separately. "
+        "is paid but not executed. **Graphs include known charges from every attempt of each "
+        "scheduled job, including boundary responses and interrupted prefixes.** "
+        "Quality comes from the audited completed attempt. Unknown charges are shown as "
+        "retained-liability extents; these are accounting envelopes, not confidence intervals "
+        "or guaranteed bill ceilings. Unresolved-cost points cannot enter the exact frontier. "
         "A documented transport failure permits one replacement of the same job; "
         "the original trace and all liability remain in the campaign accounting. "
         "Scores never qualify for a retry. "
@@ -566,13 +641,14 @@ def build(batches, *, root=ROOT):
             "The frontier uses observed means and a no-call ($0, quality 0) reference. "
             "This reference is off the log axis. Positive-cost zero-quality points are dominated. "
             "It is not a claim of statistical dominance. "
+            "Its comparison set contains only resolved-cost points. "
             "Gray points/lines remain in the complete table. "
             "Truncation counts include paid boundary replies; 0/0 means no generative replies. "
             "Zero-cost cells remain in the table "
             "but cannot appear on the logarithmic cost axis.",
             "",
             "| ID / configuration | View | Allowance | Quality | 95% interval | Seeds / family | "
-            "Actual cost | Boundary cost | Orders completed | Invalid actions | "
+            "Known all-attempt cost | Boundary cost | Orders completed | Invalid actions | "
             "Truncated replies | Frontier |",
             "|---|---|---:|---:|---|---|---:|---:|---:|---:|---|---|",
         ]
@@ -587,13 +663,47 @@ def build(batches, *, root=ROOT):
             )
             family = ", ".join(f"{k}: {v}" for k, v in sorted(row["seeds_by_family"].items()))
             view = row["budget_kind"] + (" (dollar-censored)" if row["dollar_censored"] else "")
+            if row["replacement_affected"]:
+                view += " (replacement-affected)"
+            frontier_status = (
+                "Unresolved billing"
+                if row["unresolved_cost"]
+                else "Yes"
+                if row["empirical_cost_quality_frontier"]
+                else "—"
+            )
             lines.append(
                 f"| {codes[row['model']]} {roster[row['model']]['label']} | {view} | {allowance} | "
                 f"{row['quality']:.1f} | {ci} | {family} | ${row['mean_cost_usd']:.6f} | "
                 f"${row['mean_boundary_cost_usd']:.6f} | {row['mean_completion']:.1%} | "
                 f"{row['mean_invalid']:.2f} | "
                 f"{row['truncated_requests']}/{row['generative_requests']} | "
-                f"{'Yes' if row['empirical_cost_quality_frontier'] else '—'} |"
+                f"{frontier_status} |"
+            )
+        lines += [
+            "",
+            "### Attempts and cost accounting",
+            "",
+            "Costs sum attempts within each scheduled job, then use the same kitchen/family "
+            "weighting as quality. Replacements do not add independent statistical samples. "
+            "A fully audited batch requires every scheduled job to finish; partial batches "
+            "are not silently reduced to successful jobs. Peer accounting pauses are harness "
+            "interruptions, not provider failures.",
+            "",
+            "| Configuration / allowance | Completed / scheduled jobs | "
+            "First-attempt completions | "
+            "Attempts | Provider failures | Peer pauses | Completed-attempt cost | "
+            "Known all-attempt cost | Unknown retained liability |",
+            "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+        for row in summary["rows"]:
+            lines.append(
+                f"| {codes[row['model']]} / {row['budget']:g} {row['budget_kind']} | "
+                f"{row['completed_jobs']}/{row['scheduled_jobs']} | "
+                f"{row['first_attempt_completed_jobs']} | {row['attempts']} | "
+                f"{row['provider_failures']} | {row['peer_accounting_pauses']} | "
+                f"${row['mean_completed_attempt_cost_usd']:.6f} | "
+                f"${row['mean_cost_usd']:.6f} | ${row['mean_retained_liability_usd']:.6f} |"
             )
         lines += [
             "",
@@ -603,7 +713,9 @@ def build(batches, *, root=ROOT):
             "The conservative variant requires the lower pointwise 95% bound ≥80. "
             "It is exploratory, not a simultaneous 95% guarantee across the budget search. "
             "No interpolation; "
-            "dollar-censored cells are excluded. "
+            "dollar-censored and replacement-affected cells are excluded in full. "
+            "A replacement resets the wallet, so its final score cannot prove that the "
+            "scheduled job including its failed prefix fit the stated token budget. "
             "Results apply only to this cohort's represented families.",
             "",
             "| ID / configuration | B80 (tokens) | Conservative B80 |",

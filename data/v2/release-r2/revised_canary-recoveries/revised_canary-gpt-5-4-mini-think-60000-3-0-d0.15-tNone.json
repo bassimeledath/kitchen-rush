@@ -1,0 +1,9 @@
+{
+  "job": "revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone",
+  "manifest_sha256": "e989fcfe63e2e1122f6158ac50a4152036ae534ad13100e4a7e8784b8b7e0db3",
+  "original_sha256": "5aa37c1f8e3d2da7e748975dabb0b3028f5ebef5cb44781ebde38c67b0954dfb",
+  "policy": "manual-transport-replacement-once-1",
+  "replacement_id": "revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone--attempt2",
+  "replacement_path": "runs/v2/release-r2/revised_canary/attempts/revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone--attempt2.json",
+  "review_note": "Independent audit verified eight settled responses followed by TimeoutError with no response. Retain the entire 0.373728 USD unknown liability; allow one identical replacement."
+}

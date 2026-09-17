@@ -108,7 +108,7 @@ def ledger_snapshot(path, opening):
             "opening balance mismatch",
         )
         rows = con.execute(
-            "SELECT id,episode,stage,reserved,actual,status FROM requests"
+            "SELECT id,episode,stage,reserved,actual,status FROM requests ORDER BY rowid"
         ).fetchall()
     require(
         all(r[5] in ("settled", "retained_failure") for r in rows),
@@ -178,6 +178,62 @@ def verify_archive(root, manifest):
     expected = runner.plan(manifest["batch"], orchestration=descriptor)
     require(manifest == expected, "manifest differs from complete frozen batch plan")
     return hashlib.sha256(archive.read_bytes()).hexdigest()
+
+
+def verify_amendment(root, manifest, *, current=False):
+    path = root / "data/v2/release-r2/peer-pause-amendment.json"
+    require(path.is_file(), "explicit peer-pause amendment missing")
+    amendment = read_json(path)
+    campaign = read_json(root / "data/v2/release-r2/campaign.json")
+    require(
+        amendment.get("policy") == "manual-peer-pause-replacement-once-1"
+        and amendment.get("baseline_campaign") == campaign
+        and bool(amendment.get("review_note", "").strip()),
+        "amendment baseline differs",
+    )
+    require(manifest["orchestration"] == campaign["orchestration"], "amendment campaign mismatch")
+    descriptor = amendment["amended_orchestration"]
+    scripts = set(campaign["orchestration"]["scripts"])
+    require(
+        descriptor.get("version") == 1 and set(descriptor["scripts"]) == scripts,
+        "amended script membership differs",
+    )
+    identity = digest(dict(protocol_hash=manifest["protocol_hash"], scripts=descriptor["scripts"]))
+    require(
+        descriptor["archive"] == f"data/v2/release-r2/source-{identity}.zip", "amended path differs"
+    )
+    archive = root / descriptor["archive"]
+    require(
+        hashlib.sha256(archive.read_bytes()).hexdigest() == amendment["archive_sha256"],
+        "amended archive hash differs",
+    )
+    package = {p.relative_to(root).as_posix() for p in (root / "src").rglob("*.py")}
+    with zipfile.ZipFile(archive) as bundle:
+        require(
+            len(bundle.namelist()) == len(set(bundle.namelist()))
+            and set(bundle.namelist()) == package | scripts,
+            "amended archive membership differs",
+        )
+        for name in package:
+            require(
+                bundle.read(name) == (root / name).read_bytes(), "amendment changes frozen core"
+            )
+        for name in scripts:
+            require(
+                hashlib.sha256(bundle.read(name)).hexdigest() == descriptor["scripts"][name],
+                "amended script hash differs",
+            )
+            if current:
+                require(
+                    bundle.read(name) == (root / name).read_bytes(),
+                    "unlogged current driver change",
+                )
+    return dict(
+        path=path.relative_to(root).as_posix(),
+        sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+        source_archive=descriptor["archive"],
+        source_archive_sha256=amendment["archive_sha256"],
+    )
 
 
 def verify_campaign(root, manifest):
@@ -292,13 +348,14 @@ def eligible_transport_failure(ep):
 
 
 def verify_episode(
-    ep, job, manifest, ledger, used_requests, *, failed=False, allow_uncertain=False
+    ep, job, manifest, ledger, used_requests, *, failed=False, allow_uncertain=False, paused=False
 ):
     if failed:
         eligible_transport_failure(ep)
     label = job["id"]
     require(
-        ep["id"] == label and ep["status"] == ("quarantined" if failed else "complete"),
+        ep["id"] == label
+        and ep["status"] == ("incomplete" if paused else "quarantined" if failed else "complete"),
         f"incomplete episode {label}",
     )
     require(
@@ -473,7 +530,17 @@ def verify_episode(
         "episode cost totals mismatch",
     )
     require(accepted <= money(ep["dollar_cap"]), "accepted action cost exceeds allowance")
-    if failed:
+    if paused:
+        require(
+            not engine.terminated
+            and admitted < MAX_DECISIONS
+            and not boundary
+            and spent < money(ep["dollar_cap"])
+            and (ep["token_cap"] is None or no_total < ep["token_cap"]),
+            "operational pause occurred after task/resource exhaustion",
+        )
+        reason = "operational_spending_gate"
+    elif failed:
         reason = "provider_or_accounting_failure"
     elif boundary:
         reason = "dollar_budget_exhausted"
@@ -508,6 +575,52 @@ def recovery_paths(root, batch, job_id):
     )
 
 
+def verify_peer_pause(root, manifest, job, ep, ledger, snapshot, peer_job):
+    verify_episode(ep, job, manifest, ledger, set(), paused=True)
+    require(peer_job != job["id"], "pause cannot cite itself")
+    peers = [j for j in manifest["jobs"] if j["id"] == peer_job]
+    require(len(peers) == 1, "peer must be a canonical job in this batch")
+    peer_disposition, _ = recovery_paths(root, manifest["batch"], peer_job)
+    require(
+        peer_disposition.is_file()
+        and read_json(peer_disposition).get("policy") == "manual-transport-replacement-once-1",
+        "peer transport failure needs its own retained-liability disposition",
+    )
+    recovery_record(root, manifest, peers[0])
+    peer_path = root / f"runs/v2/release-r2/{manifest['batch']}/{peer_job}.json"
+    verify_episode(read_json(peer_path), peers[0], manifest, ledger, set(), failed=True)
+    count = snapshot["row_count"]
+    require(type(count) is int and 0 < count <= len(ledger), "invalid accounting snapshot count")
+    rows = list(ledger.items())[:count]
+    require(digest(rows) == snapshot["rows_sha256"], "authorization accounting snapshot changed")
+    require(
+        all(row[4] in ("settled", "retained_failure") for _, row in rows),
+        "authorization snapshot has live/unresolved accounting",
+    )
+    ids = {rid for rid, _ in rows}
+    require(all(r["id"] in ids for r in ep["requests"]), "snapshot predates paused prefix")
+    peer_failed = read_json(peer_path)["requests"][-1]["id"]
+    require(peer_failed in ids, "snapshot predates retained peer liability")
+    global_used = money(manifest["opening_balance"]) + sum(
+        r[3] if r[3] is not None else r[2] for _, r in rows
+    )
+    stage_used = sum(
+        r[3] if r[3] is not None else r[2] for _, r in rows if r[1] == manifest["stage"]
+    )
+    model = Model(**manifest["models"][job["model"]])
+    maximum = (
+        model.max_output
+        if ep["token_cap"] is None
+        else min(model.max_output, ep["token_cap"] - ep["output_tokens"])
+    )
+    _, reserve = Client(model).bound({"max_tokens": maximum})
+    require(
+        global_used + money(reserve) <= 200 * SCALE
+        and stage_used + money(reserve) <= money(STAGES[manifest["stage"]]),
+        "next paused request could not fit after peer accounting resolution",
+    )
+
+
 def recovery_record(root, manifest, job):
     disposition, replacement = recovery_paths(root, manifest["batch"], job["id"])
     if not disposition.exists():
@@ -517,7 +630,8 @@ def recovery_record(root, manifest, job):
     original_path = root / f"runs/v2/release-r2/{manifest['batch']}/{job['id']}.json"
     manifest_path = root / f"data/v2/release-r2/{manifest['batch']}-manifest.json"
     require(
-        record.get("policy") == "manual-transport-replacement-once-1"
+        record.get("policy")
+        in ("manual-transport-replacement-once-1", "manual-peer-pause-replacement-once-1")
         and record.get("job") == job["id"]
         and record.get("replacement_id") == job["id"] + "--attempt2"
         and record.get("replacement_path") == replacement.relative_to(root).as_posix()
@@ -526,8 +640,63 @@ def recovery_record(root, manifest, job):
         and bool(record.get("review_note", "").strip()),
         "invalid recovery disposition",
     )
-    eligible_transport_failure(read_json(original_path))
+    if record["policy"] == "manual-transport-replacement-once-1":
+        eligible_transport_failure(read_json(original_path))
+    else:
+        amendment = verify_amendment(root, manifest)
+        require(
+            record.get("amendment_sha256") == amendment["sha256"], "pause amendment binding differs"
+        )
+        ledger, _ = ledger_snapshot(
+            root / "runs/v2/release-r2/spend.sqlite", manifest["opening_balance"]
+        )
+        verify_peer_pause(
+            root,
+            manifest,
+            job,
+            read_json(original_path),
+            ledger,
+            record["accounting_snapshot"],
+            record["peer_failure_job"],
+        )
     return record
+
+
+def release_summary(episodes, failed_attempts):
+    result = summarize(episodes)
+    affected = {(f["model"], f["token_cap"]) for f in failed_attempts if f["token_cap"] is not None}
+    for row in result["rows"]:
+        row["replacement_affected"] = (
+            row["budget_kind"] == "tokens" and (row["model"], row["budget"]) in affected
+        )
+        row["b80_eligible"] = (
+            row["budget_kind"] == "tokens"
+            and not row["replacement_affected"]
+            and not row["dollar_censored"]
+        )
+    for model, old in result["B80"].items():
+        if not any(key[0] == model for key in affected):
+            continue
+        usable = sorted(
+            (r for r in result["rows"] if r["model"] == model and r["b80_eligible"]),
+            key=lambda r: r["budget"],
+        )
+        mean = next((r["budget"] for r in usable if r["quality"] >= 80), None)
+        conservative = next((r["budget"] for r in usable if r["ci95"] and r["ci95"][0] >= 80), None)
+        old.update(
+            mean=mean,
+            conservative=conservative,
+            status="reached on unaffected budgets"
+            if mean
+            else "not reached within unaffected uncensored budgets",
+            replacement_affected_budgets=sorted(b for m, b in affected if m == model),
+        )
+    result["recovery_interpretation"] = (
+        "Replacement quality is conditional on a completed attempt. Entire replacement-affected "
+        "token cells are ineligible for B80; known tokens and costs remain in job_resources. "
+        "Unknown response usage is not treated as zero."
+    )
+    return result
 
 
 def audit(batch, *, root=ROOT, write_gate=True):
@@ -541,6 +710,11 @@ def audit(batch, *, root=ROOT, write_gate=True):
     verify_grid(manifest)
     coverage = verify_campaign(root, manifest)
     archive_hash = verify_archive(root, manifest)
+    amendment = (
+        verify_amendment(root, manifest)
+        if (root / "data/v2/release-r2/peer-pause-amendment.json").exists()
+        else None
+    )
     opening = manifest["opening_balance"]
     # Reconcile both historical ledgers without double-counting their brought-forward balance.
     prior = 0
@@ -577,7 +751,7 @@ def audit(batch, *, root=ROOT, write_gate=True):
     )
     episodes, used_requests = [], set()
     batch_units = boundary_units = 0
-    failed_attempts, evaluated_artifacts = [], {}
+    failed_attempts, evaluated_artifacts, job_resources = [], {}, {}
     recovery_jobs = set()
     for job in manifest["jobs"]:
         original_path = folder / (job["id"] + ".json")
@@ -586,15 +760,30 @@ def audit(batch, *, root=ROOT, write_gate=True):
         effective_job = job
         if disposition:
             ep, failure_units, _ = verify_episode(
-                ep, job, manifest, ledger, used_requests, failed=True
+                ep,
+                job,
+                manifest,
+                ledger,
+                used_requests,
+                failed=disposition["policy"] == "manual-transport-replacement-once-1",
+                paused=disposition["policy"] == "manual-peer-pause-replacement-once-1",
             )
             known = sum(money(r["cost_usd"]) for r in ep["requests"] if "cost_usd" in r)
             failed_attempts.append(
                 dict(
                     job=job["id"],
+                    model=job["model"],
+                    token_cap=job["token_cap"],
+                    known_input_tokens=ep["input_tokens"],
+                    known_output_tokens=ep["output_tokens"],
+                    unknown_response_usage=disposition["policy"]
+                    == "manual-transport-replacement-once-1",
                     original_path=original_path.relative_to(root).as_posix(),
                     original_sha256=disposition["original_sha256"],
-                    error=ep["error"],
+                    error=ep.get("error", ep["reason"]),
+                    failure_kind="peer_accounting_pause"
+                    if disposition["policy"] == "manual-peer-pause-replacement-once-1"
+                    else "provider_failure",
                     accounted_usd=failure_units / SCALE,
                     known_cost_usd=known / SCALE,
                     retained_liability_usd=(failure_units - known) / SCALE,
@@ -609,6 +798,15 @@ def audit(batch, *, root=ROOT, write_gate=True):
         else:
             evaluated_artifacts[job["id"]] = original_path.relative_to(root).as_posix()
         ep, spent, boundary = verify_episode(ep, effective_job, manifest, ledger, used_requests)
+        prior_attempt = next((f for f in failed_attempts if f["job"] == job["id"]), {})
+        job_resources[job["id"]] = dict(
+            known_input_tokens=ep["input_tokens"] + prior_attempt.get("known_input_tokens", 0),
+            known_output_tokens=ep["output_tokens"] + prior_attempt.get("known_output_tokens", 0),
+            unknown_response_usage=prior_attempt.get("unknown_response_usage", False),
+            known_cost_usd=(spent + money(prior_attempt.get("known_cost_usd", 0))) / SCALE,
+            retained_liability_usd=prior_attempt.get("retained_liability_usd", 0),
+            replacement_affected=bool(prior_attempt),
+        )
         episodes.append(ep)
         batch_units += spent
         boundary_units += boundary
@@ -634,6 +832,7 @@ def audit(batch, *, root=ROOT, write_gate=True):
         "requests_verified": len(used_requests),
         "protocol_hash": manifest["protocol_hash"],
         "source_archive_sha256": archive_hash,
+        "operational_amendment": amendment,
         "source_archive": manifest["orchestration"]["archive"],
         "orchestration": manifest["orchestration"],
         "verifier_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -652,9 +851,10 @@ def audit(batch, *, root=ROOT, write_gate=True):
         )
         / SCALE,
         "evaluated_artifacts": evaluated_artifacts,
+        "job_resources": job_resources,
         "boundary_cost_usd": boundary_units / SCALE,
         "ledger": snapshot,
-        "summary": summarize(episodes),
+        "summary": release_summary(episodes, failed_attempts),
     }
     if write_gate:
         target = root / f"data/v2/release-r2/{batch}-gate.json"

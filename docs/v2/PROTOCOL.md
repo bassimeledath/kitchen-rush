@@ -45,9 +45,11 @@ possible within the allowance.
 selection only when cumulative actual inference charges are at most the episode allowance B.
 The first response crossing B is archived and paid, but its action is never executed and it
 adds no invalid-action penalty. Then stop. Thus B limits the admitted action prefix; **actual
-API spending can exceed B by one request**. Plot quality against actual total cost, including
-that boundary request. Show failed attempts and their costs separately; completed-run costs
-alone are conditional economics. A Pareto point costs no more and scores no less than another,
+API spending can exceed B by one request**. Plot completed-attempt quality against the known costs of all attempts for its scheduled
+job, including boundary responses and interrupted prefixes. Show retained unknown liability
+as a separate accounting envelope, not actual paid cost, a confidence interval or a guaranteed
+bill ceiling. Unknown-cost points stay outside the exact frontier. Keep attempt/failure counts
+and distinguish provider failures from peer accounting pauses. A Pareto point costs no more and scores no less than another,
 with at least one strict improvement. Freeze model configurations, routes and tariff provenance. Dollar calls use a common
 16,384-generation-token safeguard supported by every selected endpoint; truncation is fully
 charged and reported. This is a configured policy, not an unlimited-compute comparison.
@@ -59,7 +61,9 @@ toward dollars and are reported separately. Jev is ineligible for this view unti
 accounting and cap enforcement exist. Dollar backstops that truncate a token episode are
 marked censored. B80 is the smallest tested, uncensored token allowance with mean quality≥80;
 conservative B80 requires its 95% lower confidence bound≥80. No interpolation. Otherwise report
-“not reached within tested budgets.” Untested models are marked “not tested.”
+“not reached within tested budgets.” Untested models are marked “not tested.” Any token cell
+containing a replacement attempt is ineligible for B80: the restarted wallet excludes earlier
+generation. Preserve all known attempt tokens and mark unknown response usage explicitly.
 
 Resample independent kitchens within each family, preserving trials, for 4,000 bootstrap draws.
 Intervals require at least two kitchens per family and remain exploratory at small samples.
@@ -78,7 +82,10 @@ No automatic retries or auto-recharge are enabled by this experiment. A manually
 HTTP 408/429/5xx or transport failure can receive one identical replacement episode.
 The failed prefix must replay and reconcile; its trace and full uncertain liability are
 preserved. Completed, invalid, truncated or accounting-failure episodes cannot qualify.
-A second failure remains unscored; no third attempt is allowed.
+A second failure remains unscored; no third attempt is allowed. An explicitly archived
+operational amendment also permits one replacement for a peer accounting pause, only after
+its settled prefix and available resource allowance are independently verified. Original
+campaign, source archive, manifests and traces remain unchanged.
 
 Operational stops and provider/accounting failures are unscored, not quality zero. Unknown
 charges retain liability. Each run records exact source/configuration, task, public requests,

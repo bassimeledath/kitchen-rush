@@ -118,6 +118,9 @@ def models():
 
 
 def plan(batch, *, orchestration=None):
+    campaign_path = ROOT / "data/v2/release-r2/campaign.json"
+    if orchestration is None and campaign_path.exists():
+        orchestration = json.loads(campaign_path.read_text())["orchestration"]
     catalog = models()
     jobs = []
 
@@ -219,7 +222,11 @@ def plan(batch, *, orchestration=None):
 def archive_source(manifest):
     descriptor = manifest["orchestration"]
     if descriptor != orchestration_descriptor():
-        raise ValueError("current orchestration differs from frozen campaign")
+        from audit_release_v2 import verify_amendment, verify_archive
+
+        verify_archive(ROOT, manifest)
+        verify_amendment(ROOT, manifest, current=True)
+        return
     archive = ROOT / descriptor["archive"]
     files = sorted((ROOT / "src").rglob("*.py"))
     files += [ROOT / name for name in descriptor["scripts"]]
@@ -277,14 +284,24 @@ def dispatch_width(jobs, manifest, ledger, workers):
     return width
 
 
-def authorize_recovery(batch, job_id, note):
+def authorize_recovery(batch, job_id, note, peer_job=None):
     """Manual disposition only: validate evidence and retain liability, never dispatch."""
-    from audit_release_v2 import recovery_paths, verify_archive, verify_campaign, verify_episode
+    from audit_release_v2 import (
+        recovery_paths,
+        verify_amendment,
+        verify_archive,
+        verify_campaign,
+        verify_episode,
+        verify_peer_pause,
+    )
 
     manifest_path = DATA / f"{batch}-manifest.json"
     manifest = json.loads(manifest_path.read_text())
     verify_campaign(ROOT, manifest)
     verify_archive(ROOT, manifest)
+    amendment = None
+    if orchestration_descriptor() != manifest["orchestration"] or peer_job:
+        amendment = verify_amendment(ROOT, manifest, current=True)
     matches = [job for job in manifest["jobs"] if job["id"] == job_id]
     if len(matches) != 1 or not note.strip():
         raise ValueError("recovery requires one canonical manifest job and review note")
@@ -297,20 +314,26 @@ def authorize_recovery(batch, job_id, note):
     ledger = Ledger(RUNS / "spend.sqlite", cap=200, opening_balance=manifest["opening_balance"])
     with ledger.connect() as con:
         rows = con.execute(
-            "SELECT id,episode,stage,reserved,actual,status FROM requests"
+            "SELECT id,episode,stage,reserved,actual,status FROM requests ORDER BY rowid"
         ).fetchall()
     if any(row[5] in ("reserved", "overrun") for row in rows):
         raise ValueError("live request or overrun must be resolved before recovery")
     entries = {row[0]: tuple(row[1:]) for row in rows}
     used = set()
-    verify_episode(ep, job, manifest, entries, used, failed=True, allow_uncertain=True)
+    if peer_job:
+        snapshot = dict(row_count=len(entries), rows_sha256=digest(list(entries.items())))
+        verify_peer_pause(ROOT, manifest, job, ep, entries, snapshot, peer_job)
+        verify_episode(ep, job, manifest, entries, used, paused=True)
+    else:
+        verify_episode(ep, job, manifest, entries, used, failed=True, allow_uncertain=True)
     if used != {rid for rid, row in entries.items() if row[0] == job_id}:
         raise ValueError("original attempt has unaccounted requests")
-    failed_rid = ep["requests"][-1]["id"]
-    if entries[failed_rid][4] == "uncertain":
-        ledger.retain_failed_liability(failed_rid)
+    if not peer_job:
+        failed_rid = ep["requests"][-1]["id"]
+        if entries[failed_rid][4] == "uncertain":
+            ledger.retain_failed_liability(failed_rid)
     record = dict(
-        policy=manifest["recovery_policy"],
+        policy="manual-peer-pause-replacement-once-1" if peer_job else manifest["recovery_policy"],
         job=job_id,
         original_sha256=hashlib.sha256(original_path.read_bytes()).hexdigest(),
         manifest_sha256=hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
@@ -318,12 +341,52 @@ def authorize_recovery(batch, job_id, note):
         replacement_path=replacement.relative_to(ROOT).as_posix(),
         review_note=note,
     )
+    if peer_job:
+        record.update(
+            peer_failure_job=peer_job,
+            accounting_snapshot=snapshot,
+            amendment_sha256=amendment["sha256"],
+        )
     disposition.parent.mkdir(parents=True, exist_ok=True)
     with disposition.open("x") as file:
         json.dump(record, file, indent=2, sort_keys=True)
         file.write("\n")
     (DATA / f"{batch}-gate.json").unlink(missing_ok=True)
     print(json.dumps(dict(status="replacement_authorized_not_dispatched", **record)), flush=True)
+
+
+def authorize_peer_amendment(batch, note):
+    from audit_release_v2 import verify_amendment, verify_archive, verify_campaign
+
+    manifest = json.loads((DATA / f"{batch}-manifest.json").read_text())
+    verify_campaign(ROOT, manifest)
+    verify_archive(ROOT, manifest)
+    if not note.strip():
+        raise ValueError("amendment requires an explicit review note")
+    ledger = Ledger(RUNS / "spend.sqlite", cap=200, opening_balance=manifest["opening_balance"])
+    if ledger.snapshot()["overruns"]:
+        raise ValueError("resolve overruns before amendment")
+    with ledger.connect() as con:
+        if con.execute("SELECT 1 FROM requests WHERE status='reserved'").fetchone():
+            raise ValueError("wait for all live requests before amendment")
+    descriptor = orchestration_descriptor()
+    archive_source(dict(orchestration=descriptor))
+    record = dict(
+        policy="manual-peer-pause-replacement-once-1",
+        baseline_campaign=json.loads((DATA / "campaign.json").read_text()),
+        amended_orchestration=descriptor,
+        archive_sha256=hashlib.sha256((ROOT / descriptor["archive"]).read_bytes()).hexdigest(),
+        review_note=note,
+    )
+    target = DATA / "peer-pause-amendment.json"
+    with target.open("x") as file:
+        json.dump(record, file, indent=2, sort_keys=True)
+        file.write("\n")
+    verify_amendment(ROOT, manifest, current=True)
+    print(
+        json.dumps(dict(status="operational_amendment_recorded_no_dispatch", path=str(target))),
+        flush=True,
+    )
 
 
 def paid(batch, workers):
@@ -447,11 +510,14 @@ def paid(batch, workers):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=("offline", "plan", "run", "recover"))
+    parser.add_argument(
+        "command", choices=("offline", "plan", "run", "recover", "amend-peer-pause")
+    )
     parser.add_argument("--batch", default="revised_canary")
     parser.add_argument("--workers", type=int, choices=(1, 2, 3), default=1)
     parser.add_argument("--job")
     parser.add_argument("--note")
+    parser.add_argument("--peer-job")
     args = parser.parse_args()
     DATA.mkdir(parents=True, exist_ok=True)
     if args.command == "offline":
@@ -461,7 +527,11 @@ def main():
     elif args.command == "recover":
         if not args.job or not args.note:
             parser.error("recover requires --job and --note")
-        authorize_recovery(args.batch, args.job, args.note)
+        authorize_recovery(args.batch, args.job, args.note, args.peer_job)
+    elif args.command == "amend-peer-pause":
+        if not args.note:
+            parser.error("amend-peer-pause requires --note")
+        authorize_peer_amendment(args.batch, args.note)
     else:
         paid(args.batch, args.workers)
 

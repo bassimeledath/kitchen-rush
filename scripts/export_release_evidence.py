@@ -32,6 +32,9 @@ def export(batches, output):
             ROOT / f"data/v2/release-r2/{batch}-{suffix}.json" for suffix in ("manifest", "gate")
         )
         paths.add(ROOT / gate["source_archive"])
+        if gate.get("operational_amendment"):
+            paths.add(ROOT / gate["operational_amendment"]["path"])
+            paths.add(ROOT / gate["operational_amendment"]["source_archive"])
         paths.update((ROOT / f"data/v2/release-r2/{batch}-recoveries").glob("*.json"))
     payloads = {str(p.relative_to(ROOT)): p.read_bytes() for p in sorted(paths)}
     with tempfile.TemporaryDirectory() as directory:
