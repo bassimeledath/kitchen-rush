@@ -68,7 +68,7 @@ exploratory. Every episode must reproduce its actions, frames and final score ex
 
 ## Validation before rankings
 
-The current implementation passes 114 tests. An independent offline study exercised 1,200
+The current implementation passes 117 tests. An independent offline study exercised 1,200
 kitchens and replayed three policies on each: a public-rule reader completed all perfectly;
 a table containing every recipe but fixed preparation/timing averaged 24.7 quality. A stronger
 controller with adaptive timing reached 82.6. These results expose brittle scripts and also
