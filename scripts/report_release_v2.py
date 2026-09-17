@@ -163,7 +163,7 @@ def aggregate(episodes):
 
 def b80_text(model, summary, roster):
     if roster["status"].startswith("blocked"):
-        return "Blocked — " + roster["block_reason"], "N/A"
+        return "Blocked at roster freeze — " + roster["block_reason"], "N/A"
     if roster["provider"] == "TypeSafe":
         return "N/A — generation-token accounting/enforcement not comparable", "N/A"
     rows = [r for r in summary["rows"] if r["model"] == model and r["budget_kind"] == "tokens"]
@@ -598,6 +598,10 @@ def build(batches, *, root=ROOT):
         "",
         "## Full roster coverage",
         "",
+        "Blocked reasons below record eligibility at roster freeze. Later isolated probes "
+        "do not change this campaign's eligibility. See the "
+        "[PhoneLLM inclusion review](PHONELLM_INCLUSION_REVIEW.md) for current progress.",
+        "",
         "| ID | Configuration | " + " | ".join(c["title"] for c in cohorts.values()) + " |",
         "|---|---|" + "---|" * len(cohorts),
     ]
@@ -607,9 +611,9 @@ def build(batches, *, root=ROOT):
         for cohort in cohorts.values():
             count = sum(e["model"]["key"] == key for e in cohort["episodes"])
             statuses.append(
-                f"{count} audited episodes"
+                f"{count} audited episode" + ("s" if count != 1 else "")
                 if count
-                else "Blocked: " + row["block_reason"]
+                else "Blocked at roster freeze: " + row["block_reason"]
                 if row["status"].startswith("blocked")
                 else "Not tested in this cohort"
             )

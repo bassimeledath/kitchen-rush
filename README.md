@@ -8,7 +8,8 @@ what gets completed and what it costs.
 
 **V2 is being validated.** A roster canary exposed an overly restrictive per-request token
 ceiling and incomplete operational tariff reservations. Both are corrected; the revised
-configuration is now in its six-configuration canary before the full rerun. Earlier runs remain diagnostic,
+configuration has passed its six-configuration canary: 150 requests independently audited.
+The next checkpoint validates all 29 eligible configurations before the full rerun. Earlier runs remain diagnostic,
 with every charge retained in the $200 total. [V1 results are archived](README.v1.md).
 
 ## Three ideas
@@ -68,7 +69,7 @@ exploratory. Every episode must reproduce its actions, frames and final score ex
 
 ## Validation before rankings
 
-The current implementation passes 117 tests. An independent offline study exercised 1,200
+The current implementation passes 124 tests. An independent offline study exercised 1,200
 kitchens and replayed three policies on each: a public-rule reader completed all perfectly;
 a table containing every recipe but fixed preparation/timing averaged 24.7 quality. A stronger
 controller with adaptive timing reached 82.6. These results expose brittle scripts and also
@@ -82,15 +83,19 @@ configurations remain explicitly listed. Token coverage precedes additional doll
 
 ## First validation results
 
-These are **historical pilot controls at the earlier 2,048-token per-request ceiling**, not
-the revised configuration or a full-roster ranking. Twenty-four episodes and 622 requests
-were independently audited. The dollar view uses one kitchen per size family; the token view
-uses one kitchen. This sample cannot establish stable rankings or conservative B80.
+These are **six current-configuration canary episodes**, with 150 requests independently
+audited, including two interrupted attempts and their replacements. All six configurations
+faced the same development kitchen with a $0.15 allowance. This checks integration; one
+kitchen cannot establish stable rankings. Token-budget sweeps and B80 are still pending.
 
-![Pilot cost and quality](docs/v2/release-assets/corrected-pilot-cost-quality.png)
+![Canary cost and quality](docs/v2/release-r2-assets/revised-canary-cost-quality.png)
 
-[Full pilot figures, B80 and penalty sensitivity](docs/v2/RELEASE_RESULTS.md) ·
-[Raw evidence and accounting archive](data/v2/release/evidence-validation.zip)
+[Current figures, coverage and penalty sensitivity](docs/v2/RELEASE_RESULTS.md) ·
+[Raw evidence and accounting archive](data/v2/release-r2/evidence-revised-canary.zip)
+
+PhoneLLM's isolated compatibility probe succeeded, but hosted-cost accounting is not yet
+comparable enough for this dollar leaderboard. Its full-task diagnostic remains separate;
+[inclusion status and evidence](docs/v2/PHONELLM_INCLUSION_REVIEW.md) explain the remaining gap.
 
 ## Reproduce without API calls
 

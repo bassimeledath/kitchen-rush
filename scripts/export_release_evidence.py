@@ -49,12 +49,29 @@ def export(batches, output):
         for relative in (
             "preflight-plan.json", "preflight-review.json", "execution/plan.json",
             "execution/result.json", "billing-reconciliation.json", "liability-disposition.json",
+            "gross-billing-fetch.json", "resource-meter-observation.json",
         ):
             path = probe / relative
             if path.is_file():
                 paths.add(path)
                 supplemental.append(path.relative_to(ROOT).as_posix())
         paths.add(script)
+        sidecar = (
+            ROOT / "runs/v2/release-r2/external/phonellm-sandbox-probe-20260917-1.json"
+        )
+        if sidecar.is_file():
+            paths.add(sidecar)
+            supplemental.append(sidecar.relative_to(ROOT).as_posix())
+        billing_fetch = probe / "gross-billing-fetch.json"
+        if billing_fetch.is_file():
+            fetch_script = ROOT / "scripts/reconcile_phonellm_probe.py"
+            evidence = json.loads(billing_fetch.read_text())
+            if (
+                hashlib.sha256(fetch_script.read_bytes()).hexdigest()
+                != evidence["fetch_script_sha256"]
+            ):
+                raise ValueError("billing fetch source changed after evidence collection")
+            paths.add(fetch_script)
     payloads = {str(p.relative_to(ROOT)): p.read_bytes() for p in sorted(paths)}
     with tempfile.TemporaryDirectory() as directory:
         for name in (

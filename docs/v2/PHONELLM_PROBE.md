@@ -1,10 +1,12 @@
-# Bounded PhoneLLM probe — prepared, not launched
+# Bounded PhoneLLM probe — compatibility passed, billing pending
+
+**September 17 result:** one Sandbox returned valid typed action selections for all three development-state requests, then terminated successfully. Runtime checks confirmed SGLang 0.5.18 and one B200. This establishes interface compatibility, not complete-episode performance or ranking eligibility. The full-session wall-time estimate is about $1; the entire $5 reservation remains held until gross provider billing is reconciled.
 
 `scripts/probe_phonellm_sandbox.py` is **unranked compatibility/accounting work**, separate from the frozen release. Its default command is offline. It does not alter the campaign ledger, roster, or provider adapter.
 
 One B200 Sandbox requests **and limits** 4 physical CPU cores and 64 GiB RAM, with a **1,800-second maximum lifetime**. Base resource ceiling: `1800 × (0.001736 + 4×0.00003942 + 64×0.00000667) = $4.177008`; require a **$5 reserved campaign row**. The extra $0.822992 is operational margin, not measured expenditure. An existing immutable image avoids building; no persistent volume, snapshot, public endpoint, region pin, or separate warmup is created. Three sequential development-state requests use the existing public projection and complete syntactic action enum, including invalid actions. No inference retries or legality filter. This does not test complete episodes or establish a rank.
 
-The deployed PhoneLLM app layout was read on **2026-09-17** and references image `im-KNuhx8x5CNGSM9Kp9F9Xw8`. The local deployment source names `lmsysorg/sglang:v0.5.18-cu130`; the API does not prove the historical registry tag. The probe uses the immutable image and fails before model loading unless SGLang is exactly `0.5.18` and one B200 is present. It records SGLang/PyTorch/CUDA/GPU metadata and loads model revision `8e76aaa6e8ce4765ac943ba3fb339494d4d48dca` explicitly. Memory sufficiency and strict output support remain untested.
+The deployed PhoneLLM app layout was read on **2026-09-17** and references image `im-KNuhx8x5CNGSM9Kp9F9Xw8`. The local deployment source names `lmsysorg/sglang:v0.5.18-cu130`; the API does not prove the historical registry tag. The probe uses the immutable image and fails before model loading unless SGLang is exactly `0.5.18` and one B200 is present. It records SGLang/PyTorch/CUDA/GPU metadata and loads model revision `8e76aaa6e8ce4765ac943ba3fb339494d4d48dca` explicitly. The probe verified memory sufficiency for these requests and strict output support; complete episodes and live cost admission remain untested.
 
 **Verified account finding, 2026-09-17:** authenticated dashboard inspection found a provider usage limit that auto-raises and no manual spend limit. No settings changed. Do not treat that limit as a fixed probe ceiling. Installed Modal SDK/CLI **1.5.2** successfully read daily and hourly billing reports; its public settings API does not expose the usage cap. Billing requests subsequently hit rate limiting; no further reports were requested.
 
@@ -37,7 +39,7 @@ Create a local receipt under `runs/` using actual values, not placeholders:
 }
 ```
 
-The evidence review must be within 15 minutes of launch. A receipt records the review; its hash is not proof of provider enforcement. Launch is an explicit paid action, **not performed during preparation**:
+The evidence review must be within 15 minutes of launch. A receipt records the review; its hash is not proof of provider enforcement. Launch is an explicit paid action. The completed probe used a single reviewed reservation; do not rerun that reservation:
 
 ```sh
 /Users/bassime/.local/share/uv/tools/modal/bin/python scripts/probe_phonellm_sandbox.py --launch --receipt runs/phonellm-receipt.json --out runs/phonellm-probe
