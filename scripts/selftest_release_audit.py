@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import importlib.util
 import json
 import shutil
@@ -230,6 +231,29 @@ with TemporaryDirectory() as td:
             )
         )
     print("self-contained r2 source and three-ledger evidence export passed")
+    probe = r / "runs/v2/phonellm-probe-20260917"
+    (probe / "execution").mkdir(parents=True)
+    probe_source = r / "scripts/probe_phonellm_sandbox.py"
+    probe_source.write_text("# offline export fixture\n")
+    (probe / "preflight-review.json").write_text(json.dumps({
+        "script_sha256": hashlib.sha256(probe_source.read_bytes()).hexdigest()
+    }))
+    (probe / "execution/result.json").write_text('{"rank_eligible": false}\n')
+    (probe / "receipt.json").write_text('{"private_account": "DO_NOT_EXPORT_RECEIPT"}\n')
+    ex.export([b], out)
+    with zipfile.ZipFile(out) as z:
+        assert (probe / "execution/result.json").relative_to(r).as_posix() in z.namelist()
+        assert (probe / "receipt.json").relative_to(r).as_posix() not in z.namelist()
+        assert all(b"DO_NOT_EXPORT_RECEIPT" not in z.read(name) for name in z.namelist())
+    probe_source.write_text("# changed after reviewed preflight\n")
+    try:
+        ex.export([b], out)
+    except ValueError as error:
+        assert "probe source changed" in str(error)
+    else:
+        raise AssertionError("unreviewed hosting source exported")
+    probe_source.write_text("# offline export fixture\n")
+    print("hosting evidence excludes private receipt and rejects changed source")
 
     dispatch = Ledger(r / "dispatch.sqlite", cap=200, opening_balance=180)
     dispatch_model = Model(

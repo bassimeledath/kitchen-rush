@@ -36,6 +36,25 @@ def export(batches, output):
             paths.add(ROOT / gate["operational_amendment"]["path"])
             paths.add(ROOT / gate["operational_amendment"]["source_archive"])
         paths.update((ROOT / f"data/v2/release-r2/{batch}-recoveries").glob("*.json"))
+    # The hosting probe shares the campaign ceiling but is not a scored episode.
+    # Export only its public task, reviewed limits and sanitized outcome, never the
+    # local receipt (which contains account identity and machine-specific paths).
+    probe = ROOT / "runs/v2/phonellm-probe-20260917"
+    supplemental = []
+    if (probe / "preflight-review.json").is_file():
+        script = ROOT / "scripts/probe_phonellm_sandbox.py"
+        review = json.loads((probe / "preflight-review.json").read_text())
+        if hashlib.sha256(script.read_bytes()).hexdigest() != review["script_sha256"]:
+            raise ValueError("hosting probe source changed after preflight")
+        for relative in (
+            "preflight-plan.json", "preflight-review.json", "execution/plan.json",
+            "execution/result.json", "billing-reconciliation.json", "liability-disposition.json",
+        ):
+            path = probe / relative
+            if path.is_file():
+                paths.add(path)
+                supplemental.append(path.relative_to(ROOT).as_posix())
+        paths.add(script)
     payloads = {str(p.relative_to(ROOT)): p.read_bytes() for p in sorted(paths)}
     with tempfile.TemporaryDirectory() as directory:
         for name in (
@@ -80,6 +99,7 @@ def export(batches, output):
         "the operational amendment to replace driver files. Run python "
         "scripts/audit_release_v2.py --batch <batch>. No API call is needed.",
         restore_sources=restore_sources,
+        supplemental_unranked_expense_evidence=supplemental,
         credential_scan_passed=True,
         sha256={name: hashlib.sha256(content).hexdigest() for name, content in payloads.items()},
     )
