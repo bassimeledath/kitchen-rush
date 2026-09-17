@@ -71,6 +71,7 @@ exploratory. Every episode must reproduce its actions, frames and final score ex
 ## Validation before rankings
 
 Offline tests cover the engine, resource accounting, replay and failure handling.
+[A clean checkout passed 191 Python tests and the replay accounting suite](data/v2/release-r2/clean-checkout-validation-20260917.json), without local run files or credentials.
 An independent offline study exercised 1,200
 kitchens and replayed three policies on each: a public-rule reader completed all perfectly;
 a table containing every recipe but fixed preparation/timing averaged 24.7 quality. A stronger
@@ -93,14 +94,15 @@ kitchen cannot establish stable rankings. Token-budget sweeps and B80 are still 
 ![Canary cost and quality](docs/v2/release-r2-assets/revised-canary-cost-quality.png)
 
 [Current figures, coverage and penalty sensitivity](docs/v2/RELEASE_RESULTS.md) ·
-[Raw evidence and accounting archive](data/v2/release-r2/evidence-checkpoint-20260917.zip)
+[Raw evidence and accounting archive](data/v2/release-r2/evidence-diagnostics-20260917.zip)
 
 The full-roster checkpoint is paused for account funding. Its partial traces and charges are
 preserved; the [reviewed recovery procedure](docs/v2/FUNDING_RECOVERY.md) keeps the same tasks,
 settings and budgets when funding is restored.
 
-PhoneLLM's isolated compatibility probe succeeded, but hosted-cost accounting is not yet
-comparable enough for this dollar leaderboard. Its full-task diagnostic remains separate;
+PhoneLLM's isolated compatibility probe succeeded. Its three replay-verified diagnostic
+kitchens scored zero, but use different tasks from the shared canary and remain unranked.
+Hosted-cost accounting is not yet comparable enough for this dollar leaderboard;
 [inclusion status and evidence](docs/v2/PHONELLM_INCLUSION_REVIEW.md) explain the remaining gap.
 
 ## Reproduce without API calls

@@ -8,6 +8,7 @@ import shutil
 import sqlite3
 import sys
 import time
+import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -45,10 +46,10 @@ def proof(root, minimum=6.24576):
 
 
 @pytest.fixture
-def incident(tmp_path):
+def incident(tmp_path, monkeypatch):
     # Deliberately preserve exact real incident bytes and frozen source archives.
     paths = list((ROOT / "src").rglob("*.py"))
-    paths += list((ROOT / "data/v2/release-r2").glob("*.zip"))
+    paths += list((ROOT / "data/v2/release-r2").glob("source-*.zip"))
     paths += list((ROOT / "data/v2/release-r2").glob("*-gate.json"))
     paths += [
         ROOT / p
@@ -62,22 +63,34 @@ def incident(tmp_path):
             "scripts/audit_release_v2.py",
             "scripts/audit_roster_v2.py",
             "scripts/funding_recovery_v2.py",
-            funding.DIAGNOSIS,
-            funding.LIABILITY,
         )
     ]
-    paths += [ROOT / f"runs/v2/release-r2/roster_canary/{j}.json" for j in funding.ORIGINAL_HASHES]
     for source in paths:
         dest = tmp_path / source.relative_to(ROOT)
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, dest)
-    # Historical ledgers only; live campaign ledger is never opened or mutated.
-    for name in ("runs/v2/spend.sqlite", "runs/v2/release/spend.sqlite"):
-        dest = tmp_path / name
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        with sqlite3.connect((ROOT / name).as_uri() + "?mode=ro", uri=True) as source:
-            with sqlite3.connect(dest) as target:
-                source.backup(target)
+    # Exact public incident bytes come from the tracked, immutable checkpoint.
+    # Never require ignored runs files or open any live/historical local ledger.
+    evidence_paths = [funding.LIABILITY, "runs/v2/spend.sqlite", "runs/v2/release/spend.sqlite"]
+    evidence_paths += [
+        f"runs/v2/release-r2/roster_canary/{job}.json" for job in funding.ORIGINAL_HASHES
+    ]
+    with zipfile.ZipFile(ROOT / "data/v2/release-r2/evidence-checkpoint-20260917.zip") as archive:
+        for name in evidence_paths:
+            dest = tmp_path / name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(archive.read(name))
+    # The private account-balance diagnosis is intentionally not published.
+    # Use a synthetic exhausted account with an actual, checked content hash.
+    diagnosis = tmp_path / funding.DIAGNOSIS
+    diagnosis.write_text(
+        json.dumps(dict(read_only=True, credits=dict(total_credits=1, total_usage=1)))
+    )
+    monkeypatch.setattr(funding, "DIAGNOSIS_SHA", funding.sha(diagnosis))
+    liability_path = tmp_path / funding.LIABILITY
+    liability = funding.read(liability_path)
+    liability["funding_evidence_sha256"] = funding.DIAGNOSIS_SHA
+    liability_path.write_text(json.dumps(liability))
     manifest = funding.read(tmp_path / "data/v2/release-r2/roster_canary-manifest.json")
     db = tmp_path / "runs/v2/release-r2/spend.sqlite"
     with sqlite3.connect(db) as con:

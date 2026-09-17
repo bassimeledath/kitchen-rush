@@ -1,10 +1,14 @@
-# PhoneLLM durable recovery (prepared, not launched)
+# PhoneLLM durable recovery (completed September 17)
+
+The bounded recovery finished with both missing kitchens replay verified and sandbox termination confirmed. Each scored 0; the preserved size-2 kitchen also scored 0. These three diagnostic results are unranked, use different kitchens from the shared canary, and cannot establish B80. The new $5 hosting reservation remains fully accounted while billing is unresolved. Evidence is under `runs/v2/phonellm-durable-recovery-20260917/execution/`.
+
+Independent trace review found repeated invalid choices: size 3 made 12 invalid actions in 16 requests; size 4 made 17 in 22. All responses finished normally, and both games reached their terminal state. These zero scores reflect the recorded choices, not truncated responses or lost logs.
 
 `phonellm_durable_recovery.py` is a separate version. It retains the completed size-2 kitchen (Q0) and schedules only the original size-3/4 development kitchens, seeds 74003/74004. The original model revision, settings, public state, candidates, action rules, 8,192-token allowance per attempt and 160-decision limit remain. The known size-3 prefix tokens remain accounted; unobserved usage after the truncated log is explicitly unknown. Recovered results are unranked and cannot establish B80. The cost denominator remains **three originally scheduled kitchens**, including all previous hosting costs and liabilities.
 
 Full events, episode snapshots and the plan are written atomically inside the sandbox. The worker publishes a checksummed ZIP and a small ready file, then waits at most 120 seconds for a verified acknowledgment. The host uses Modal's documented filesystem `read_bytes`, `copy_to_local` and `write_bytes` methods, checks every payload hash, replays both completed episodes, and acknowledges only after verification. Stdout carries no trace payloads. Missing, partial, corrupt or failed evidence produces a nonzero CLI result. The 1,800-second sandbox limit includes startup, inference, transfer and shutdown; new inference stops starting after 1,300 seconds to preserve transfer time.
 
-The dedicated application is `kitchenrush-phonellm-durable-recovery-v1`, isolating any future bill from the previous application's pending reconciliation. The existing image, one B200, four physical CPUs, 64 GiB, September expiry, fresh reviewed receipt, reserved liability and one-use receipt claim are reused. There are no automatic retries. This preparation creates no sandbox, reservation or receipt.
+The dedicated application is `kitchenrush-phonellm-durable-recovery-v1`, isolating its bill from the previous application's pending reconciliation. The run used the existing image, one B200, four physical CPUs, 64 GiB, a 1,800-second lifetime and a separately reviewed receipt and reservation. There are no automatic retries. Its one-use receipt is consumed; do not rerun it.
 
 ```sh
 # Offline plan and exact source binding.

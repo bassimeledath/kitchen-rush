@@ -19,6 +19,19 @@ spec = importlib.util.spec_from_file_location(
 )
 cpu = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(cpu)
+
+
+@pytest.fixture(autouse=True)
+def portable_phone_module(phone_checkout, monkeypatch):
+    fixture_spec = importlib.util.spec_from_file_location(
+        "portable_cpu_fixture", phone_checkout / "scripts/phonellm_cpu_transport_check.py"
+    )
+    fixture_module = importlib.util.module_from_spec(fixture_spec)
+    fixture_spec.loader.exec_module(fixture_module)
+    monkeypatch.setitem(globals(), "ROOT", phone_checkout)
+    monkeypatch.setitem(globals(), "cpu", fixture_module)
+
+
 NOW = 1789680000.0
 
 
@@ -157,10 +170,8 @@ def test_fake_full_sdk_lifecycle_cpu_only_and_no_ledger_write(tmp_path):
         assert db.execute("SELECT actual,status FROM requests").fetchone() == (None, "reserved")
 
 
-def test_python310_actual_sdk_validator():
-    python = Path.home() / ".local/share/uv/tools/modal/bin/python"
-    if not python.is_file():
-        pytest.skip("Modal runtime unavailable")
+def test_python310_actual_sdk_validator(modal_sdk_python):
+    python = modal_sdk_python
     subprocess.run(
         [
             str(python),

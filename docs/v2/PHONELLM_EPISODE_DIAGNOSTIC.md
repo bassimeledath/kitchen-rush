@@ -1,5 +1,7 @@
 # PhoneLLM full-task diagnostic
 
+**Current result:** all three original kitchens now have complete, replay-verified results, each with quality 0. The first streamed run lost part of its log; [a separate filesystem-based recovery](PHONELLM_DURABLE_RECOVERY.md) completed only the two unfinished kitchens. Original failures, prefix usage and all hosting liabilities remain accounted. The commands below document the original runner; its consumed receipts must not be reused.
+
 Runs **three predeclared development kitchens**, sizes 2/3/4 and seeds 74002/74003/74004, at **8,192 generated tokens each**. Uses the frozen engine, public state, candidates, one-action payload and invalid-action scoring; maximum 160 decisions. Model revision, SGLang 0.5.18, thinking disabled, temperature 0, one B200, four physical CPUs and 64 GiB are pinned. This is unranked: no dollar admission, dollar leaderboard, or B80 claim.
 
 The separate runner leaves the release roster, campaign, core and original probe unchanged. It archives the exact source and streams request/response/action evidence before independently replaying completed episodes. Failed/missing episodes remain explicit; their quality is not substituted with zero. All hosted cost fields remain `null` until gross provider billing is reconciled.

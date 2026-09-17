@@ -44,8 +44,8 @@ def test_timeout_preserves_unknown_spend_and_cleans_client():
     asyncio.run(run())
 
 
-def test_actual_native_sdk_lookup_stays_on_client_loop():
-    python = Path.home() / ".local/share/uv/tools/modal/bin/python"
+def test_actual_native_sdk_lookup_stays_on_client_loop(modal_sdk_python):
+    python = modal_sdk_python
     code = """import asyncio,importlib.util,json,sys
 from datetime import datetime,timezone
 from types import SimpleNamespace
@@ -132,8 +132,8 @@ def test_billing_stream_timeout_does_not_publish_partial_total():
     asyncio.run(run())
 
 
-def test_actual_python310_timeouts_at_each_network_phase():
-    python = Path.home() / ".local/share/uv/tools/modal/bin/python"
+def test_actual_python310_timeouts_at_each_network_phase(modal_sdk_python):
+    python = modal_sdk_python
     code = """import asyncio,importlib.util,json,sys
 from types import SimpleNamespace
 spec=importlib.util.spec_from_file_location('b',sys.argv[1]);b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)

@@ -3132,45 +3132,70 @@
     }
   },
   "spending": {
-    "current_accounted_usd": 17.472764062,
-    "current_failed_or_incomplete_usd": 16.961865363999998,
+    "current_accounted_usd": 22.722764062,
+    "current_completed_diagnostic_usd": 10.25,
+    "current_diagnostic_retained_liability_usd": 15.25,
+    "current_failed_or_incomplete_usd": 6.9618653639999994,
+    "current_interrupted_diagnostic_usd": 5.0,
     "current_missing_artifact_usd": 0,
-    "current_unresolved_or_unknown_usd": 16.619488,
-    "failed_attempts": [
+    "current_unresolved_or_unknown_usd": 21.869488,
+    "diagnostic_attempts": [
       {
-        "accounted_usd": 0.0,
-        "episode": "phonellm-full-episodes-20260917-1",
-        "failure_kind": "incomplete",
+        "accounted_usd": 0.25,
+        "episode": "phonellm-cpu-transport-20260917-1",
+        "failure_kind": "synthetic_transport_diagnostic",
         "known_charges_usd": 0.0,
         "partial_quality_unranked": null,
         "rank_eligible": false,
-        "status": "local_launch_rejected",
+        "status": "verified_transport_only",
+        "unknown_liability_usd": 0.25
+      },
+      {
+        "accounted_usd": 5.0,
+        "episode": "phonellm-durable-recovery-20260917-1",
+        "failure_kind": "completed_unranked_diagnostic",
+        "known_charges_usd": 0.0,
+        "partial_quality_unranked": null,
+        "rank_eligible": false,
+        "status": "verified_unranked_recovery",
+        "unknown_liability_usd": 5.0
+      },
+      {
+        "accounted_usd": 0.0,
+        "episode": "phonellm-full-episodes-20260917-1",
+        "failure_kind": "unranked_diagnostic_not_dispatched",
+        "known_charges_usd": 0.0,
+        "partial_quality_unranked": null,
+        "rank_eligible": false,
+        "status": "no_compute_dispatched",
         "unknown_liability_usd": 0.0
       },
       {
         "accounted_usd": 5.0,
         "episode": "phonellm-full-episodes-20260917-2",
-        "failure_kind": "incomplete",
+        "failure_kind": "interrupted_unranked_diagnostic",
         "known_charges_usd": 0.0,
         "partial_quality_unranked": null,
         "rank_eligible": false,
-        "status": "billing_pending",
+        "status": "incomplete_trace",
         "unknown_liability_usd": 5.0
       },
       {
         "accounted_usd": 5.0,
         "episode": "phonellm-sandbox-probe-20260917-1",
-        "failure_kind": "incomplete",
+        "failure_kind": "completed_unranked_diagnostic",
         "known_charges_usd": 0.0,
         "partial_quality_unranked": null,
         "rank_eligible": false,
-        "status": "billing_pending",
+        "status": "complete",
         "unknown_liability_usd": 5.0
-      },
+      }
+    ],
+    "failed_attempts": [
       {
         "accounted_usd": 0.003360114,
         "episode": "revised_canary-deepseek-v4-flash-think-60000-3-0-d0.15-tNone",
-        "failure_kind": "peer_accounting_pause",
+        "failure_kind": "operational_spending_gate",
         "known_charges_usd": 0.003360114,
         "partial_quality_unranked": 0,
         "rank_eligible": false,
@@ -3180,7 +3205,7 @@
       {
         "accounted_usd": 0.40045425,
         "episode": "revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone",
-        "failure_kind": "provider_failure",
+        "failure_kind": "provider_or_accounting_failure",
         "known_charges_usd": 0.02672625,
         "partial_quality_unranked": 33.33333333333333,
         "rank_eligible": false,
@@ -3190,7 +3215,7 @@
       {
         "accounted_usd": 0.159879,
         "episode": "roster_canary-claude-haiku-4-5-60100-3-0-d0.4-tNone",
-        "failure_kind": "peer_accounting_pause",
+        "failure_kind": "operational_spending_gate",
         "known_charges_usd": 0.159879,
         "partial_quality_unranked": 0,
         "rank_eligible": false,
@@ -3200,7 +3225,7 @@
       {
         "accounted_usd": 0.089232,
         "episode": "roster_canary-claude-sonnet-4-6-60100-3-0-d0.4-tNone",
-        "failure_kind": "peer_accounting_pause",
+        "failure_kind": "operational_spending_gate",
         "known_charges_usd": 0.089232,
         "partial_quality_unranked": 0,
         "rank_eligible": false,
@@ -3222,7 +3247,7 @@
       {
         "accounted_usd": 0.100665324,
         "episode": "roster_canary-deepseek-v4-flash-think-56300-3-0-d0.4-tNone",
-        "failure_kind": "provider_failure",
+        "failure_kind": "provider_or_accounting_failure",
         "known_charges_usd": 0.005924844,
         "partial_quality_unranked": 0,
         "rank_eligible": false,
@@ -3232,7 +3257,7 @@
       {
         "accounted_usd": 0.10091775,
         "episode": "canary-mini-42000-0-d0.4-tNone",
-        "failure_kind": "provider_failure",
+        "failure_kind": "provider_or_accounting_failure",
         "known_charges_usd": 0.0822045,
         "partial_quality_unranked": 33.33333333333333,
         "rank_eligible": false,
@@ -3241,6 +3266,6 @@
       }
     ],
     "prior_accounted_usd": 16.175129022,
-    "total_accounted_usd": 33.647893084
+    "total_accounted_usd": 38.897893084
   }
 }

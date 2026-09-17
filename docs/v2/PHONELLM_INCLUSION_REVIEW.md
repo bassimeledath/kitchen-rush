@@ -11,8 +11,11 @@
 **Admission gate.** Provider billing reports do not establish synchronous per-response charges. Until a validated meter assigns cumulative deployment cost before each action, shared overhead cannot silently disappear from allowance admission. Publish reconciled quality-versus-total-cost observations first, explicitly unranked for allowance/B80. A fixed, fully reserved resource configuration with measured lifecycle boundaries could enable the common contract; reconcile its meter, test timeout/failed-start accounting, then rerun. Retrospectively allocating an invoice does not prove the live budget gate was correct.
 
 A bounded Sandbox probe confirms three valid typed action selections and successful termination.
-A separate full-task diagnostic has one completed, replay-verified kitchen (quality 0), then
-stopped on a host-side log parsing error during the second kitchen; the third was not attempted.
-These partial diagnostic results remain unranked. Hosting bills remain unreconciled and no
+A separate full-task diagnostic initially stopped on a host-side log parsing error after one
+replay-verified kitchen. A verified filesystem transfer recovered the two unfinished kitchens,
+preserving the first result and all prior costs and usage. All three scored 0; independent
+review confirmed repeated invalid choices in the recovered runs, with normal response finishes.
+These diagnostic results remain unranked and use different kitchens from the shared canary.
+See the [recovery evidence](PHONELLM_DURABLE_RECOVERY.md). Hosting bills remain unreconciled and no
 live hosting-cost admission meter has been validated. See the [probe evidence summary](PHONELLM_PROBE.md)
 and [full-task diagnostic](PHONELLM_EPISODE_DIAGNOSTIC.md).

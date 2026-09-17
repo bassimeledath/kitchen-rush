@@ -18,6 +18,17 @@ durable = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(durable)
 
 
+@pytest.fixture(autouse=True)
+def portable_phone_module(phone_checkout, monkeypatch):
+    fixture_spec = importlib.util.spec_from_file_location(
+        "portable_durable_fixture", phone_checkout / "scripts/phonellm_durable_recovery.py"
+    )
+    fixture_module = importlib.util.module_from_spec(fixture_spec)
+    fixture_spec.loader.exec_module(fixture_module)
+    monkeypatch.setitem(globals(), "ROOT", phone_checkout)
+    monkeypatch.setitem(globals(), "durable", fixture_module)
+
+
 def make_archive(tmp_path):
     planned = durable.plan()
     journal = durable.Journal(tmp_path, planned)
@@ -112,10 +123,8 @@ def test_cli_failure_returns_nonzero():
         assert durable.main() == 1
 
 
-def test_actual_sdk_signatures_python310_and_cmd():
-    python = Path.home() / ".local/share/uv/tools/modal/bin/python"
-    if not python.is_file():
-        pytest.skip("installed Modal SDK unavailable")
+def test_actual_sdk_signatures_python310_and_cmd(modal_sdk_python):
+    python = modal_sdk_python
     code = """import inspect,json,sys
 from modal.sandbox import _validate_exec_args
 from modal.sandbox_fs import _SandboxFilesystem

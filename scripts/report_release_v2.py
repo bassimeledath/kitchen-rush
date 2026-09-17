@@ -79,6 +79,15 @@ def aggregate(episodes):
     # Independent auditing already replayed these artifacts; raw stored flags are not authority.
     safe = copy.deepcopy(episodes)
     for ep in safe:
+        require(
+            not ep.get("synthetic_responses")
+            and ep.get("inference_executed") is not False
+            and ep.get("kind") != "transport_selftest"
+            and not any(
+                r.get("response", {}).get("synthetic_fixture") for r in ep.get("requests", [])
+            ),
+            "synthetic transport fixtures cannot enter model aggregation",
+        )
         ep["replay_verified"] = True
     result = summarize(safe)
     for row in result["rows"]:
@@ -414,6 +423,10 @@ def spending(root):
         "current_failed_or_incomplete_usd": 0,
         "current_unresolved_or_unknown_usd": 0,
         "current_missing_artifact_usd": 0,
+        "current_completed_diagnostic_usd": 0,
+        "current_interrupted_diagnostic_usd": 0,
+        "current_diagnostic_retained_liability_usd": 0,
+        "diagnostic_attempts": [],
         "failed_attempts": [],
         "historical_failed_attempts": [],
     }
@@ -453,9 +466,28 @@ def spending(root):
             paths = [p for p in base.rglob("*.json") if p.stem == eid]
             episode = load(paths[0]) if len(paths) == 1 else None
             status = episode.get("status") if episode else "artifact_unavailable"
+            synthetic = eid == "phonellm-cpu-transport-20260917-1" or bool(
+                episode
+                and (
+                    episode.get("synthetic_responses")
+                    or episode.get("kind") == "transport_selftest"
+                )
+            )
+            diagnostic = synthetic or bool(
+                episode
+                and episode.get("kind") in ("unranked_hosting_probe", "unranked_hosting_diagnostic")
+            )
+            completed_diagnostic = False
+            if diagnostic:
+                status = (episode or {}).get("execution_status", "execution_unverified")
+                completed_diagnostic = status in (
+                    "complete",
+                    "verified_unranked_recovery",
+                    "verified_transport_only",
+                )
             liability = sum(r[2] if r[2] is not None else r[1] for r in group)
             unknown = sum(r[1] for r in group if r[2] is None)
-            if status != "complete":
+            if status != "complete" or diagnostic:
                 item = {
                     "episode": eid,
                     "status": status,
@@ -463,7 +495,15 @@ def spending(root):
                     "known_charges_usd": sum(r[2] or 0 for r in group) / 1e9,
                     "unknown_liability_usd": unknown / 1e9,
                     "failure_kind": (
-                        "funding_pause"
+                        "synthetic_transport_diagnostic"
+                        if synthetic
+                        else "completed_unranked_diagnostic"
+                        if diagnostic and completed_diagnostic
+                        else "unranked_diagnostic_not_dispatched"
+                        if diagnostic and status == "no_compute_dispatched"
+                        else "interrupted_unranked_diagnostic"
+                        if diagnostic
+                        else "funding_pause"
                         if episode
                         and episode.get("error") == "ProviderError: HTTP 402; no automatic retry"
                         else "operational_spending_gate"
@@ -472,14 +512,27 @@ def spending(root):
                         if episode and episode.get("status") == "quarantined"
                         else "incomplete"
                     ),
-                    "partial_quality_unranked": episode.get("quality") if episode else None,
+                    "partial_quality_unranked": episode.get("quality")
+                    if episode and not diagnostic
+                    else None,
                     "rank_eligible": False,
                 }
-                result[
-                    "failed_attempts" if prefix == "current" else "historical_failed_attempts"
-                ].append(item)
+                if prefix == "current" and diagnostic:
+                    result["diagnostic_attempts"].append(item)
+                else:
+                    result[
+                        "failed_attempts" if prefix == "current" else "historical_failed_attempts"
+                    ].append(item)
                 if prefix == "current":
-                    result["current_failed_or_incomplete_usd"] += liability / 1e9
+                    if diagnostic:
+                        result[
+                            "current_completed_diagnostic_usd"
+                            if completed_diagnostic
+                            else "current_interrupted_diagnostic_usd"
+                        ] += liability / 1e9
+                        result["current_diagnostic_retained_liability_usd"] += unknown / 1e9
+                    else:
+                        result["current_failed_or_incomplete_usd"] += liability / 1e9
                     if episode is None:
                         result["current_missing_artifact_usd"] += liability / 1e9
             if prefix == "current":
@@ -772,24 +825,35 @@ def build(batches, *, root=ROOT):
             )
     lines += [
         "",
-        "## Spending and failed attempts",
+        "## Spending, diagnostics and interrupted attempts",
         "",
         f"Total accounted: **${totals['total_accounted_usd']:.6f} / $200**. "
         f"Brought forward from earlier protocols: ${totals['prior_accounted_usd']:.6f}; "
         f"current protocol: ${totals['current_accounted_usd']:.6f}. "
-        f"Current failed/incomplete attempts: ${totals['current_failed_or_incomplete_usd']:.6f}. "
+        "Current failed/incomplete benchmark attempts: "
+        f"${totals['current_failed_or_incomplete_usd']:.6f}. "
+        f"Completed unranked diagnostics: ${totals['current_completed_diagnostic_usd']:.6f}; "
+        f"interrupted/unstarted diagnostics: ${totals['current_interrupted_diagnostic_usd']:.6f}. "
+        "Diagnostic retained liability: "
+        f"${totals['current_diagnostic_retained_liability_usd']:.6f}. "
         f"Current unknown liability: ${totals['current_unresolved_or_unknown_usd']:.6f}. "
         "These are campaign totals, including batches not selected for this report.",
         "",
-        "Known charges and retained unknown liabilities are separate. Jev dollar charges use "
+        "Ledger-settled charges and retained liabilities are separate. Jev dollar charges use "
         "reported input usage × frozen published tariff; OpenRouter uses reported usage.cost. "
         "TypeSafe's operational reserve is an estimate, not a guaranteed provider spending cap.",
+        "Synthetic CPU transport checks are campaign expenses only; their fixture quality "
+        "never enters model results, frontiers or B80.",
+        "The [PhoneLLM billing review](PHONELLM_BILLING_REVIEW.md) records $1.93543341 "
+        "in observed gross app charges within existing holds. These observations are not "
+        "settled charges and are not added again to campaign totals.",
         "",
-        "| Protocol | Attempt | Status / cause | Partial Q (unranked) | "
-        "Known charges | Unknown liability |",
+        "| Protocol | Attempt | Execution status / type | Partial Q (unranked) | "
+        "Ledger-settled charges | Retained liability |",
         "|---|---|---|---:|---:|---:|",
     ]
     failures = [("Current", e) for e in totals["failed_attempts"]]
+    failures += [("Diagnostic", e) for e in totals["diagnostic_attempts"]]
     failures += [("Historical", e) for e in totals["historical_failed_attempts"]]
     if not failures:
         lines.append("| Both | — | No failed or incomplete attempts found | — | $0 | $0 |")

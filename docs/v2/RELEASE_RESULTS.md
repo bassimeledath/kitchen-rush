@@ -129,24 +129,28 @@ Recomputed from raw completed/invalid counts. The headline remains λ=0.1; clipp
 | M22 grok-build·think | USD | 0.15 | 66.7 | 66.7 | 66.7 | 66.7 |
 | M23 jev | USD | 0.15 | 33.3 | 26.7 | 20.0 | 6.7 |
 
-## Spending and failed attempts
+## Spending, diagnostics and interrupted attempts
 
-Total accounted: **$33.647893 / $200**. Brought forward from earlier protocols: $16.175129; current protocol: $17.472764. Current failed/incomplete attempts: $16.961865. Current unknown liability: $16.619488. These are campaign totals, including batches not selected for this report.
+Total accounted: **$38.897893 / $200**. Brought forward from earlier protocols: $16.175129; current protocol: $22.722764. Current failed/incomplete benchmark attempts: $6.961865. Completed unranked diagnostics: $10.250000; interrupted/unstarted diagnostics: $5.000000. Diagnostic retained liability: $15.250000. Current unknown liability: $21.869488. These are campaign totals, including batches not selected for this report.
 
-Known charges and retained unknown liabilities are separate. Jev dollar charges use reported input usage × frozen published tariff; OpenRouter uses reported usage.cost. TypeSafe's operational reserve is an estimate, not a guaranteed provider spending cap.
+Ledger-settled charges and retained liabilities are separate. Jev dollar charges use reported input usage × frozen published tariff; OpenRouter uses reported usage.cost. TypeSafe's operational reserve is an estimate, not a guaranteed provider spending cap.
+Synthetic CPU transport checks are campaign expenses only; their fixture quality never enters model results, frontiers or B80.
+The [PhoneLLM billing review](PHONELLM_BILLING_REVIEW.md) records $1.93543341 in observed gross app charges within existing holds. These observations are not settled charges and are not added again to campaign totals.
 
-| Protocol | Attempt | Status / cause | Partial Q (unranked) | Known charges | Unknown liability |
+| Protocol | Attempt | Execution status / type | Partial Q (unranked) | Ledger-settled charges | Retained liability |
 |---|---|---|---:|---:|---:|
-| Current | phonellm-full-episodes-20260917-1 | local_launch_rejected / incomplete | — | $0.000000 | $0.000000 |
-| Current | phonellm-full-episodes-20260917-2 | billing_pending / incomplete | — | $0.000000 | $5.000000 |
-| Current | phonellm-sandbox-probe-20260917-1 | billing_pending / incomplete | — | $0.000000 | $5.000000 |
-| Current | revised_canary-deepseek-v4-flash-think-60000-3-0-d0.15-tNone | incomplete / peer_accounting_pause | 0 | $0.003360 | $0.000000 |
-| Current | revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone | quarantined / provider_failure | 33.33333333333333 | $0.026726 | $0.373728 |
-| Current | roster_canary-claude-haiku-4-5-60100-3-0-d0.4-tNone | incomplete / peer_accounting_pause | 0 | $0.159879 | $0.000000 |
-| Current | roster_canary-claude-sonnet-4-6-60100-3-0-d0.4-tNone | incomplete / peer_accounting_pause | 0 | $0.089232 | $0.000000 |
+| Current | revised_canary-deepseek-v4-flash-think-60000-3-0-d0.15-tNone | incomplete / operational_spending_gate | 0 | $0.003360 | $0.000000 |
+| Current | revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone | quarantined / provider_or_accounting_failure | 33.33333333333333 | $0.026726 | $0.373728 |
+| Current | roster_canary-claude-haiku-4-5-60100-3-0-d0.4-tNone | incomplete / operational_spending_gate | 0 | $0.159879 | $0.000000 |
+| Current | roster_canary-claude-sonnet-4-6-60100-3-0-d0.4-tNone | incomplete / operational_spending_gate | 0 | $0.089232 | $0.000000 |
 | Current | roster_canary-claude-sonnet-4-6-think-60100-3-0-d0.4-tNone | quarantined / funding_pause | 33.33333333333333 | $0.063180 | $6.245760 |
-| Historical | roster_canary-deepseek-v4-flash-think-56300-3-0-d0.4-tNone | quarantined / provider_failure | 0 | $0.005925 | $0.094740 |
-| Historical | canary-mini-42000-0-d0.4-tNone | quarantined / provider_failure | 33.33333333333333 | $0.082204 | $0.018713 |
+| Diagnostic | phonellm-cpu-transport-20260917-1 | verified_transport_only / synthetic_transport_diagnostic | — | $0.000000 | $0.250000 |
+| Diagnostic | phonellm-durable-recovery-20260917-1 | verified_unranked_recovery / completed_unranked_diagnostic | — | $0.000000 | $5.000000 |
+| Diagnostic | phonellm-full-episodes-20260917-1 | no_compute_dispatched / unranked_diagnostic_not_dispatched | — | $0.000000 | $0.000000 |
+| Diagnostic | phonellm-full-episodes-20260917-2 | incomplete_trace / interrupted_unranked_diagnostic | — | $0.000000 | $5.000000 |
+| Diagnostic | phonellm-sandbox-probe-20260917-1 | complete / completed_unranked_diagnostic | — | $0.000000 | $5.000000 |
+| Historical | roster_canary-deepseek-v4-flash-think-56300-3-0-d0.4-tNone | quarantined / provider_or_accounting_failure | 0 | $0.005925 | $0.094740 |
+| Historical | canary-mini-42000-0-d0.4-tNone | quarantined / provider_or_accounting_failure | 33.33333333333333 | $0.082204 | $0.018713 |
 
 ## Provenance
 
