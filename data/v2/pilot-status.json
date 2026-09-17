@@ -1,0 +1,46 @@
+{
+  "last_block": [
+    {
+      "completed": 2,
+      "cost_usd": 0.617301,
+      "id": "pilot-r3-sonnet-45004-0-d1.0-t8192",
+      "invalid": 5,
+      "quality": 50.0,
+      "reason": "game_terminal",
+      "status": "complete"
+    },
+    {
+      "completed": 2,
+      "cost_usd": 0.656964,
+      "id": "pilot-r3-sonnet-45004-0-d1.0-t2048",
+      "invalid": 7,
+      "quality": 43.33333333333333,
+      "reason": "game_terminal",
+      "status": "complete"
+    },
+    {
+      "completed": 2,
+      "cost_usd": 0.1205445,
+      "id": "pilot-r3-mini-45004-0-d1.0-t8192",
+      "invalid": 1,
+      "quality": 63.33333333333333,
+      "reason": "token_budget_exhausted",
+      "status": "complete"
+    }
+  ],
+  "ledger": {
+    "accounted_usd": 10.532554644,
+    "cap_usd": 50.0,
+    "overruns": 0,
+    "requests": 2470,
+    "retained_failed_requests": 1,
+    "settled_usd": 10.513841394,
+    "stages": {
+      "canary": 0.709813188,
+      "pilot": 8.309569704,
+      "smoke": 1.513171752
+    },
+    "unresolved_requests": 0,
+    "unresolved_reserve_usd": 0.01871325
+  }
+}

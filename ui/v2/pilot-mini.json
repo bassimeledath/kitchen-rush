@@ -1,0 +1,3838 @@
+{
+  "action_costs": [
+    0.0014619,
+    0.00327,
+    0.0021774,
+    0.00231765,
+    0.003063,
+    0.00398775,
+    0.003051,
+    0.002805,
+    0.00366975,
+    0.00310425,
+    0.00302625,
+    0.00294825,
+    0.00310725,
+    0.002979,
+    0.00300075,
+    0.0028515,
+    0.00290925,
+    0.0030075,
+    0.00299625,
+    0.00290475,
+    0.00289725,
+    0.002943
+  ],
+  "cost_usd": 0.0644787,
+  "dollar_cap": 0.4,
+  "episode_id": "pilot-r3-mini-44000-0-d0.4-tNone",
+  "frames": [
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        3,
+        3
+      ],
+      "clock_gs": 0.0,
+      "combo": 0,
+      "events": [
+        {
+          "clock_gs": 0.0,
+          "detail": {},
+          "type": "game_start"
+        },
+        {
+          "clock_gs": 0.0,
+          "detail": {
+            "dish": "R2",
+            "order_id": "O1"
+          },
+          "type": "order_arrived"
+        },
+        {
+          "clock_gs": 0.0,
+          "detail": {
+            "dish": "R3",
+            "order_id": "O2"
+          },
+          "type": "order_arrived"
+        }
+      ],
+      "hands": [],
+      "kind": "start",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "turn": 0
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        3,
+        3
+      ],
+      "clock_gs": 0.0,
+      "combo": 0,
+      "events": [],
+      "hands": [],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "think_gs": 0,
+      "turn": 1
+    },
+    {
+      "action": {
+        "arguments": {
+          "col": 4,
+          "row": 0
+        },
+        "category": null,
+        "name": "move_to",
+        "note": "moved to [1, 4] (3 steps) (next to [0, 4])",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        1,
+        4
+      ],
+      "clock_gs": 0.45,
+      "combo": 0,
+      "events": [
+        {
+          "clock_gs": 0.45,
+          "detail": {
+            "note": "moved to [1, 4] (3 steps) (next to [0, 4])"
+          },
+          "type": "move_to"
+        }
+      ],
+      "hands": [],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "turn": 1
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        1,
+        4
+      ],
+      "clock_gs": 0.45,
+      "combo": 0,
+      "events": [],
+      "hands": [],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "think_gs": 0,
+      "turn": 2
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "egg"
+        },
+        "category": null,
+        "name": "collect",
+        "note": "collected egg",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        1,
+        4
+      ],
+      "clock_gs": 2.45,
+      "combo": 0,
+      "events": [
+        {
+          "clock_gs": 2.45,
+          "detail": {
+            "note": "collected egg"
+          },
+          "type": "collect"
+        }
+      ],
+      "hands": [
+        {
+          "ingredient": "egg",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "turn": 2
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        1,
+        4
+      ],
+      "clock_gs": 2.45,
+      "combo": 0,
+      "events": [],
+      "hands": [
+        {
+          "ingredient": "egg",
+          "state": "RAW"
+        }
+      ],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "think_gs": 0,
+      "turn": 3
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "egg"
+        },
+        "category": null,
+        "name": "cook",
+        "note": "cooking egg on burner 1",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": 12.05,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": "egg",
+          "ready_gs": 9.05,
+          "start_gs": 5.05,
+          "status": "COOKING"
+        }
+      ],
+      "chef_pos": [
+        5,
+        4
+      ],
+      "clock_gs": 5.05,
+      "combo": 0,
+      "events": [
+        {
+          "clock_gs": 5.05,
+          "detail": {
+            "note": "cooking egg on burner 1"
+          },
+          "type": "cook"
+        }
+      ],
+      "hands": [],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "turn": 3
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": 12.05,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": "egg",
+          "ready_gs": 9.05,
+          "start_gs": 5.05,
+          "status": "COOKING"
+        }
+      ],
+      "chef_pos": [
+        5,
+        4
+      ],
+      "clock_gs": 5.05,
+      "combo": 0,
+      "events": [],
+      "hands": [],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "think_gs": 0,
+      "turn": 4
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "lettuce"
+        },
+        "category": null,
+        "name": "collect",
+        "note": "collected lettuce",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": 12.05,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": "egg",
+          "ready_gs": 9.05,
+          "start_gs": 5.05,
+          "status": "COOKING"
+        }
+      ],
+      "chef_pos": [
+        1,
+        5
+      ],
+      "clock_gs": 7.8,
+      "combo": 0,
+      "events": [
+        {
+          "clock_gs": 7.8,
+          "detail": {
+            "note": "collected lettuce"
+          },
+          "type": "collect"
+        }
+      ],
+      "hands": [
+        {
+          "ingredient": "lettuce",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "turn": 4
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": 12.05,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": "egg",
+          "ready_gs": 9.05,
+          "start_gs": 5.05,
+          "status": "COOKING"
+        }
+      ],
+      "chef_pos": [
+        1,
+        5
+      ],
+      "clock_gs": 7.8,
+      "combo": 0,
+      "events": [],
+      "hands": [
+        {
+          "ingredient": "lettuce",
+          "state": "RAW"
+        }
+      ],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "think_gs": 0,
+      "turn": 5
+    },
+    {
+      "action": {
+        "arguments": {
+          "seconds": 2
+        },
+        "category": null,
+        "name": "wait",
+        "note": "waited 2s",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": 12.05,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": "egg",
+          "ready_gs": 9.05,
+          "start_gs": 5.05,
+          "status": "READY"
+        }
+      ],
+      "chef_pos": [
+        1,
+        5
+      ],
+      "clock_gs": 9.8,
+      "combo": 0,
+      "events": [
+        {
+          "clock_gs": 9.05,
+          "detail": {
+            "burner_index": 1,
+            "ingredient": "egg"
+          },
+          "type": "cook_ready"
+        },
+        {
+          "clock_gs": 9.8,
+          "detail": {
+            "note": "waited 2s"
+          },
+          "type": "wait"
+        }
+      ],
+      "hands": [
+        {
+          "ingredient": "lettuce",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "turn": 5
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": 12.05,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": "egg",
+          "ready_gs": 9.05,
+          "start_gs": 5.05,
+          "status": "READY"
+        }
+      ],
+      "chef_pos": [
+        1,
+        5
+      ],
+      "clock_gs": 9.8,
+      "combo": 0,
+      "events": [],
+      "hands": [
+        {
+          "ingredient": "lettuce",
+          "state": "RAW"
+        }
+      ],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "think_gs": 0,
+      "turn": 6
+    },
+    {
+      "action": {
+        "arguments": {
+          "burner_index": 1,
+          "ingredient": "egg"
+        },
+        "category": null,
+        "name": "collect_cooked",
+        "note": "took cooked egg off burner 1",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        4
+      ],
+      "clock_gs": 11.55,
+      "combo": 0,
+      "events": [
+        {
+          "clock_gs": 11.55,
+          "detail": {
+            "note": "took cooked egg off burner 1"
+          },
+          "type": "collect_cooked"
+        }
+      ],
+      "hands": [
+        {
+          "ingredient": "lettuce",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "egg",
+          "state": "COOKED"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "turn": 6
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        4
+      ],
+      "clock_gs": 11.55,
+      "combo": 0,
+      "events": [],
+      "hands": [
+        {
+          "ingredient": "lettuce",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "egg",
+          "state": "COOKED"
+        }
+      ],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "think_gs": 0,
+      "turn": 7
+    },
+    {
+      "action": {
+        "arguments": {
+          "col": 2,
+          "row": 6
+        },
+        "category": null,
+        "name": "move_to",
+        "note": "moved to [5, 2] (2 steps) (next to [6, 2])",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        2
+      ],
+      "clock_gs": 11.85,
+      "combo": 0,
+      "events": [
+        {
+          "clock_gs": 11.85,
+          "detail": {
+            "note": "moved to [5, 2] (2 steps) (next to [6, 2])"
+          },
+          "type": "move_to"
+        }
+      ],
+      "hands": [
+        {
+          "ingredient": "lettuce",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "egg",
+          "state": "COOKED"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "turn": 7
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        2
+      ],
+      "clock_gs": 11.85,
+      "combo": 0,
+      "events": [],
+      "hands": [
+        {
+          "ingredient": "lettuce",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "egg",
+          "state": "COOKED"
+        }
+      ],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "think_gs": 0,
+      "turn": 8
+    },
+    {
+      "action": {
+        "arguments": {
+          "recipe": "R2"
+        },
+        "category": null,
+        "name": "plate",
+        "note": "plated R2",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        2
+      ],
+      "clock_gs": 16.85,
+      "combo": 0,
+      "events": [
+        {
+          "clock_gs": 16.85,
+          "detail": {
+            "note": "plated R2"
+          },
+          "type": "plate"
+        }
+      ],
+      "hands": [
+        {
+          "ingredient": "R2",
+          "state": "PLATE"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "turn": 8
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        2
+      ],
+      "clock_gs": 16.85,
+      "combo": 0,
+      "events": [],
+      "hands": [
+        {
+          "ingredient": "R2",
+          "state": "PLATE"
+        }
+      ],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 0.0,
+      "think_gs": 0,
+      "turn": 9
+    },
+    {
+      "action": {
+        "arguments": {
+          "order_id": "O1"
+        },
+        "category": null,
+        "name": "serve",
+        "note": "served O1 (R2)",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        1
+      ],
+      "clock_gs": 20.0,
+      "combo": 1,
+      "events": [
+        {
+          "clock_gs": 20.0,
+          "detail": {
+            "note": "served O1 (R2)"
+          },
+          "type": "serve"
+        }
+      ],
+      "hands": [],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 1.0,
+      "turn": 9
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        1
+      ],
+      "clock_gs": 20.0,
+      "combo": 1,
+      "events": [],
+      "hands": [],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 1.0,
+      "think_gs": 0,
+      "turn": 10
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "mushroom"
+        },
+        "category": null,
+        "name": "collect",
+        "note": "collected mushroom",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        1,
+        5
+      ],
+      "clock_gs": 23.2,
+      "combo": 1,
+      "events": [
+        {
+          "clock_gs": 23.2,
+          "detail": {
+            "note": "collected mushroom"
+          },
+          "type": "collect"
+        }
+      ],
+      "hands": [
+        {
+          "ingredient": "mushroom",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 1.0,
+      "turn": 10
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        1,
+        5
+      ],
+      "clock_gs": 23.2,
+      "combo": 1,
+      "events": [],
+      "hands": [
+        {
+          "ingredient": "mushroom",
+          "state": "RAW"
+        }
+      ],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 1.0,
+      "think_gs": 0,
+      "turn": 11
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "mushroom"
+        },
+        "category": null,
+        "name": "chop",
+        "note": "chopped mushroom",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        5
+      ],
+      "clock_gs": 27.8,
+      "combo": 1,
+      "events": [
+        {
+          "clock_gs": 27.8,
+          "detail": {
+            "note": "chopped mushroom"
+          },
+          "type": "chop"
+        }
+      ],
+      "hands": [
+        {
+          "ingredient": "mushroom",
+          "state": "CHOPPED"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 1.0,
+      "turn": 11
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        5
+      ],
+      "clock_gs": 27.8,
+      "combo": 1,
+      "events": [],
+      "hands": [
+        {
+          "ingredient": "mushroom",
+          "state": "CHOPPED"
+        }
+      ],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 1.0,
+      "think_gs": 0,
+      "turn": 12
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "noodles"
+        },
+        "category": null,
+        "name": "collect",
+        "note": "collected noodles",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        2,
+        5
+      ],
+      "clock_gs": 30.25,
+      "combo": 1,
+      "events": [
+        {
+          "clock_gs": 30.25,
+          "detail": {
+            "note": "collected noodles"
+          },
+          "type": "collect"
+        }
+      ],
+      "hands": [
+        {
+          "ingredient": "mushroom",
+          "state": "CHOPPED"
+        },
+        {
+          "ingredient": "noodles",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 1.0,
+      "turn": 12
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        2,
+        5
+      ],
+      "clock_gs": 30.25,
+      "combo": 1,
+      "events": [],
+      "hands": [
+        {
+          "ingredient": "mushroom",
+          "state": "CHOPPED"
+        },
+        {
+          "ingredient": "noodles",
+          "state": "RAW"
+        }
+      ],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 1.0,
+      "think_gs": 0,
+      "turn": 13
+    },
+    {
+      "action": {
+        "arguments": {
+          "col": 2,
+          "row": 6
+        },
+        "category": null,
+        "name": "move_to",
+        "note": "moved to [5, 2] (6 steps) (next to [6, 2])",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        2
+      ],
+      "clock_gs": 31.15,
+      "combo": 1,
+      "events": [
+        {
+          "clock_gs": 31.15,
+          "detail": {
+            "note": "moved to [5, 2] (6 steps) (next to [6, 2])"
+          },
+          "type": "move_to"
+        }
+      ],
+      "hands": [
+        {
+          "ingredient": "mushroom",
+          "state": "CHOPPED"
+        },
+        {
+          "ingredient": "noodles",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 1.0,
+      "turn": 13
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        2
+      ],
+      "clock_gs": 31.15,
+      "combo": 1,
+      "events": [],
+      "hands": [
+        {
+          "ingredient": "mushroom",
+          "state": "CHOPPED"
+        },
+        {
+          "ingredient": "noodles",
+          "state": "RAW"
+        }
+      ],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "PENDING"
+        }
+      ],
+      "score": 1.0,
+      "think_gs": 0,
+      "turn": 14
+    },
+    {
+      "action": {
+        "arguments": {
+          "recipe": "R3"
+        },
+        "category": null,
+        "name": "plate",
+        "note": "plated R3",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        2
+      ],
+      "clock_gs": 36.15,
+      "combo": 1,
+      "events": [
+        {
+          "clock_gs": 36.0,
+          "detail": {
+            "dish": "R1",
+            "order_id": "O3"
+          },
+          "type": "order_arrived"
+        },
+        {
+          "clock_gs": 36.15,
+          "detail": {
+            "note": "plated R3"
+          },
+          "type": "plate"
+        }
+      ],
+      "hands": [
+        {
+          "ingredient": "R3",
+          "state": "PLATE"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ],
+      "score": 1.0,
+      "turn": 14
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        2
+      ],
+      "clock_gs": 36.15,
+      "combo": 1,
+      "events": [],
+      "hands": [
+        {
+          "ingredient": "R3",
+          "state": "PLATE"
+        }
+      ],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ],
+      "score": 1.0,
+      "think_gs": 0,
+      "turn": 15
+    },
+    {
+      "action": {
+        "arguments": {
+          "order_id": "O2"
+        },
+        "category": null,
+        "name": "serve",
+        "note": "served O2 (R3)",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        1
+      ],
+      "clock_gs": 39.3,
+      "combo": 2,
+      "events": [
+        {
+          "clock_gs": 39.3,
+          "detail": {
+            "note": "served O2 (R3)"
+          },
+          "type": "serve"
+        }
+      ],
+      "hands": [],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ],
+      "score": 2.0,
+      "turn": 15
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        1
+      ],
+      "clock_gs": 39.3,
+      "combo": 2,
+      "events": [],
+      "hands": [],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ],
+      "score": 2.0,
+      "think_gs": 0,
+      "turn": 16
+    },
+    {
+      "action": {
+        "arguments": {
+          "col": 6,
+          "row": 1
+        },
+        "category": null,
+        "name": "move_to",
+        "note": "moved to [1, 5] (8 steps) (next to [1, 6])",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        1,
+        5
+      ],
+      "clock_gs": 40.5,
+      "combo": 2,
+      "events": [
+        {
+          "clock_gs": 40.5,
+          "detail": {
+            "note": "moved to [1, 5] (8 steps) (next to [1, 6])"
+          },
+          "type": "move_to"
+        }
+      ],
+      "hands": [],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ],
+      "score": 2.0,
+      "turn": 16
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        1,
+        5
+      ],
+      "clock_gs": 40.5,
+      "combo": 2,
+      "events": [],
+      "hands": [],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ],
+      "score": 2.0,
+      "think_gs": 0,
+      "turn": 17
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "mushroom"
+        },
+        "category": null,
+        "name": "collect",
+        "note": "collected mushroom",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        1,
+        5
+      ],
+      "clock_gs": 42.5,
+      "combo": 2,
+      "events": [
+        {
+          "clock_gs": 42.5,
+          "detail": {
+            "note": "collected mushroom"
+          },
+          "type": "collect"
+        }
+      ],
+      "hands": [
+        {
+          "ingredient": "mushroom",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ],
+      "score": 2.0,
+      "turn": 17
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        1,
+        5
+      ],
+      "clock_gs": 42.5,
+      "combo": 2,
+      "events": [],
+      "hands": [
+        {
+          "ingredient": "mushroom",
+          "state": "RAW"
+        }
+      ],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ],
+      "score": 2.0,
+      "think_gs": 0,
+      "turn": 18
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "onion"
+        },
+        "category": null,
+        "name": "collect",
+        "note": "collected onion",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        3,
+        5
+      ],
+      "clock_gs": 44.8,
+      "combo": 2,
+      "events": [
+        {
+          "clock_gs": 44.8,
+          "detail": {
+            "note": "collected onion"
+          },
+          "type": "collect"
+        }
+      ],
+      "hands": [
+        {
+          "ingredient": "mushroom",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "onion",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ],
+      "score": 2.0,
+      "turn": 18
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        3,
+        5
+      ],
+      "clock_gs": 44.8,
+      "combo": 2,
+      "events": [],
+      "hands": [
+        {
+          "ingredient": "mushroom",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "onion",
+          "state": "RAW"
+        }
+      ],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ],
+      "score": 2.0,
+      "think_gs": 0,
+      "turn": 19
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "onion"
+        },
+        "category": null,
+        "name": "chop",
+        "note": "chopped onion",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        5
+      ],
+      "clock_gs": 49.1,
+      "combo": 2,
+      "events": [
+        {
+          "clock_gs": 49.1,
+          "detail": {
+            "note": "chopped onion"
+          },
+          "type": "chop"
+        }
+      ],
+      "hands": [
+        {
+          "ingredient": "mushroom",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "onion",
+          "state": "CHOPPED"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ],
+      "score": 2.0,
+      "turn": 19
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        5
+      ],
+      "clock_gs": 49.1,
+      "combo": 2,
+      "events": [],
+      "hands": [
+        {
+          "ingredient": "mushroom",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "onion",
+          "state": "CHOPPED"
+        }
+      ],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ],
+      "score": 2.0,
+      "think_gs": 0,
+      "turn": 20
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "mushroom"
+        },
+        "category": null,
+        "name": "chop",
+        "note": "chopped mushroom",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        5
+      ],
+      "clock_gs": 53.1,
+      "combo": 2,
+      "events": [
+        {
+          "clock_gs": 53.1,
+          "detail": {
+            "note": "chopped mushroom"
+          },
+          "type": "chop"
+        }
+      ],
+      "hands": [
+        {
+          "ingredient": "mushroom",
+          "state": "CHOPPED"
+        },
+        {
+          "ingredient": "onion",
+          "state": "CHOPPED"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ],
+      "score": 2.0,
+      "turn": 20
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        5
+      ],
+      "clock_gs": 53.1,
+      "combo": 2,
+      "events": [],
+      "hands": [
+        {
+          "ingredient": "mushroom",
+          "state": "CHOPPED"
+        },
+        {
+          "ingredient": "onion",
+          "state": "CHOPPED"
+        }
+      ],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ],
+      "score": 2.0,
+      "think_gs": 0,
+      "turn": 21
+    },
+    {
+      "action": {
+        "arguments": {
+          "recipe": "R1"
+        },
+        "category": null,
+        "name": "plate",
+        "note": "plated R1",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        2
+      ],
+      "clock_gs": 58.55,
+      "combo": 2,
+      "events": [
+        {
+          "clock_gs": 58.55,
+          "detail": {
+            "note": "plated R1"
+          },
+          "type": "plate"
+        }
+      ],
+      "hands": [
+        {
+          "ingredient": "R1",
+          "state": "PLATE"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ],
+      "score": 2.0,
+      "turn": 21
+    },
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        2
+      ],
+      "clock_gs": 58.55,
+      "combo": 2,
+      "events": [],
+      "hands": [
+        {
+          "ingredient": "R1",
+          "state": "PLATE"
+        }
+      ],
+      "kind": "think",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ],
+      "score": 2.0,
+      "think_gs": 0,
+      "turn": 22
+    },
+    {
+      "action": {
+        "arguments": {
+          "order_id": "O3"
+        },
+        "category": null,
+        "name": "serve",
+        "note": "served O3 (R1)",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        1
+      ],
+      "clock_gs": 61.7,
+      "combo": 3,
+      "events": [
+        {
+          "clock_gs": 61.7,
+          "detail": {
+            "note": "served O3 (R1)"
+          },
+          "type": "serve"
+        }
+      ],
+      "hands": [],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 46,
+          "dish": "R2",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 76,
+          "dish": "R3",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 112,
+          "dish": "R1",
+          "order_id": "O3",
+          "status": "SERVED"
+        }
+      ],
+      "score": 3.0,
+      "turn": 22
+    }
+  ],
+  "model_label": "GPT-5.4 Mini \u00b7 low",
+  "protocol_hash": "b5054321ecbc7a3e69048f3d6aad761a5b0ffc94f9dfb0d356ab7d59196a8d35",
+  "quality": 100.0,
+  "reason": "game_terminal",
+  "spec": {
+    "active_recipes": [
+      "R1",
+      "R2",
+      "R3"
+    ],
+    "blocked": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        6
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        6,
+        6
+      ]
+    ],
+    "burner_count": 2,
+    "chef_start": [
+      3,
+      3
+    ],
+    "door": [
+      6,
+      3
+    ],
+    "grid_n": 7,
+    "horizon_gs": 600,
+    "latency_budget": 0,
+    "orders": [
+      {
+        "arrival_gs": 0.0,
+        "base_value": 1.0,
+        "deadline_gs": 46,
+        "dish": "R2",
+        "order_id": "O1"
+      },
+      {
+        "arrival_gs": 0.0,
+        "base_value": 1.0,
+        "deadline_gs": 76,
+        "dish": "R3",
+        "order_id": "O2"
+      },
+      {
+        "arrival_gs": 36.0,
+        "base_value": 1.0,
+        "deadline_gs": 112,
+        "dish": "R1",
+        "order_id": "O3"
+      }
+    ],
+    "recipe_cards": {
+      "R1": {
+        "mushroom": "CHOPPED",
+        "onion": "CHOPPED"
+      },
+      "R2": {
+        "egg": "COOKED",
+        "lettuce": "RAW"
+      },
+      "R3": {
+        "mushroom": "CHOPPED",
+        "noodles": "RAW"
+      }
+    },
+    "seed": 44000,
+    "show_ready_actions": false,
+    "stations": [
+      {
+        "cell": [
+          0,
+          1
+        ],
+        "ingredient": "broth_base",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          0,
+          2
+        ],
+        "ingredient": "bun",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          0,
+          3
+        ],
+        "ingredient": "cheese",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          0,
+          4
+        ],
+        "ingredient": "egg",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          0,
+          5
+        ],
+        "ingredient": "lettuce",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          1,
+          6
+        ],
+        "ingredient": "mushroom",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          2,
+          6
+        ],
+        "ingredient": "noodles",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          3,
+          6
+        ],
+        "ingredient": "onion",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          4,
+          6
+        ],
+        "ingredient": "patty",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          5,
+          6
+        ],
+        "ingredient": "tomato",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          6,
+          5
+        ],
+        "ingredient": null,
+        "type": "BOARD"
+      },
+      {
+        "cell": [
+          6,
+          4
+        ],
+        "ingredient": null,
+        "type": "STOVE"
+      },
+      {
+        "cell": [
+          6,
+          3
+        ],
+        "ingredient": null,
+        "type": "STOVE"
+      },
+      {
+        "cell": [
+          6,
+          2
+        ],
+        "ingredient": null,
+        "type": "PLATE"
+      },
+      {
+        "cell": [
+          6,
+          1
+        ],
+        "ingredient": null,
+        "type": "PASS"
+      },
+      {
+        "cell": [
+          5,
+          0
+        ],
+        "ingredient": null,
+        "type": "BIN"
+      }
+    ],
+    "tier": "v2-pilot-2"
+  }
+}

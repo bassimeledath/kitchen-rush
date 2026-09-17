@@ -85,7 +85,7 @@ def build_replay(result: EpisodeResult, spec: Any) -> dict[str, Any]:
     }
     catalog = {
         "ingredients": ingredients,
-        "recipes": {r: dict(config.RECIPES[r]) for r in spec.active_recipes},
+        "recipes": {r: dict((spec.recipe_cards or config.RECIPES)[r]) for r in spec.active_recipes},
         "station_types": {
             config.ING: "dispenser", config.BOARD: "cutting board", config.STOVE: "stove",
             config.PLATE: "plating counter", config.PASS: "pass", config.BIN: "bin",

@@ -1,0 +1,260 @@
+{
+  "protocol_hash": "b5054321ecbc7a3e69048f3d6aad761a5b0ffc94f9dfb0d356ab7d59196a8d35",
+  "rows": [
+    {
+      "budget": 0.05,
+      "budget_kind": "USD",
+      "ci95": [
+        0,
+        3.3333333333333326
+      ],
+      "dollar_censored": 0,
+      "episodes": 6,
+      "mean_completion": 0.2777777777777778,
+      "mean_cost_usd": 0.006417404,
+      "mean_invalid": 16.5,
+      "mean_output_tokens": 59487.833333333336,
+      "model": "jev",
+      "quality": 1.111111111111111,
+      "seeds": 3
+    },
+    {
+      "budget": 0.15,
+      "budget_kind": "USD",
+      "ci95": [
+        0,
+        3.3333333333333326
+      ],
+      "dollar_censored": 0,
+      "episodes": 6,
+      "mean_completion": 0.2777777777777778,
+      "mean_cost_usd": 0.007088284,
+      "mean_invalid": 18.833333333333332,
+      "mean_output_tokens": 65672,
+      "model": "jev",
+      "quality": 1.111111111111111,
+      "seeds": 3
+    },
+    {
+      "budget": 0.4,
+      "budget_kind": "USD",
+      "ci95": [
+        0,
+        36.66666666666667
+      ],
+      "dollar_censored": 0,
+      "episodes": 6,
+      "mean_completion": 0.3333333333333333,
+      "mean_cost_usd": 0.006021421,
+      "mean_invalid": 13.666666666666666,
+      "mean_output_tokens": 55872.333333333336,
+      "model": "jev",
+      "quality": 17.77777777777778,
+      "seeds": 3
+    },
+    {
+      "budget": 0.05,
+      "budget_kind": "USD",
+      "ci95": [
+        15.0,
+        49.99999999999999
+      ],
+      "dollar_censored": 0,
+      "episodes": 6,
+      "mean_completion": 0.3333333333333333,
+      "mean_cost_usd": 0.040322075,
+      "mean_invalid": 0.3333333333333333,
+      "mean_output_tokens": 2666.1666666666665,
+      "model": "mini",
+      "quality": 32.77777777777777,
+      "seeds": 3
+    },
+    {
+      "budget": 0.15,
+      "budget_kind": "USD",
+      "ci95": [
+        81.66666666666666,
+        100.0
+      ],
+      "dollar_censored": 0,
+      "episodes": 6,
+      "mean_completion": 0.9444444444444444,
+      "mean_cost_usd": 0.0928817,
+      "mean_invalid": 0.3333333333333333,
+      "mean_output_tokens": 6550.166666666667,
+      "model": "mini",
+      "quality": 93.33333333333333,
+      "seeds": 3
+    },
+    {
+      "budget": 0.4,
+      "budget_kind": "USD",
+      "ci95": [
+        95.0,
+        100.0
+      ],
+      "dollar_censored": 0,
+      "episodes": 6,
+      "mean_completion": 1.0,
+      "mean_cost_usd": 0.09455949999999999,
+      "mean_invalid": 0.5,
+      "mean_output_tokens": 5976.166666666667,
+      "model": "mini",
+      "quality": 98.33333333333333,
+      "seeds": 3
+    },
+    {
+      "budget": 512,
+      "budget_kind": "tokens",
+      "ci95": [
+        0,
+        0
+      ],
+      "dollar_censored": 0,
+      "episodes": 3,
+      "mean_completion": 0.0,
+      "mean_cost_usd": 0.00866185,
+      "mean_invalid": 1,
+      "mean_output_tokens": 512,
+      "model": "mini",
+      "quality": 0,
+      "seeds": 3
+    },
+    {
+      "budget": 2048,
+      "budget_kind": "tokens",
+      "ci95": [
+        0,
+        30.0
+      ],
+      "dollar_censored": 0,
+      "episodes": 3,
+      "mean_completion": 0.1111111111111111,
+      "mean_cost_usd": 0.028843999999999998,
+      "mean_invalid": 1.3333333333333333,
+      "mean_output_tokens": 2048,
+      "model": "mini",
+      "quality": 10.0,
+      "seeds": 3
+    },
+    {
+      "budget": 8192,
+      "budget_kind": "tokens",
+      "ci95": [
+        63.33333333333333,
+        100.0
+      ],
+      "dollar_censored": 0,
+      "episodes": 3,
+      "mean_completion": 0.8888888888888888,
+      "mean_cost_usd": 0.10974195,
+      "mean_invalid": 0.6666666666666666,
+      "mean_output_tokens": 6418.666666666667,
+      "model": "mini",
+      "quality": 86.66666666666667,
+      "seeds": 3
+    },
+    {
+      "budget": 0.05,
+      "budget_kind": "USD",
+      "ci95": [
+        0,
+        0
+      ],
+      "dollar_censored": 0,
+      "episodes": 6,
+      "mean_completion": 0.0,
+      "mean_cost_usd": 0.012347,
+      "mean_invalid": 0,
+      "mean_output_tokens": 12.333333333333334,
+      "model": "sonnet",
+      "quality": 0,
+      "seeds": 3
+    },
+    {
+      "budget": 0.15,
+      "budget_kind": "USD",
+      "ci95": [
+        0,
+        33.33333333333333
+      ],
+      "dollar_censored": 0,
+      "episodes": 6,
+      "mean_completion": 0.1111111111111111,
+      "mean_cost_usd": 0.113211,
+      "mean_invalid": 1.3333333333333333,
+      "mean_output_tokens": 136.83333333333334,
+      "model": "sonnet",
+      "quality": 11.111111111111109,
+      "seeds": 3
+    },
+    {
+      "budget": 0.4,
+      "budget_kind": "USD",
+      "ci95": [
+        0,
+        6.666666666666665
+      ],
+      "dollar_censored": 0,
+      "episodes": 6,
+      "mean_completion": 0.2222222222222222,
+      "mean_cost_usd": 0.3581665,
+      "mean_invalid": 8.5,
+      "mean_output_tokens": 440.6666666666667,
+      "model": "sonnet",
+      "quality": 3.3333333333333326,
+      "seeds": 3
+    },
+    {
+      "budget": 512,
+      "budget_kind": "tokens",
+      "ci95": [
+        0,
+        50.0
+      ],
+      "dollar_censored": 0,
+      "episodes": 3,
+      "mean_completion": 0.3333333333333333,
+      "mean_cost_usd": 0.349426,
+      "mean_invalid": 10.333333333333334,
+      "mean_output_tokens": 459,
+      "model": "sonnet",
+      "quality": 16.666666666666668,
+      "seeds": 3
+    },
+    {
+      "budget": 2048,
+      "budget_kind": "tokens",
+      "ci95": [
+        0,
+        93.33333333333333
+      ],
+      "dollar_censored": 0,
+      "episodes": 3,
+      "mean_completion": 0.5555555555555556,
+      "mean_cost_usd": 0.418842,
+      "mean_invalid": 7,
+      "mean_output_tokens": 538.6666666666666,
+      "model": "sonnet",
+      "quality": 45.55555555555555,
+      "seeds": 3
+    },
+    {
+      "budget": 8192,
+      "budget_kind": "tokens",
+      "ci95": [
+        0,
+        93.33333333333333
+      ],
+      "dollar_censored": 0,
+      "episodes": 3,
+      "mean_completion": 0.5555555555555556,
+      "mean_cost_usd": 0.392311,
+      "mean_invalid": 7,
+      "mean_output_tokens": 504.6666666666667,
+      "model": "sonnet",
+      "quality": 47.77777777777778,
+      "seeds": 3
+    }
+  ]
+}

@@ -1,0 +1,147 @@
+{
+  "episodes": 18,
+  "ledger": {
+    "accounted_usd": 10.532554644,
+    "cap_usd": 50.0,
+    "overruns": 0,
+    "requests": 2470,
+    "retained_failed_requests": 1,
+    "settled_usd": 10.513841394,
+    "stages": {
+      "canary": 0.709813188,
+      "pilot": 8.309569704,
+      "smoke": 1.513171752
+    },
+    "unresolved_requests": 0,
+    "unresolved_reserve_usd": 0.01871325
+  },
+  "protocol_hash": "b5054321ecbc7a3e69048f3d6aad761a5b0ffc94f9dfb0d356ab7d59196a8d35",
+  "requests_verified": 462,
+  "source_archive_sha256": "f9144c11db9e6f8ce83ae1b7c9536138656d7f52fddb45badc8b17262c5f9d05",
+  "stage": "smoke",
+  "status": "passed",
+  "summary": {
+    "B80": {
+      "jev": {
+        "conservative": null,
+        "mean": null,
+        "status": "not tested / ineligible"
+      },
+      "mini": {
+        "conservative": null,
+        "mean": null,
+        "status": "not tested / ineligible"
+      },
+      "sonnet": {
+        "conservative": null,
+        "mean": null,
+        "status": "not tested / ineligible"
+      }
+    },
+    "rows": [
+      {
+        "budget": 0.05,
+        "budget_kind": "USD",
+        "ci95": [
+          0,
+          13.33333333333333
+        ],
+        "dollar_censored": 0,
+        "episodes": 3,
+        "mean_completion": 0.2222222222222222,
+        "mean_cost_usd": 0.007168224,
+        "mean_invalid": 14.333333333333334,
+        "mean_output_tokens": 66600.33333333333,
+        "model": "jev",
+        "quality": 4.444444444444444,
+        "seeds": 3
+      },
+      {
+        "budget": 0.4,
+        "budget_kind": "USD",
+        "ci95": [
+          0,
+          83.33333333333334
+        ],
+        "dollar_censored": 0,
+        "episodes": 3,
+        "mean_completion": 0.5555555555555556,
+        "mean_cost_usd": 0.00633311,
+        "mean_invalid": 9,
+        "mean_output_tokens": 58951.666666666664,
+        "model": "jev",
+        "quality": 35.55555555555556,
+        "seeds": 3
+      },
+      {
+        "budget": 0.05,
+        "budget_kind": "USD",
+        "ci95": [
+          30.0,
+          66.66666666666666
+        ],
+        "dollar_censored": 0,
+        "episodes": 3,
+        "mean_completion": 0.4444444444444444,
+        "mean_cost_usd": 0.04038225,
+        "mean_invalid": 0.3333333333333333,
+        "mean_output_tokens": 2175.6666666666665,
+        "model": "mini",
+        "quality": 43.33333333333333,
+        "seeds": 3
+      },
+      {
+        "budget": 0.4,
+        "budget_kind": "USD",
+        "ci95": [
+          66.66666666666666,
+          100.0
+        ],
+        "dollar_censored": 0,
+        "episodes": 3,
+        "mean_completion": 0.8888888888888888,
+        "mean_cost_usd": 0.07982500000000001,
+        "mean_invalid": 0,
+        "mean_output_tokens": 5346.666666666667,
+        "model": "mini",
+        "quality": 88.88888888888889,
+        "seeds": 3
+      },
+      {
+        "budget": 0.05,
+        "budget_kind": "USD",
+        "ci95": [
+          0,
+          0
+        ],
+        "dollar_censored": 0,
+        "episodes": 3,
+        "mean_completion": 0.0,
+        "mean_cost_usd": 0.01238,
+        "mean_invalid": 0,
+        "mean_output_tokens": 14,
+        "model": "sonnet",
+        "quality": 0,
+        "seeds": 3
+      },
+      {
+        "budget": 0.4,
+        "budget_kind": "USD",
+        "ci95": [
+          0,
+          0
+        ],
+        "dollar_censored": 0,
+        "episodes": 3,
+        "mean_completion": 0.0,
+        "mean_cost_usd": 0.358302,
+        "mean_invalid": 13,
+        "mean_output_tokens": 464,
+        "model": "sonnet",
+        "quality": 0,
+        "seeds": 3
+      }
+    ],
+    "uncertainty": "95% seed-cluster percentile bootstrap, 4000 draws. Pilot intervals are exploratory; no stable full-roster rank is claimed."
+  }
+}

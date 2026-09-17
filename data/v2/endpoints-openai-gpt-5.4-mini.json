@@ -1,0 +1,238 @@
+{
+  "data": {
+    "id": "openai/gpt-5.4-mini",
+    "name": "OpenAI: GPT-5.4 Mini",
+    "created": 1773748178,
+    "description": "GPT-5.4 mini brings the core capabilities of GPT-5.4 to a faster, more efficient model optimized for high-throughput workloads. It supports text and image inputs with strong performance across reasoning, coding,...",
+    "architecture": {
+      "tokenizer": "GPT",
+      "instruct_type": null,
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "file",
+        "image",
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ]
+    },
+    "endpoints": [
+      {
+        "name": "OpenAI | openai/gpt-5.4-mini-20260317",
+        "model_id": "openai/gpt-5.4-mini",
+        "model_name": "OpenAI: GPT-5.4 Mini",
+        "context_length": 400000,
+        "pricing": {
+          "prompt": "0.000000375",
+          "completion": "0.00000225",
+          "web_search": "0.01",
+          "input_cache_read": "0.0000000375",
+          "discount": 0
+        },
+        "provider_name": "OpenAI",
+        "tag": "openai/flex",
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": null,
+        "uptime_last_5m": null,
+        "uptime_last_1d": 99.87730061349693,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      },
+      {
+        "name": "Azure | openai/gpt-5.4-mini-20260317",
+        "model_id": "openai/gpt-5.4-mini",
+        "model_name": "OpenAI: GPT-5.4 Mini",
+        "context_length": 400000,
+        "pricing": {
+          "prompt": "0.00000075",
+          "completion": "0.0000045",
+          "web_search": "0.01",
+          "input_cache_read": "0.000000075",
+          "discount": 0
+        },
+        "provider_name": "Azure",
+        "tag": "azure",
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "max_completion_tokens",
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.99021883721537,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      },
+      {
+        "name": "OpenAI | openai/gpt-5.4-mini-20260317",
+        "model_id": "openai/gpt-5.4-mini",
+        "model_name": "OpenAI: GPT-5.4 Mini",
+        "context_length": 400000,
+        "pricing": {
+          "prompt": "0.00000075",
+          "completion": "0.0000045",
+          "web_search": "0.01",
+          "input_cache_read": "0.000000075",
+          "discount": 0
+        },
+        "provider_name": "OpenAI",
+        "tag": "openai",
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.99247412982126,
+        "uptime_last_5m": 99.97891629770189,
+        "uptime_last_1d": 99.97776731533794,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      },
+      {
+        "name": "Azure | openai/gpt-5.4-mini-20260317",
+        "model_id": "openai/gpt-5.4-mini",
+        "model_name": "OpenAI: GPT-5.4 Mini",
+        "context_length": 400000,
+        "pricing": {
+          "prompt": "0.000000825",
+          "completion": "0.00000495",
+          "web_search": "0.01",
+          "input_cache_read": "0.0000000825",
+          "discount": 0
+        },
+        "provider_name": "Azure",
+        "tag": "azure/us",
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "max_completion_tokens",
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": null,
+        "uptime_last_5m": null,
+        "uptime_last_1d": 100,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      },
+      {
+        "name": "OpenAI | openai/gpt-5.4-mini-20260317",
+        "model_id": "openai/gpt-5.4-mini",
+        "model_name": "OpenAI: GPT-5.4 Mini",
+        "context_length": 400000,
+        "pricing": {
+          "prompt": "0.0000015",
+          "completion": "0.000009",
+          "web_search": "0.01",
+          "input_cache_read": "0.00000015",
+          "discount": 0
+        },
+        "provider_name": "OpenAI",
+        "tag": "openai/fast",
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 100,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      }
+    ]
+  }
+}

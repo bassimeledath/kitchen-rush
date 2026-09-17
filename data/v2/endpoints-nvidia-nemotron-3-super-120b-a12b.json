@@ -1,0 +1,118 @@
+{
+  "data": {
+    "id": "nvidia/nemotron-3-super-120b-a12b",
+    "name": "NVIDIA: Nemotron 3 Super",
+    "created": 1773245239,
+    "description": "NVIDIA Nemotron 3 Super is a 120B-parameter open hybrid MoE model, activating just 12B parameters for maximum compute efficiency and accuracy in complex multi-agent applications. Built on a hybrid Mamba-Transformer...",
+    "architecture": {
+      "tokenizer": "Other",
+      "instruct_type": null,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ]
+    },
+    "endpoints": [
+      {
+        "name": "DekaLLM | nvidia/nemotron-3-super-120b-a12b-20230311",
+        "model_id": "nvidia/nemotron-3-super-120b-a12b",
+        "model_name": "NVIDIA: Nemotron 3 Super",
+        "context_length": 262144,
+        "pricing": {
+          "prompt": "0.00000008",
+          "completion": "0.00000045",
+          "discount": 0
+        },
+        "provider_name": "DekaLLM",
+        "tag": "dekallm/fp8",
+        "quantization": "fp8",
+        "max_completion_tokens": 235929,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "frequency_penalty",
+          "logit_bias",
+          "max_tokens",
+          "presence_penalty",
+          "seed",
+          "stop",
+          "temperature",
+          "top_p",
+          "response_format",
+          "tools",
+          "logprobs",
+          "top_logprobs",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 95.7429718875502,
+        "uptime_last_5m": 98.30028328611898,
+        "uptime_last_1d": 98.85557974655278,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      },
+      {
+        "name": "DeepInfra | nvidia/nemotron-3-super-120b-a12b-20230311",
+        "model_id": "nvidia/nemotron-3-super-120b-a12b",
+        "model_name": "NVIDIA: Nemotron 3 Super",
+        "context_length": 262144,
+        "pricing": {
+          "prompt": "0.000000085",
+          "completion": "0.0000004",
+          "discount": 0
+        },
+        "provider_name": "DeepInfra",
+        "tag": "deepinfra/bf16",
+        "quantization": "bf16",
+        "max_completion_tokens": 16384,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "top_k",
+          "seed",
+          "min_p",
+          "tools",
+          "tool_choice",
+          "logit_bias",
+          "response_format",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": false,
+          "function": false
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.99417724467217,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      }
+    ]
+  }
+}

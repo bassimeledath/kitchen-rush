@@ -93,7 +93,7 @@ class OracleAgent:
                 return None
             self._current = min(active, key=lambda o: o["deadline_gs"])["order_id"]
         target = next(o for o in active if o["order_id"] == self._current)
-        recipe = config.RECIPES[target["dish"]]
+        recipe = obs.get("recipe_cards", config.RECIPES)[target["dish"]]
 
         # 5. orphan recovery: discard a held component the target does not use, or a duplicate
         needed: dict[str, int] = {}

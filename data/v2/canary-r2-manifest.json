@@ -1,0 +1,66 @@
+{
+  "jobs": [
+    {
+      "dollar_cap": 0.4,
+      "id": "canary-r2-jev-42000-0-d0.4-tNone",
+      "model": "jev",
+      "seed": 42000,
+      "size": 3,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "canary-r2-mini-42000-0-d0.4-tNone",
+      "model": "mini",
+      "seed": 42000,
+      "size": 3,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "canary-r2-sonnet-42000-0-d0.4-tNone",
+      "model": "sonnet",
+      "seed": 42000,
+      "size": 3,
+      "token_cap": null,
+      "trial": 0
+    }
+  ],
+  "models": {
+    "jev": {
+      "input_price": 4.2000000000000006e-08,
+      "key": "jev",
+      "max_output": 2048,
+      "model": "jev-1.13.0",
+      "output_price": 0,
+      "provider": "TypeSafe",
+      "reasoning": null
+    },
+    "mini": {
+      "input_price": 7.5e-07,
+      "key": "mini",
+      "max_output": 2048,
+      "model": "openai/gpt-5.4-mini",
+      "output_price": 4.5e-06,
+      "provider": "OpenAI",
+      "reasoning": {
+        "effort": "low"
+      }
+    },
+    "sonnet": {
+      "input_price": 3e-06,
+      "key": "sonnet",
+      "max_output": 512,
+      "model": "anthropic/claude-sonnet-4.6",
+      "output_price": 1.5e-05,
+      "provider": "Anthropic",
+      "reasoning": {
+        "enabled": false
+      }
+    }
+  },
+  "protocol_hash": "5cd3e0925a16aad4cf0ab9ee9608732d85a2974cd2669f77e0be7ea5734518ba",
+  "stage": "canary"
+}

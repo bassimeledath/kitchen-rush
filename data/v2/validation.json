@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "protocol_hash": "b5054321ecbc7a3e69048f3d6aad761a5b0ffc94f9dfb0d356ab7d59196a8d35",
+  "pytest": "88 passed",
+  "ruff": "passed for v2 package, scripts and tests",
+  "offline_solved_and_replayed": 240,
+  "pilot_episodes": 72,
+  "pilot_requests": 1823,
+  "unresolved_requests": 0,
+  "overruns": 0,
+  "replay_ui": {
+    "matched_seed": 44000,
+    "trial": 0,
+    "dollar_cap": 0.4,
+    "final_quality": {
+      "jev": 73.33333333333333,
+      "mini": 100,
+      "sonnet": 6.666666666666665
+    },
+    "final_display_verified": true,
+    "horizontal_overflow_at_659px": false
+  },
+  "figures": "Three pilot figures visually inspected; overlapping cost labels corrected",
+  "stage3_status": "not_started_review_required"
+}

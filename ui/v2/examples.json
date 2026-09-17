@@ -1,0 +1,18 @@
+[
+  {
+    "file": "demo.json",
+    "label": "Scripted feasibility example"
+  },
+  {
+    "file": "pilot-jev.json",
+    "label": "Jev 1.13.0 \u00b7 pilot \u00b7 $0.4"
+  },
+  {
+    "file": "pilot-mini.json",
+    "label": "GPT-5.4 Mini \u00b7 low \u00b7 pilot \u00b7 $0.4"
+  },
+  {
+    "file": "pilot-sonnet.json",
+    "label": "Claude Sonnet 4.6 \u00b7 thinking off \u00b7 pilot \u00b7 $0.4"
+  }
+]

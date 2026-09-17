@@ -32,6 +32,8 @@ dependencies = []
 providers = ["litellm>=1.40", "tenacity>=8.0", "tiktoken>=0.7"]
 all = ["litellm>=1.40", "tenacity>=8.0", "tiktoken>=0.7"]
 dev = ["pytest>=8.0", "ruff>=0.5", "mypy>=1.10"]
+# v2 providers use stdlib HTTP; matplotlib generates the audited pilot figures.
+v2 = ["matplotlib>=3.9"]
 
 [project.scripts]
 kitchenrush = "kitchenrush.cli:main"

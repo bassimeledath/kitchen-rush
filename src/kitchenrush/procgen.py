@@ -44,6 +44,7 @@ class KitchenSpec:
     stations: list[StationSpec]
     chef_start: tuple[int, int]
     orders: list[OrderSpec]
+    recipe_cards: dict[str, dict[str, str]] | None = None
     latency_budget: float = 1.0   # B: seconds/decision the deadlines were priced at
     blocked: frozenset = field(default_factory=frozenset)   # non-walkable counter / wall cells
     door: tuple[int, int] | None = None                     # decorative doorway cell (in the wall)

@@ -1,0 +1,687 @@
+{
+  "jobs": [
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-jev-44000-0-d0.05-tNone",
+      "model": "jev",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-mini-44000-0-d0.05-tNone",
+      "model": "mini",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-sonnet-44000-0-d0.05-tNone",
+      "model": "sonnet",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-jev-44000-0-d0.15-tNone",
+      "model": "jev",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-mini-44000-0-d0.15-tNone",
+      "model": "mini",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-sonnet-44000-0-d0.15-tNone",
+      "model": "sonnet",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-jev-44000-0-d0.4-tNone",
+      "model": "jev",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-mini-44000-0-d0.4-tNone",
+      "model": "mini",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-sonnet-44000-0-d0.4-tNone",
+      "model": "sonnet",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-jev-44001-0-d0.05-tNone",
+      "model": "jev",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-mini-44001-0-d0.05-tNone",
+      "model": "mini",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-sonnet-44001-0-d0.05-tNone",
+      "model": "sonnet",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-jev-44001-0-d0.15-tNone",
+      "model": "jev",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-mini-44001-0-d0.15-tNone",
+      "model": "mini",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-sonnet-44001-0-d0.15-tNone",
+      "model": "sonnet",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-jev-44001-0-d0.4-tNone",
+      "model": "jev",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-mini-44001-0-d0.4-tNone",
+      "model": "mini",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-sonnet-44001-0-d0.4-tNone",
+      "model": "sonnet",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-jev-44002-0-d0.05-tNone",
+      "model": "jev",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-mini-44002-0-d0.05-tNone",
+      "model": "mini",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-sonnet-44002-0-d0.05-tNone",
+      "model": "sonnet",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-jev-44002-0-d0.15-tNone",
+      "model": "jev",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-mini-44002-0-d0.15-tNone",
+      "model": "mini",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-sonnet-44002-0-d0.15-tNone",
+      "model": "sonnet",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-jev-44002-0-d0.4-tNone",
+      "model": "jev",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-mini-44002-0-d0.4-tNone",
+      "model": "mini",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-sonnet-44002-0-d0.4-tNone",
+      "model": "sonnet",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-jev-44000-1-d0.05-tNone",
+      "model": "jev",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-mini-44000-1-d0.05-tNone",
+      "model": "mini",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-sonnet-44000-1-d0.05-tNone",
+      "model": "sonnet",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-jev-44000-1-d0.15-tNone",
+      "model": "jev",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-mini-44000-1-d0.15-tNone",
+      "model": "mini",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-sonnet-44000-1-d0.15-tNone",
+      "model": "sonnet",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-jev-44000-1-d0.4-tNone",
+      "model": "jev",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-mini-44000-1-d0.4-tNone",
+      "model": "mini",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-sonnet-44000-1-d0.4-tNone",
+      "model": "sonnet",
+      "seed": 44000,
+      "size": 2,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-jev-44001-1-d0.05-tNone",
+      "model": "jev",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-mini-44001-1-d0.05-tNone",
+      "model": "mini",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-sonnet-44001-1-d0.05-tNone",
+      "model": "sonnet",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-jev-44001-1-d0.15-tNone",
+      "model": "jev",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-mini-44001-1-d0.15-tNone",
+      "model": "mini",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-sonnet-44001-1-d0.15-tNone",
+      "model": "sonnet",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-jev-44001-1-d0.4-tNone",
+      "model": "jev",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-mini-44001-1-d0.4-tNone",
+      "model": "mini",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-sonnet-44001-1-d0.4-tNone",
+      "model": "sonnet",
+      "seed": 44001,
+      "size": 3,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-jev-44002-1-d0.05-tNone",
+      "model": "jev",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-mini-44002-1-d0.05-tNone",
+      "model": "mini",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "pilot-r3-sonnet-44002-1-d0.05-tNone",
+      "model": "sonnet",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-jev-44002-1-d0.15-tNone",
+      "model": "jev",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-mini-44002-1-d0.15-tNone",
+      "model": "mini",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.15,
+      "id": "pilot-r3-sonnet-44002-1-d0.15-tNone",
+      "model": "sonnet",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-jev-44002-1-d0.4-tNone",
+      "model": "jev",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-mini-44002-1-d0.4-tNone",
+      "model": "mini",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "pilot-r3-sonnet-44002-1-d0.4-tNone",
+      "model": "sonnet",
+      "seed": 44002,
+      "size": 4,
+      "token_cap": null,
+      "trial": 1
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-mini-45002-0-d1.0-t512",
+      "model": "mini",
+      "seed": 45002,
+      "size": 2,
+      "token_cap": 512,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-sonnet-45002-0-d1.0-t512",
+      "model": "sonnet",
+      "seed": 45002,
+      "size": 2,
+      "token_cap": 512,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-mini-45002-0-d1.0-t2048",
+      "model": "mini",
+      "seed": 45002,
+      "size": 2,
+      "token_cap": 2048,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-sonnet-45002-0-d1.0-t2048",
+      "model": "sonnet",
+      "seed": 45002,
+      "size": 2,
+      "token_cap": 2048,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-mini-45002-0-d1.0-t8192",
+      "model": "mini",
+      "seed": 45002,
+      "size": 2,
+      "token_cap": 8192,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-sonnet-45002-0-d1.0-t8192",
+      "model": "sonnet",
+      "seed": 45002,
+      "size": 2,
+      "token_cap": 8192,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-mini-45003-0-d1.0-t512",
+      "model": "mini",
+      "seed": 45003,
+      "size": 3,
+      "token_cap": 512,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-sonnet-45003-0-d1.0-t512",
+      "model": "sonnet",
+      "seed": 45003,
+      "size": 3,
+      "token_cap": 512,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-mini-45003-0-d1.0-t2048",
+      "model": "mini",
+      "seed": 45003,
+      "size": 3,
+      "token_cap": 2048,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-sonnet-45003-0-d1.0-t2048",
+      "model": "sonnet",
+      "seed": 45003,
+      "size": 3,
+      "token_cap": 2048,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-mini-45003-0-d1.0-t8192",
+      "model": "mini",
+      "seed": 45003,
+      "size": 3,
+      "token_cap": 8192,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-sonnet-45003-0-d1.0-t8192",
+      "model": "sonnet",
+      "seed": 45003,
+      "size": 3,
+      "token_cap": 8192,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-mini-45004-0-d1.0-t512",
+      "model": "mini",
+      "seed": 45004,
+      "size": 4,
+      "token_cap": 512,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-sonnet-45004-0-d1.0-t512",
+      "model": "sonnet",
+      "seed": 45004,
+      "size": 4,
+      "token_cap": 512,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-mini-45004-0-d1.0-t2048",
+      "model": "mini",
+      "seed": 45004,
+      "size": 4,
+      "token_cap": 2048,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-sonnet-45004-0-d1.0-t2048",
+      "model": "sonnet",
+      "seed": 45004,
+      "size": 4,
+      "token_cap": 2048,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-mini-45004-0-d1.0-t8192",
+      "model": "mini",
+      "seed": 45004,
+      "size": 4,
+      "token_cap": 8192,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "pilot-r3-sonnet-45004-0-d1.0-t8192",
+      "model": "sonnet",
+      "seed": 45004,
+      "size": 4,
+      "token_cap": 8192,
+      "trial": 0
+    }
+  ],
+  "models": {
+    "jev": {
+      "input_price": 4.2000000000000006e-08,
+      "key": "jev",
+      "max_output": 2048,
+      "model": "jev-1.13.0",
+      "output_price": 0,
+      "provider": "TypeSafe",
+      "reasoning": null
+    },
+    "mini": {
+      "input_price": 7.5e-07,
+      "key": "mini",
+      "max_output": 2048,
+      "model": "openai/gpt-5.4-mini",
+      "output_price": 4.5e-06,
+      "provider": "OpenAI",
+      "reasoning": {
+        "effort": "low"
+      }
+    },
+    "sonnet": {
+      "input_price": 3e-06,
+      "key": "sonnet",
+      "max_output": 512,
+      "model": "anthropic/claude-sonnet-4.6",
+      "output_price": 1.5e-05,
+      "provider": "Anthropic",
+      "reasoning": {
+        "enabled": false
+      }
+    }
+  },
+  "protocol_hash": "b5054321ecbc7a3e69048f3d6aad761a5b0ffc94f9dfb0d356ab7d59196a8d35",
+  "stage": "pilot"
+}
