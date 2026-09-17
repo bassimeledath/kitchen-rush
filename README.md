@@ -9,7 +9,8 @@ what gets completed and what it costs.
 **V2 is being validated.** A roster canary exposed an overly restrictive per-request token
 ceiling and incomplete operational tariff reservations. Both are corrected; the revised
 configuration has passed its six-configuration canary: 150 requests independently audited.
-The next checkpoint validates all 29 eligible configurations before the full rerun. Earlier runs remain diagnostic,
+The 29-configuration checkpoint has started but paused after an OpenRouter funding rejection;
+its unfinished runs are unranked. Earlier runs remain diagnostic,
 with every charge retained in the $200 total. [V1 results are archived](README.v1.md).
 
 ## Three ideas
@@ -69,7 +70,8 @@ exploratory. Every episode must reproduce its actions, frames and final score ex
 
 ## Validation before rankings
 
-The current implementation passes 124 tests. An independent offline study exercised 1,200
+Offline tests cover the engine, resource accounting, replay and failure handling.
+An independent offline study exercised 1,200
 kitchens and replayed three policies on each: a public-rule reader completed all perfectly;
 a table containing every recipe but fixed preparation/timing averaged 24.7 quality. A stronger
 controller with adaptive timing reached 82.6. These results expose brittle scripts and also
