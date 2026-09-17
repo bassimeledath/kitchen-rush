@@ -434,6 +434,18 @@ with TemporaryDirectory() as td:
             assert m["orchestration"]["archive"] in z.namelist()
             assert gate["operational_amendment"]["source_archive"] in z.namelist()
             assert amendment_path.relative_to(pr).as_posix() in z.namelist()
+            evidence = json.loads(z.read("EVIDENCE.json"))
+            assert evidence["restore_sources"] == [
+                gate["source_archive"], gate["operational_amendment"]["source_archive"]
+            ]
+            restored = pr / "restored-evidence"
+            z.extractall(restored)
+        for source in evidence["restore_sources"]:
+            with zipfile.ZipFile(restored / source) as z:
+                z.extractall(restored)
+        restored_gate = a.audit(b, root=restored, write_gate=False)
+        assert restored_gate["job_resources"] == gate["job_resources"]
+        print("amended evidence restored in documented order and independently audited")
         # Entire affected token cell excluded; no dropping its failed seed from a mean.
         ep = json.loads((pr / gate["evaluated_artifacts"][paused_job["id"]]).read_text())
         ep.update(token_cap=512, quality=100, replay_verified=True, reason="token_budget_exhausted")

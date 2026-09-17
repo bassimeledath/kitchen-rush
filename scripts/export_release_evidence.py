@@ -62,11 +62,24 @@ def export(batches, output):
                 secrets.append(value.encode())
     if any(secret in content for secret in secrets for content in payloads.values()):
         raise ValueError("credential scan rejected evidence export")
+    restore_sources = list(dict.fromkeys(g["source_archive"] for g in gates.values()))
+    restore_sources.extend(
+        path
+        for path in dict.fromkeys(
+            g["operational_amendment"]["source_archive"]
+            for g in gates.values()
+            if g.get("operational_amendment")
+        )
+        if path not in restore_sources
+    )
     evidence = dict(
         batches=batches,
         protocol_hashes=sorted({g["protocol_hash"] for g in gates.values()}),
-        restore="Extract evidence and its source archive into one clean directory. Run "
-        "python scripts/audit_release_v2.py --batch <batch>. No API call is needed.",
+        restore="Extract this evidence archive into a clean directory, then extract each "
+        "archive in restore_sources into that same directory in the listed order, allowing "
+        "the operational amendment to replace driver files. Run python "
+        "scripts/audit_release_v2.py --batch <batch>. No API call is needed.",
+        restore_sources=restore_sources,
         credential_scan_passed=True,
         sha256={name: hashlib.sha256(content).hexdigest() for name, content in payloads.items()},
     )
