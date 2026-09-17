@@ -101,6 +101,7 @@ class KitchenRushEngine:
 
     def __init__(self, spec: KitchenSpec, *, record_trace: bool = False) -> None:
         self.spec = spec
+        self.ingredient_rules = dict(config.INGREDIENTS)
         self.grid_n = spec.grid_n
         self.show_ready_actions = spec.show_ready_actions
         self.active_recipes = tuple(spec.active_recipes)
@@ -457,7 +458,7 @@ class KitchenRushEngine:
 
     def _a_chop(self, args: dict) -> dict[str, Any]:
         ing = args.get("ingredient")
-        if ing not in config.INGREDIENTS or not config.INGREDIENTS[ing].choppable:
+        if ing not in self.ingredient_rules or not self.ingredient_rules[ing].choppable:
             return self._invalid(f"{ing} is not choppable", INV_BAD_TARGET)
         item = self._held(ing, config.RAW)
         if item is None:
@@ -470,7 +471,7 @@ class KitchenRushEngine:
 
     def _a_cook(self, args: dict) -> dict[str, Any]:
         ing = args.get("ingredient")
-        ic = config.INGREDIENTS.get(ing)
+        ic = self.ingredient_rules.get(ing)
         if ic is None or ic.cookable_from is None:
             return self._invalid(f"{ing} is not cookable", INV_BAD_TARGET)
         item = self._held(ing, ic.cookable_from)

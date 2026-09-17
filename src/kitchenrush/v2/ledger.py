@@ -7,7 +7,18 @@ import sqlite3
 from pathlib import Path
 
 SCALE = 1_000_000_000
-STAGES = {"canary": 5.0, "smoke": 15.0, "pilot": 30.0}
+STAGES = {
+    "canary": 5.0,
+    "smoke": 15.0,
+    "pilot": 30.0,
+    "corrected_validation": 20.0,
+    "roster_canary": 20.0,
+    "main": 80.0,
+    "confirmation": 40.0,
+    "recovery": 20.0,
+    "tokens": 110.0,
+    "repeat": 20.0,
+}
 
 
 def units(amount):
@@ -21,15 +32,27 @@ class BudgetExceeded(RuntimeError):
 
 
 class Ledger:
-    def __init__(self, path, *, cap=50.0):
+    def __init__(self, path, *, cap=50.0, opening_balance=0.0):
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.cap = units(cap)
+        self.opening_balance = units(opening_balance)
+        if self.opening_balance > self.cap:
+            raise ValueError("prior charges exceed ceiling")
         with self.connect() as con:
             con.execute("CREATE TABLE IF NOT EXISTS meta (id INTEGER PRIMARY KEY, cap INTEGER)")
             con.execute("INSERT OR IGNORE INTO meta VALUES (1, ?)", (self.cap,))
             if con.execute("SELECT cap FROM meta WHERE id=1").fetchone()[0] != self.cap:
                 raise ValueError("cannot change existing ledger ceiling")
+            con.execute(
+                "CREATE TABLE IF NOT EXISTS opening (id INTEGER PRIMARY KEY, amount INTEGER)"
+            )
+            con.execute("INSERT OR IGNORE INTO opening VALUES (1, ?)", (self.opening_balance,))
+            if (
+                con.execute("SELECT amount FROM opening WHERE id=1").fetchone()[0]
+                != self.opening_balance
+            ):
+                raise ValueError("cannot change prior spending")
             con.execute("""CREATE TABLE IF NOT EXISTS requests (
                 id TEXT PRIMARY KEY, episode TEXT NOT NULL, stage TEXT NOT NULL,
                 reserved INTEGER NOT NULL, actual INTEGER, status TEXT NOT NULL)""")
@@ -45,7 +68,7 @@ class Ledger:
             "SELECT COALESCE(SUM(COALESCE(actual, reserved)),0) FROM requests " + where, params
         ).fetchone()[0]
 
-    def reserve(self, rid, episode, stage, maximum, episode_cap):
+    def reserve(self, rid, episode, stage, maximum, episode_cap=None):
         amount = units(maximum)
         if stage not in STAGES:
             raise ValueError("unapproved stage")
@@ -57,11 +80,15 @@ class Ledger:
                 "SELECT 1 FROM requests WHERE status IN ('uncertain','overrun')"
             ).fetchone():
                 raise BudgetExceeded("another request requires an accounting audit")
-            for current, ceiling in (
-                (self._used(con), self.cap),
+            ceilings = [
+                (self._used(con) + self.opening_balance, self.cap),
                 (self._used(con, "WHERE stage=?", (stage,)), units(STAGES[stage])),
-                (self._used(con, "WHERE episode=?", (episode,)), units(episode_cap)),
-            ):
+            ]
+            if episode_cap is not None:
+                ceilings.append(
+                    (self._used(con, "WHERE episode=?", (episode,)), units(episode_cap))
+                )
+            for current, ceiling in ceilings:
                 if current + amount > ceiling:
                     raise BudgetExceeded("reservation exceeds episode/stage/global allowance")
             con.execute(
@@ -112,8 +139,8 @@ class Ledger:
         with self.connect() as con:
             return (
                 self._used(con, "WHERE episode=?" if episode else "", (episode,) if episode else ())
-                / SCALE
-            )
+                + (0 if episode else self.opening_balance)
+            ) / SCALE
 
     def snapshot(self):
         with self.connect() as con:
@@ -122,6 +149,7 @@ class Ledger:
             ).fetchall()
         return {
             "cap_usd": self.cap / SCALE,
+            "prior_accounted_usd": self.opening_balance / SCALE,
             "accounted_usd": self.used(),
             "settled_usd": sum(r[4] or 0 for r in rows) / SCALE,
             "unresolved_reserve_usd": sum(r[3] for r in rows if r[4] is None) / SCALE,

@@ -21,7 +21,7 @@ from .environment import (
     serialize_spec,
     verify_replay,
 )
-from .ledger import BudgetExceeded, Ledger
+from .ledger import SCALE, BudgetExceeded, Ledger, units
 from .providers import Client, ProviderError
 
 
@@ -70,16 +70,28 @@ def run_episode(
         "status": "running",
         "input_tokens": 0,
         "output_tokens": 0,
+        "accepted_cost_usd": 0.0,
+        "boundary_cost_usd": 0.0,
+        "accounting_contract": "actual-cost-action-admission-1",
     }
     artifact["spec_hash"] = digest(artifact["spec"])
     artifact["feasibility_witness_hash"] = digest(witness["actions"])
-    write_json(output, artifact)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    # Exclusive creation prevents two local runners from overwriting one another's
+    # evidence before the ledger rejects a duplicate request ID.
+    with output.open("x") as initial:
+        json.dump(artifact, initial, indent=2, sort_keys=True)
+        initial.write("\n")
     reason = None
+    settled_units = 0
     while not engine.terminated and len(artifact["actions"]) < max_decisions:
         remaining_usd = max(0, dollar_cap - ledger.used(episode_id))
         remaining_tokens = None if token_cap is None else token_cap - artifact["output_tokens"]
         if remaining_tokens is not None and remaining_tokens <= 0:
             reason = "token_budget_exhausted"
+            break
+        if units(dollar_cap) <= settled_units:
+            reason = "dollar_budget_exhausted"
             break
         budget = {
             "kind": "generation_tokens" if token_cap is not None else "USD",
@@ -90,16 +102,24 @@ def run_episode(
         canonical, options = decision(public_state(engine), budget)
         prepared = client.prepare(canonical, remaining_usd, remaining_tokens)
         if prepared is None:
-            reason = "cannot_reserve_next_request"
+            reason = "token_budget_exhausted"
             break
         payload, bound = prepared
         rid = f"{episode_id}:{len(artifact['requests'])}"
         try:
-            ledger.reserve(rid, episode_id, stage, bound, dollar_cap)
+            ledger.reserve(rid, episode_id, stage, bound)
         except BudgetExceeded:
-            reason = "spending_gate"
+            reason = "operational_spending_gate"
+            artifact["status"] = "incomplete"
             break
-        record = {"id": rid, "canonical": canonical, "payload": payload, "reserved_usd": bound}
+        record = {
+            "id": rid,
+            "canonical": canonical,
+            "payload": payload,
+            "reserved_usd": bound,
+            "reservation_basis": client.model.reservation_basis,
+            "admitted": False,
+        }
         artifact["requests"].append(record)
         write_json(output, artifact)
         started = time.monotonic()
@@ -109,23 +129,35 @@ def run_episode(
             record["debug_api_seconds"] = time.monotonic() - started
             write_json(output, artifact)
             n_in, n_out, cost = client.usage(response, payload)
-            ledger.settle(rid, cost)
             record.update(input_tokens=n_in, output_tokens=n_out, cost_usd=cost)
             artifact["input_tokens"] += n_in
             artifact["output_tokens"] += n_out
+            write_json(output, artifact)
+            ledger.settle(rid, cost)
+            settled_units += units(cost)
             client.validate_identity(response)
             prompt_bound, _ = client.bound(payload)
             if n_in > prompt_bound:
                 raise ProviderError("input-token reservation bound violated")
             if client.model.provider != "TypeSafe" and n_out > payload["max_tokens"]:
                 raise ProviderError("output-token cap violated")
+            # The first unaffordable response is paid and archived, but never executed,
+            # interpreted as an invalid action, or used to select a later attempt.
+            if settled_units > units(dollar_cap):
+                artifact["boundary_cost_usd"] = units(cost) / SCALE
+                reason = "dollar_budget_exhausted"
+                break
             selected = client.select(response)
             call = options.get(selected) if isinstance(selected, str) else None
             if call is None:
                 call = ToolCall("invalid_model_selection", {})
             record["selection"] = selected
-            artifact["actions"].append(asdict(call))
             engine.step([call])
+            if sum(f["kind"] == "action" for f in engine.trace) != len(artifact["actions"]) + 1:
+                raise RuntimeError("admitted action did not produce exactly one action frame")
+            artifact["actions"].append(asdict(call))
+            record["admitted"] = True
+            artifact["accepted_cost_usd"] = settled_units / SCALE
             record["post_quality"] = quality(engine)
             record["post_state_hash"] = digest(public_state(engine))
             write_json(output, artifact)

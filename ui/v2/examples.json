@@ -1,18 +1,47 @@
 [
   {
     "file": "demo.json",
-    "label": "Scripted feasibility example"
+    "label": "Scripted feasibility example \u00b7 current v2",
+    "kind": "scripted",
+    "sha256": "e71e4021ad0f99458fef92d86e2d1eda9e3f1d101579ca3a0910435188b42dd6"
   },
   {
-    "file": "pilot-jev.json",
-    "label": "Jev 1.13.0 \u00b7 pilot \u00b7 $0.4"
+    "file": "canary-mini.json",
+    "label": "GPT-5.4 Mini \u00b7 low \u00b7 HISTORICAL 2,048-CAP CANARY \u00b7 $0.15",
+    "kind": "model",
+    "sha256": "e1dc30118b7946a003b8bcce0e47743f0057c416a2e51f4fd29880e5bee772ca",
+    "audit": {
+      "status": "passed",
+      "protocol_hash": "47421b61f030df539822268de77f57dc6808b8ecd0338f2a6861ad519c0a42ae",
+      "source": "corrected_canary-gate.json \u00b7 77 requests verified across 3 canaries",
+      "gate_sha256": "04bfb33054897dc060e95ac13f0f4b6811711f757ea60b2302ab89578d226ff0",
+      "manifest_sha256": "5be2104fba567953cba3efb2f0bed83004f37bfaced5a2a9b0ee071636ff6a29"
+    }
   },
   {
-    "file": "pilot-mini.json",
-    "label": "GPT-5.4 Mini \u00b7 low \u00b7 pilot \u00b7 $0.4"
+    "file": "canary-jev.json",
+    "label": "Jev 1.13.0 \u00b7 HISTORICAL 2,048-CAP CANARY \u00b7 $0.15",
+    "kind": "model",
+    "sha256": "a3fa0a1400e76c401cfb5de1d03f9fb2f663a685659a278dbafce8386e50c8e3",
+    "audit": {
+      "status": "passed",
+      "protocol_hash": "47421b61f030df539822268de77f57dc6808b8ecd0338f2a6861ad519c0a42ae",
+      "source": "corrected_canary-gate.json \u00b7 77 requests verified across 3 canaries",
+      "gate_sha256": "04bfb33054897dc060e95ac13f0f4b6811711f757ea60b2302ab89578d226ff0",
+      "manifest_sha256": "5be2104fba567953cba3efb2f0bed83004f37bfaced5a2a9b0ee071636ff6a29"
+    }
   },
   {
-    "file": "pilot-sonnet.json",
-    "label": "Claude Sonnet 4.6 \u00b7 thinking off \u00b7 pilot \u00b7 $0.4"
+    "file": "canary-sonnet.json",
+    "label": "Claude Sonnet 4.6 \u00b7 thinking off \u00b7 HISTORICAL 2,048-CAP CANARY \u00b7 $0.15",
+    "kind": "model",
+    "sha256": "38ef97b8d6aa23b21fe75b647f075df2d9559c21df66be26ca55d23ecda76cd7",
+    "audit": {
+      "status": "passed",
+      "protocol_hash": "47421b61f030df539822268de77f57dc6808b8ecd0338f2a6861ad519c0a42ae",
+      "source": "corrected_canary-gate.json \u00b7 77 requests verified across 3 canaries",
+      "gate_sha256": "04bfb33054897dc060e95ac13f0f4b6811711f757ea60b2302ab89578d226ff0",
+      "manifest_sha256": "5be2104fba567953cba3efb2f0bed83004f37bfaced5a2a9b0ee071636ff6a29"
+    }
   }
 ]

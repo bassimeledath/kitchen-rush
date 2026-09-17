@@ -22,13 +22,21 @@ def summarize(episodes):
     for (model, kind, budget), group in sorted(groups.items()):
         by_seed = defaultdict(list)
         for ep in group:
-            by_seed[ep["spec"]["seed"]].append(ep["quality"])
-        # Repeated trials are nested within seed; all configured families have equal seed counts.
-        means = [statistics.mean(v) for v in by_seed.values()]
+            family = ep["spec"].get("tier", "unspecified").rsplit("-", 1)[-1]
+            by_seed[(family, ep["spec"]["seed"])].append(ep["quality"])
+        families = defaultdict(list)
+        for (family, _), values in by_seed.items():
+            families[family].append(statistics.mean(values))
+        means = [statistics.mean(v) for v in families.values()]
         ci = None
-        if len(means) >= 3:
+        if all(len(v) >= 2 for v in families.values()):
             rng = random.Random(20260916)
-            draws = sorted(statistics.mean(rng.choices(means, k=len(means))) for _ in range(4000))
+            draws = sorted(
+                statistics.mean(
+                    statistics.mean(rng.choices(v, k=len(v))) for v in families.values()
+                )
+                for _ in range(4000)
+            )
             ci = [draws[99], draws[3899]]
         rows.append(
             {
@@ -37,7 +45,8 @@ def summarize(episodes):
                 "budget": budget,
                 "quality": statistics.mean(means),
                 "ci95": ci,
-                "seeds": len(means),
+                "seeds": len(by_seed),
+                "seeds_by_family": {f: len(v) for f, v in families.items()},
                 "episodes": len(group),
                 "mean_cost_usd": statistics.mean(ep["cost_usd"] for ep in group),
                 "mean_completion": statistics.mean(
@@ -46,7 +55,8 @@ def summarize(episodes):
                 "mean_invalid": statistics.mean(ep["invalid"] for ep in group),
                 "mean_output_tokens": statistics.mean(ep["output_tokens"] for ep in group),
                 "dollar_censored": sum(
-                    ep["reason"] == "cannot_reserve_next_request" for ep in group
+                    ep["reason"] in ("cannot_reserve_next_request", "dollar_budget_exhausted")
+                    for ep in group
                 )
                 if kind == "tokens"
                 else 0,
@@ -79,6 +89,7 @@ def summarize(episodes):
     return {
         "rows": rows,
         "B80": b80,
-        "uncertainty": "95% seed-cluster percentile bootstrap, 4000 draws. "
-        "Pilot intervals are exploratory; no stable full-roster rank is claimed.",
+        "uncertainty": "95% seed-cluster percentile bootstrap within each task family, "
+        "equal family weighting, 4000 draws; unavailable below two seeds per family. "
+        "Small-sample intervals are exploratory and can miss distribution tails.",
     }

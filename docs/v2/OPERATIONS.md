@@ -1,3 +1,5 @@
+> **Historical checkpoint document — superseded for release.** The choice-1 pilot exposed engine and budget-admission defects in independent review. Its results are diagnostic only. The current contract is [PROTOCOL.md](PROTOCOL.md); the full remodel and roster rerun are authorized.
+
 # Checkpoint operations
 
 Worktree: `/Users/bassime/Desktop/fullstack/kitchen-rush-v2`, branch `codex/remodel-v2`.

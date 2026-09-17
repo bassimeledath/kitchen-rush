@@ -1,0 +1,77 @@
+{
+  "name": "board_b10",
+  "note": "B=10 diagnostic only; two selected models, not a full leaderboard",
+  "ruleset": "33034952fa7f",
+  "versions": {
+    "package": "0.1.0",
+    "ruleset": "33034952fa7f",
+    "ruleset_version": "1.0",
+    "frozen": true,
+    "schema": "0.1",
+    "generator": "0.1",
+    "tokenizer": "tiktoken-cl100k_base-v1"
+  },
+  "total_cost_usd": 3.84,
+  "board": [
+    {
+      "model": "gemini-3.5-flash-lite",
+      "B": 10.0,
+      "tier": "medium",
+      "episodes": 12,
+      "KR": 44.69,
+      "kr_std": 17.28,
+      "pass_1": 0.1667,
+      "completion_rate": 0.9361,
+      "invalid_rate": 0.2286
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "B": 10.0,
+      "tier": "hard",
+      "episodes": 12,
+      "KR": 33.36,
+      "kr_std": 16.64,
+      "pass_1": 0.0,
+      "completion_rate": 0.8274,
+      "invalid_rate": 0.2951
+    },
+    {
+      "model": "gemini-3.7-flash\u00b7low",
+      "B": 10.0,
+      "tier": "medium",
+      "episodes": 12,
+      "KR": 38.75,
+      "kr_std": 15.17,
+      "pass_1": 0.0833,
+      "completion_rate": 0.9,
+      "invalid_rate": 0.1656
+    },
+    {
+      "model": "gemini-3.7-flash\u00b7low",
+      "B": 10.0,
+      "tier": "hard",
+      "episodes": 12,
+      "KR": 13.85,
+      "kr_std": 15.57,
+      "pass_1": 0.0,
+      "completion_rate": 0.9385,
+      "invalid_rate": 0.1977
+    }
+  ],
+  "model_stats": {
+    "gemini-3.5-flash-lite": {
+      "ci": 9.020416666666673,
+      "serve": 88,
+      "reason_ep": 0,
+      "cost": 0.77,
+      "source": "gemini35_flash_lite_b10"
+    },
+    "gemini-3.7-flash\u00b7low": {
+      "ci": 6.521666666666665,
+      "serve": 92,
+      "reason_ep": 15106,
+      "cost": 3.07,
+      "source": "gemini37_low_b10"
+    }
+  }
+}

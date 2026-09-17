@@ -1,0 +1,2772 @@
+{
+  "budget_policy": {
+    "boundary_call_liability_must_be_reserved_before_dispatch": true,
+    "nominal_dollar_allowances_are_not_operational_liability_caps": true,
+    "overall_cap_usd": 200,
+    "prior_accounted_usd": 10.532554644,
+    "revision_note": "All r1 spending and retained liability carry forward. Stage ceilings reserve no funds for other stages; review remaining budget at each checkpoint.",
+    "unknown_hosting_cost_must_not_be_zero": true
+  },
+  "configuration_count": 30,
+  "frozen_at_utc": "2026-09-17T07:08:23.535485+00:00",
+  "global_inference_rules": {
+    "allow_fallbacks": false,
+    "generated_max_output_tokens_per_request": 16384,
+    "generation_ceiling_note": "Dollar calls share 16384 generated tokens. Token calls use min(16384, remaining episode tokens); planned token allowances do not exceed8192.",
+    "new_configuration_after_provider_or_reasoning_change": true,
+    "no_automatic_retry": true,
+    "reasoning_fixed_across_episode_budgets": true,
+    "require_parameters": true,
+    "shared_action_contract": true,
+    "temperature": "omitted for all; provider defaults archived"
+  },
+  "historical_label_count": 32,
+  "models": [
+    {
+      "cache_prices": {
+        "input_cache_read": 1e-07,
+        "input_cache_write": 1.25e-06,
+        "input_cache_write_1h": 2e-06
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 200000,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "claude-haiku-4.5"
+      ],
+      "input_price": 1e-06,
+      "key": "claude-haiku-4-5",
+      "label": "claude-haiku-4.5",
+      "legacy_reasoning": "default",
+      "max_completion_tokens": 64000,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-anthropic-claude-haiku-4.5.json",
+        "endpoint_name": "Anthropic | anthropic/claude-4.5-haiku-20251001",
+        "endpoint_sha256": "72b8c7f4fd216bc55245369cfc7e118fc3bd5bc159f46d570044a2af2496028e",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/anthropic/claude-haiku-4.5/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [
+        "Legacy default made explicit as off."
+      ],
+      "model": "anthropic/claude-haiku-4.5",
+      "model_reasoning_metadata": {
+        "mandatory": false
+      },
+      "operational_context_upper_bound_usd": 0.48191999999999996,
+      "operational_max_input_price": 2e-06,
+      "operational_max_output_price": 5e-06,
+      "output_cap_applies": true,
+      "output_price": 5e-06,
+      "pricing_raw": {
+        "completion": "0.000005",
+        "discount": 0,
+        "input_cache_read": "0.0000001",
+        "input_cache_write": "0.00000125",
+        "input_cache_write_1h": "0.000002",
+        "prompt": "0.000001",
+        "web_search": "0.01"
+      },
+      "provider": "Anthropic",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null,
+        "temperature": null,
+        "top_k": null,
+        "top_p": null
+      },
+      "reasoning": {
+        "enabled": false
+      },
+      "reasoning_mode": "off",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "anthropic",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "max_tokens",
+        "top_p",
+        "temperature",
+        "stop",
+        "reasoning",
+        "include_reasoning",
+        "tools",
+        "tool_choice",
+        "top_k",
+        "structured_outputs",
+        "response_format"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 3e-07,
+        "input_cache_write": 3.75e-06,
+        "input_cache_write_1h": 6e-06
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1000000,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "claude-sonnet-4.6"
+      ],
+      "input_price": 3e-06,
+      "key": "claude-sonnet-4-6",
+      "label": "claude-sonnet-4.6",
+      "legacy_reasoning": "off",
+      "max_completion_tokens": 128000,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-anthropic-claude-sonnet-4.6.json",
+        "endpoint_name": "Anthropic | anthropic/claude-4.6-sonnet-20260217",
+        "endpoint_sha256": "176c46d8bc2d0cef677a2b8484a08a48d2e6c4cceddbecd2427971f7d698d53f",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/anthropic/claude-sonnet-4.6/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "anthropic/claude-sonnet-4.6",
+      "model_reasoning_metadata": {
+        "default_effort": "medium",
+        "mandatory": false,
+        "supported_efforts": [
+          "max",
+          "high",
+          "medium",
+          "low"
+        ]
+      },
+      "operational_context_upper_bound_usd": 6.24576,
+      "operational_max_input_price": 6e-06,
+      "operational_max_output_price": 1.5e-05,
+      "output_cap_applies": true,
+      "output_price": 1.5e-05,
+      "pricing_raw": {
+        "completion": "0.000015",
+        "discount": 0,
+        "input_cache_read": "0.0000003",
+        "input_cache_write": "0.00000375",
+        "input_cache_write_1h": "0.000006",
+        "prompt": "0.000003",
+        "web_search": "0.01"
+      },
+      "provider": "Anthropic",
+      "provider_default_parameters": {},
+      "reasoning": {
+        "enabled": false
+      },
+      "reasoning_mode": "off",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "anthropic",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "max_tokens",
+        "top_p",
+        "temperature",
+        "stop",
+        "reasoning",
+        "include_reasoning",
+        "tools",
+        "tool_choice",
+        "structured_outputs",
+        "response_format",
+        "verbosity",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 3e-07,
+        "input_cache_write": 3.75e-06,
+        "input_cache_write_1h": 6e-06
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1000000,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "claude-sonnet-4.6\u00b7think\u2020"
+      ],
+      "input_price": 3e-06,
+      "key": "claude-sonnet-4-6-think",
+      "label": "claude-sonnet-4.6\u00b7think\u2020",
+      "legacy_reasoning": "on-auto",
+      "max_completion_tokens": 128000,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-anthropic-claude-sonnet-4.6.json",
+        "endpoint_name": "Anthropic | anthropic/claude-4.6-sonnet-20260217",
+        "endpoint_sha256": "176c46d8bc2d0cef677a2b8484a08a48d2e6c4cceddbecd2427971f7d698d53f",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/anthropic/claude-sonnet-4.6/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "anthropic/claude-sonnet-4.6",
+      "model_reasoning_metadata": {
+        "default_effort": "medium",
+        "mandatory": false,
+        "supported_efforts": [
+          "max",
+          "high",
+          "medium",
+          "low"
+        ]
+      },
+      "operational_context_upper_bound_usd": 6.24576,
+      "operational_max_input_price": 6e-06,
+      "operational_max_output_price": 1.5e-05,
+      "output_cap_applies": true,
+      "output_price": 1.5e-05,
+      "pricing_raw": {
+        "completion": "0.000015",
+        "discount": 0,
+        "input_cache_read": "0.0000003",
+        "input_cache_write": "0.00000375",
+        "input_cache_write_1h": "0.000006",
+        "prompt": "0.000003",
+        "web_search": "0.01"
+      },
+      "provider": "Anthropic",
+      "provider_default_parameters": {},
+      "reasoning": {
+        "effort": "low"
+      },
+      "reasoning_mode": "low",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "anthropic",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "max_tokens",
+        "top_p",
+        "temperature",
+        "stop",
+        "reasoning",
+        "include_reasoning",
+        "tools",
+        "tool_choice",
+        "structured_outputs",
+        "response_format",
+        "verbosity",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 2e-07,
+        "input_cache_write": 2.5e-06,
+        "input_cache_write_1h": 4e-06
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1000000,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "claude-sonnet-5"
+      ],
+      "input_price": 2e-06,
+      "key": "claude-sonnet-5",
+      "label": "claude-sonnet-5",
+      "legacy_reasoning": "default",
+      "max_completion_tokens": 128000,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-anthropic-claude-sonnet-5.json",
+        "endpoint_name": "Anthropic | anthropic/claude-sonnet-5-20260630",
+        "endpoint_sha256": "3d0bb9998e37b796b71da4184b46e0b2499940253ae4beeb5ae2bdf2536b443d",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/anthropic/claude-sonnet-5/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [
+        "Legacy default intended off; live metadata defaults reasoning on/high; disabled explicitly."
+      ],
+      "model": "anthropic/claude-sonnet-5",
+      "model_reasoning_metadata": {
+        "default_effort": "high",
+        "default_enabled": true,
+        "mandatory": false,
+        "supported_efforts": [
+          "max",
+          "xhigh",
+          "high",
+          "medium",
+          "low"
+        ]
+      },
+      "operational_context_upper_bound_usd": 4.16384,
+      "operational_max_input_price": 4e-06,
+      "operational_max_output_price": 1e-05,
+      "output_cap_applies": true,
+      "output_price": 1e-05,
+      "pricing_raw": {
+        "completion": "0.00001",
+        "discount": 0,
+        "input_cache_read": "0.0000002",
+        "input_cache_write": "0.0000025",
+        "input_cache_write_1h": "0.000004",
+        "prompt": "0.000002",
+        "web_search": "0.01"
+      },
+      "provider": "Anthropic",
+      "provider_default_parameters": {},
+      "reasoning": {
+        "enabled": false
+      },
+      "reasoning_mode": "off",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "anthropic",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "max_tokens",
+        "stop",
+        "reasoning",
+        "include_reasoning",
+        "tools",
+        "tool_choice",
+        "structured_outputs",
+        "response_format",
+        "verbosity",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 1.8e-08
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1048576,
+      "endpoint_quantization": "fp8",
+      "historical_labels": [
+        "deepseek-v4-flash"
+      ],
+      "input_price": 9e-08,
+      "key": "deepseek-v4-flash",
+      "label": "deepseek-v4-flash",
+      "legacy_reasoning": "off",
+      "max_completion_tokens": 65536,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-deepseek-deepseek-v4-flash.json",
+        "endpoint_name": "DeepInfra | deepseek/deepseek-v4-flash-20260423",
+        "endpoint_sha256": "e4fed2be85253eacc6cfaa0fc1caa1fd4e02c941f66905114d12ea3e17ba947f",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/deepseek/deepseek-v4-flash/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "deepseek/deepseek-v4-flash",
+      "model_reasoning_metadata": {
+        "default_effort": "high",
+        "mandatory": false,
+        "supported_efforts": [
+          "xhigh",
+          "high"
+        ]
+      },
+      "operational_context_upper_bound_usd": 0.09732096,
+      "operational_max_input_price": 9e-08,
+      "operational_max_output_price": 1.8e-07,
+      "output_cap_applies": true,
+      "output_price": 1.8e-07,
+      "pricing_raw": {
+        "completion": "0.00000018",
+        "discount": 0,
+        "input_cache_read": "0.000000018",
+        "prompt": "0.00000009"
+      },
+      "provider": "DeepInfra",
+      "provider_default_parameters": {},
+      "reasoning": {
+        "enabled": false
+      },
+      "reasoning_mode": "off",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "deepinfra/fp8",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "stop",
+        "frequency_penalty",
+        "presence_penalty",
+        "repetition_penalty",
+        "top_k",
+        "seed",
+        "min_p",
+        "tools",
+        "tool_choice",
+        "structured_outputs",
+        "response_format",
+        "logit_bias",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 1.8e-08
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1048576,
+      "endpoint_quantization": "fp8",
+      "historical_labels": [
+        "deepseek-v4-flash\u00b7think"
+      ],
+      "input_price": 9e-08,
+      "key": "deepseek-v4-flash-think",
+      "label": "deepseek-v4-flash\u00b7think",
+      "legacy_reasoning": "on",
+      "max_completion_tokens": 65536,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-deepseek-deepseek-v4-flash.json",
+        "endpoint_name": "DeepInfra | deepseek/deepseek-v4-flash-20260423",
+        "endpoint_sha256": "e4fed2be85253eacc6cfaa0fc1caa1fd4e02c941f66905114d12ea3e17ba947f",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/deepseek/deepseek-v4-flash/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [
+        "Legacy low is not advertised by current metadata; v2 explicitly migrates to high."
+      ],
+      "model": "deepseek/deepseek-v4-flash",
+      "model_reasoning_metadata": {
+        "default_effort": "high",
+        "mandatory": false,
+        "supported_efforts": [
+          "xhigh",
+          "high"
+        ]
+      },
+      "operational_context_upper_bound_usd": 0.09732096,
+      "operational_max_input_price": 9e-08,
+      "operational_max_output_price": 1.8e-07,
+      "output_cap_applies": true,
+      "output_price": 1.8e-07,
+      "pricing_raw": {
+        "completion": "0.00000018",
+        "discount": 0,
+        "input_cache_read": "0.000000018",
+        "prompt": "0.00000009"
+      },
+      "provider": "DeepInfra",
+      "provider_default_parameters": {},
+      "reasoning": {
+        "effort": "high"
+      },
+      "reasoning_mode": "high",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "deepinfra/fp8",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "stop",
+        "frequency_penalty",
+        "presence_penalty",
+        "repetition_penalty",
+        "top_k",
+        "seed",
+        "min_p",
+        "tools",
+        "tool_choice",
+        "structured_outputs",
+        "response_format",
+        "logit_bias",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 1e-07
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1048576,
+      "endpoint_quantization": "fp8",
+      "historical_labels": [
+        "deepseek-v4-pro"
+      ],
+      "input_price": 1.3e-06,
+      "key": "deepseek-v4-pro",
+      "label": "deepseek-v4-pro",
+      "legacy_reasoning": "off",
+      "max_completion_tokens": 16384,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-deepseek-deepseek-v4-pro.json",
+        "endpoint_name": "DeepInfra | deepseek/deepseek-v4-pro-20260423",
+        "endpoint_sha256": "380c7ab364305edcee94b38720c434e4cb7a450d1b52a3cd44df534329020a3c",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/deepseek/deepseek-v4-pro/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "deepseek/deepseek-v4-pro",
+      "model_reasoning_metadata": {
+        "default_effort": "high",
+        "mandatory": false,
+        "supported_efforts": [
+          "xhigh",
+          "high"
+        ]
+      },
+      "operational_context_upper_bound_usd": 1.4057472,
+      "operational_max_input_price": 1.3e-06,
+      "operational_max_output_price": 2.6e-06,
+      "output_cap_applies": true,
+      "output_price": 2.6e-06,
+      "pricing_raw": {
+        "completion": "0.0000026",
+        "discount": 0,
+        "input_cache_read": "0.0000001",
+        "prompt": "0.0000013"
+      },
+      "provider": "DeepInfra",
+      "provider_default_parameters": {
+        "temperature": 1,
+        "top_p": 1
+      },
+      "reasoning": {
+        "enabled": false
+      },
+      "reasoning_mode": "off",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "deepinfra/fp8",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "stop",
+        "frequency_penalty",
+        "presence_penalty",
+        "repetition_penalty",
+        "top_k",
+        "seed",
+        "min_p",
+        "logit_bias",
+        "tools",
+        "tool_choice",
+        "structured_outputs",
+        "response_format",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 2.5e-08,
+        "input_cache_write": 8.33333333333333e-08
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1048576,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "gemini-3.1-flash-lite"
+      ],
+      "input_price": 2.5e-07,
+      "key": "gemini-3-1-flash-lite",
+      "label": "gemini-3.1-flash-lite",
+      "legacy_reasoning": "off",
+      "max_completion_tokens": 65536,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-google-gemini-3.1-flash-lite.json",
+        "endpoint_name": "Google AI Studio | google/gemini-3.1-flash-lite-20260507",
+        "endpoint_sha256": "f4a769224cafaa9b4293b0996f2a8cd3610daa3eaa343b65259da33c3bfbf65f",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/google/gemini-3.1-flash-lite/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "google/gemini-3.1-flash-lite",
+      "model_reasoning_metadata": {
+        "default_effort": "minimal",
+        "default_enabled": true,
+        "mandatory": false,
+        "supported_efforts": [
+          "high",
+          "medium",
+          "low",
+          "minimal"
+        ]
+      },
+      "operational_context_upper_bound_usd": 0.28672,
+      "operational_max_input_price": 2.5e-07,
+      "operational_max_output_price": 1.5e-06,
+      "output_cap_applies": true,
+      "output_price": 1.5e-06,
+      "pricing_raw": {
+        "audio": "0.0000005",
+        "completion": "0.0000015",
+        "discount": 0,
+        "image": "0.00000025",
+        "input_audio_cache": "0.00000005",
+        "input_cache_read": "0.000000025",
+        "input_cache_write": "0.0000000833333333333333",
+        "internal_reasoning": "0.0000015",
+        "prompt": "0.00000025",
+        "web_search": "0.014"
+      },
+      "provider": "Google AI Studio",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null,
+        "temperature": null,
+        "top_k": null,
+        "top_p": null
+      },
+      "reasoning": {
+        "enabled": false
+      },
+      "reasoning_mode": "off",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "google-ai-studio",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "seed",
+        "response_format",
+        "structured_outputs",
+        "tool_choice",
+        "tools",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 1.5e-07,
+        "input_cache_write": 8.33333333333333e-08
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1048576,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "gemini-3.5-flash"
+      ],
+      "input_price": 1.5e-06,
+      "key": "gemini-3-5-flash",
+      "label": "gemini-3.5-flash\u00b7minimal",
+      "legacy_reasoning": "none",
+      "max_completion_tokens": 65536,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-google-gemini-3.5-flash.json",
+        "endpoint_name": "Google AI Studio | google/gemini-3.5-flash-20260519",
+        "endpoint_sha256": "368f290a58496e0344ff334538bdb8f99c794218239003d196175846e74238be",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/google/gemini-3.5-flash/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [
+        "Historical reasoning-off is unavailable on the selected route. V2 explicitly migrates to the lowest supported effort, minimal; this is not an off-mode reproduction."
+      ],
+      "model": "google/gemini-3.5-flash",
+      "model_reasoning_metadata": {
+        "default_effort": "medium",
+        "default_enabled": true,
+        "mandatory": true,
+        "supported_efforts": [
+          "high",
+          "medium",
+          "low",
+          "minimal"
+        ]
+      },
+      "operational_context_upper_bound_usd": 1.72032,
+      "operational_max_input_price": 1.5e-06,
+      "operational_max_output_price": 9e-06,
+      "output_cap_applies": true,
+      "output_price": 9e-06,
+      "pricing_raw": {
+        "audio": "0.000003",
+        "completion": "0.000009",
+        "discount": 0,
+        "image": "0.0000015",
+        "input_audio_cache": "0.0000003",
+        "input_cache_read": "0.00000015",
+        "input_cache_write": "0.0000000833333333333333",
+        "internal_reasoning": "0.000009",
+        "prompt": "0.0000015",
+        "web_search": "0.014"
+      },
+      "provider": "Google AI Studio",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null,
+        "temperature": null,
+        "top_k": null,
+        "top_p": null
+      },
+      "reasoning": {
+        "effort": "minimal"
+      },
+      "reasoning_mode": "minimal",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "google-ai-studio",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "seed",
+        "response_format",
+        "structured_outputs",
+        "tool_choice",
+        "tools",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 3e-08,
+        "input_cache_write": 8.33333333333333e-08
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1048576,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "gemini-3.5-flash-lite"
+      ],
+      "input_price": 3e-07,
+      "key": "gemini-3-5-flash-lite",
+      "label": "gemini-3.5-flash-lite",
+      "legacy_reasoning": "default",
+      "max_completion_tokens": 65536,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-google-gemini-3.5-flash-lite.json",
+        "endpoint_name": "Google AI Studio | google/gemini-3.5-flash-lite-20260721",
+        "endpoint_sha256": "357cc6b1357ad6b7f7346514389523d31e6cf5ed36d7ee2a6b82e88ad6bbe0ff",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/google/gemini-3.5-flash-lite/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "google/gemini-3.5-flash-lite",
+      "model_reasoning_metadata": {
+        "default_effort": "minimal",
+        "default_enabled": true,
+        "mandatory": true,
+        "supported_efforts": [
+          "high",
+          "medium",
+          "low",
+          "minimal"
+        ]
+      },
+      "operational_context_upper_bound_usd": 0.3555328,
+      "operational_max_input_price": 3e-07,
+      "operational_max_output_price": 2.5e-06,
+      "output_cap_applies": true,
+      "output_price": 2.5e-06,
+      "pricing_raw": {
+        "audio": "0.0000003",
+        "completion": "0.0000025",
+        "discount": 0,
+        "image": "0.0000003",
+        "input_audio_cache": "0.00000003",
+        "input_cache_read": "0.00000003",
+        "input_cache_write": "0.0000000833333333333333",
+        "internal_reasoning": "0.0000025",
+        "prompt": "0.0000003",
+        "web_search": "0.014"
+      },
+      "provider": "Google AI Studio",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null,
+        "temperature": null,
+        "top_k": null,
+        "top_p": null
+      },
+      "reasoning": {
+        "effort": "minimal"
+      },
+      "reasoning_mode": "minimal",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "google-ai-studio",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "seed",
+        "response_format",
+        "structured_outputs",
+        "tool_choice",
+        "tools",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 1.5e-07,
+        "input_cache_write": 8.33333333333333e-08
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1048576,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "gemini-3.5-flash\u00b7think"
+      ],
+      "input_price": 1.5e-06,
+      "key": "gemini-3-5-flash-think",
+      "label": "gemini-3.5-flash\u00b7think",
+      "legacy_reasoning": "default",
+      "max_completion_tokens": 65536,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-google-gemini-3.5-flash.json",
+        "endpoint_name": "Google AI Studio | google/gemini-3.5-flash-20260519",
+        "endpoint_sha256": "368f290a58496e0344ff334538bdb8f99c794218239003d196175846e74238be",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/google/gemini-3.5-flash/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "google/gemini-3.5-flash",
+      "model_reasoning_metadata": {
+        "default_effort": "medium",
+        "default_enabled": true,
+        "mandatory": true,
+        "supported_efforts": [
+          "high",
+          "medium",
+          "low",
+          "minimal"
+        ]
+      },
+      "operational_context_upper_bound_usd": 1.72032,
+      "operational_max_input_price": 1.5e-06,
+      "operational_max_output_price": 9e-06,
+      "output_cap_applies": true,
+      "output_price": 9e-06,
+      "pricing_raw": {
+        "audio": "0.000003",
+        "completion": "0.000009",
+        "discount": 0,
+        "image": "0.0000015",
+        "input_audio_cache": "0.0000003",
+        "input_cache_read": "0.00000015",
+        "input_cache_write": "0.0000000833333333333333",
+        "internal_reasoning": "0.000009",
+        "prompt": "0.0000015",
+        "web_search": "0.014"
+      },
+      "provider": "Google AI Studio",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null,
+        "temperature": null,
+        "top_k": null,
+        "top_p": null
+      },
+      "reasoning": {
+        "effort": "medium"
+      },
+      "reasoning_mode": "medium",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "google-ai-studio",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "seed",
+        "response_format",
+        "structured_outputs",
+        "tool_choice",
+        "tools",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 7.5e-08,
+        "input_cache_write": 4.16666666666667e-08
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1048576,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "gemini-3.6-flash\u00b7low"
+      ],
+      "input_price": 7.5e-07,
+      "key": "gemini-3-6-flash-low",
+      "label": "gemini-3.6-flash\u00b7low",
+      "legacy_reasoning": "low",
+      "max_completion_tokens": 65536,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-google-gemini-3.6-flash.json",
+        "endpoint_name": "Google AI Studio | google/gemini-3.6-flash-20260721",
+        "endpoint_sha256": "96af232bbcbaa1565b101494e1639b3d8b77a118754363b6802e1d1860047948",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/google/gemini-3.6-flash/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "google/gemini-3.6-flash",
+      "model_reasoning_metadata": {
+        "default_effort": "medium",
+        "default_enabled": true,
+        "mandatory": true,
+        "supported_efforts": [
+          "high",
+          "medium",
+          "low",
+          "minimal"
+        ]
+      },
+      "operational_context_upper_bound_usd": 0.8478720000000001,
+      "operational_max_input_price": 7.5e-07,
+      "operational_max_output_price": 3.75e-06,
+      "output_cap_applies": true,
+      "output_price": 3.75e-06,
+      "pricing_raw": {
+        "audio": "0.00000075",
+        "completion": "0.00000375",
+        "discount": 0,
+        "image": "0.00000075",
+        "input_audio_cache": "0.000000075",
+        "input_cache_read": "0.000000075",
+        "input_cache_write": "0.0000000416666666666667",
+        "internal_reasoning": "0.00000375",
+        "prompt": "0.00000075",
+        "web_search": "0.014"
+      },
+      "provider": "Google AI Studio",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null,
+        "temperature": null,
+        "top_k": null,
+        "top_p": null
+      },
+      "reasoning": {
+        "effort": "low"
+      },
+      "reasoning_mode": "low",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "google-ai-studio",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "seed",
+        "response_format",
+        "structured_outputs",
+        "tool_choice",
+        "tools",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 7.5e-08,
+        "input_cache_write": 4.16666666666667e-08
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1048576,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "gemini-3.7-flash\u00b7low"
+      ],
+      "input_price": 7.5e-07,
+      "key": "gemini-3-7-flash-low",
+      "label": "gemini-3.7-flash\u00b7low",
+      "legacy_reasoning": "low",
+      "max_completion_tokens": 65536,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-google-gemini-3.7-flash.json",
+        "endpoint_name": "Google AI Studio | google/gemini-3.7-flash-20260813",
+        "endpoint_sha256": "16bdbe0987a5d0fabee20a2934a6e3083eb692ab8726fe11503ab0510fb2713c",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/google/gemini-3.7-flash/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "google/gemini-3.7-flash",
+      "model_reasoning_metadata": {
+        "default_effort": "medium",
+        "default_enabled": true,
+        "mandatory": true,
+        "supported_efforts": [
+          "high",
+          "medium",
+          "low"
+        ]
+      },
+      "operational_context_upper_bound_usd": 0.8478720000000001,
+      "operational_max_input_price": 7.5e-07,
+      "operational_max_output_price": 3.75e-06,
+      "output_cap_applies": true,
+      "output_price": 3.75e-06,
+      "pricing_raw": {
+        "audio": "0.00000075",
+        "completion": "0.00000375",
+        "discount": 0.5,
+        "image": "0.00000075",
+        "input_audio_cache": "0.000000075",
+        "input_cache_read": "0.000000075",
+        "input_cache_write": "0.0000000416666666666667",
+        "internal_reasoning": "0.00000375",
+        "prompt": "0.00000075",
+        "web_search": "0.014"
+      },
+      "provider": "Google AI Studio",
+      "provider_default_parameters": {},
+      "reasoning": {
+        "effort": "low"
+      },
+      "reasoning_mode": "low",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "google-ai-studio",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "seed",
+        "response_format",
+        "structured_outputs",
+        "tool_choice",
+        "tools",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 9.1e-08
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1048576,
+      "endpoint_quantization": "fp4",
+      "historical_labels": [
+        "glm-5.2"
+      ],
+      "input_price": 4.875e-07,
+      "key": "glm-5-2",
+      "label": "glm-5.2",
+      "legacy_reasoning": "off",
+      "max_completion_tokens": 163840,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-z-ai-glm-5.2.json",
+        "endpoint_name": "DeepInfra | z-ai/glm-5.2-20260616",
+        "endpoint_sha256": "8d959a3ac969eb3993b1947ac431fc041fa854f502619d4f660537c2d793bc8f",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/z-ai/glm-5.2/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [
+        "Current board source glm_offboth and calibrated appendix are off at both budgets; stale mixed script comment is not active."
+      ],
+      "model": "z-ai/glm-5.2",
+      "model_reasoning_metadata": {
+        "default_effort": "high",
+        "default_enabled": true,
+        "mandatory": false,
+        "supported_efforts": [
+          "xhigh",
+          "high"
+        ]
+      },
+      "operational_context_upper_bound_usd": 0.53673984,
+      "operational_max_input_price": 4.875e-07,
+      "operational_max_output_price": 1.56e-06,
+      "output_cap_applies": true,
+      "output_price": 1.56e-06,
+      "pricing_raw": {
+        "completion": "0.00000156",
+        "discount": 0.35,
+        "input_cache_read": "0.000000091",
+        "prompt": "0.0000004875"
+      },
+      "provider": "DeepInfra",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null,
+        "temperature": 1,
+        "top_k": null,
+        "top_p": 0.95
+      },
+      "reasoning": {
+        "enabled": false
+      },
+      "reasoning_mode": "off",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "deepinfra/fp4",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "stop",
+        "frequency_penalty",
+        "presence_penalty",
+        "repetition_penalty",
+        "top_k",
+        "seed",
+        "min_p",
+        "structured_outputs",
+        "tools",
+        "tool_choice",
+        "response_format",
+        "logit_bias",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 1.5e-08
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1048576,
+      "endpoint_quantization": "fp4",
+      "historical_labels": [
+        "glm-5.3-flash"
+      ],
+      "input_price": 7.5e-08,
+      "key": "glm-5-3-flash",
+      "label": "glm-5.3-flash",
+      "legacy_reasoning": "low",
+      "max_completion_tokens": 131072,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-z-ai-glm-5.3-flash.json",
+        "endpoint_name": "DeepInfra | z-ai/glm-5.3-flash-20260826",
+        "endpoint_sha256": "379807dff4bceba388e7cccff900bd5a9d03c01bf7118a96305215b0bf8293fc",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/z-ai/glm-5.3-flash/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "z-ai/glm-5.3-flash",
+      "model_reasoning_metadata": {
+        "default_effort": "max",
+        "default_enabled": true,
+        "mandatory": true,
+        "supported_efforts": [
+          "max",
+          "high",
+          "low"
+        ]
+      },
+      "operational_context_upper_bound_usd": 0.0827392,
+      "operational_max_input_price": 7.5e-08,
+      "operational_max_output_price": 2.5e-07,
+      "output_cap_applies": true,
+      "output_price": 2.5e-07,
+      "pricing_raw": {
+        "completion": "0.00000025",
+        "discount": 0.5,
+        "input_cache_read": "0.000000015",
+        "prompt": "0.000000075"
+      },
+      "provider": "DeepInfra",
+      "provider_default_parameters": {
+        "temperature": 1,
+        "top_p": 0.95
+      },
+      "reasoning": {
+        "effort": "low"
+      },
+      "reasoning_mode": "low",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "deepinfra/fp4",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "stop",
+        "frequency_penalty",
+        "presence_penalty",
+        "repetition_penalty",
+        "top_k",
+        "seed",
+        "min_p",
+        "logit_bias",
+        "structured_outputs",
+        "tools",
+        "tool_choice",
+        "response_format",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 2.5e-07
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1050000,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "gpt-5.4"
+      ],
+      "input_price": 2.5e-06,
+      "key": "gpt-5-4",
+      "label": "gpt-5.4",
+      "legacy_reasoning": "none",
+      "max_completion_tokens": 128000,
+      "max_output": 16384,
+      "max_prompt_tokens": 922000,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-openai-gpt-5.4.json",
+        "endpoint_name": "OpenAI | openai/gpt-5.4-20260305",
+        "endpoint_sha256": "ef736b94d847ec664d258080afb89c62ad4a1e2adf6771ab9c6821fe01301f2f",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/openai/gpt-5.4/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "openai/gpt-5.4",
+      "model_reasoning_metadata": {
+        "default_effort": "medium",
+        "default_enabled": false,
+        "mandatory": false,
+        "supported_efforts": [
+          "xhigh",
+          "high",
+          "medium",
+          "low",
+          "none"
+        ]
+      },
+      "operational_context_upper_bound_usd": 5.61864,
+      "operational_max_input_price": 5e-06,
+      "operational_max_output_price": 2.25e-05,
+      "output_cap_applies": true,
+      "output_price": 1.5e-05,
+      "pricing_raw": {
+        "completion": "0.000015",
+        "discount": 0,
+        "input_cache_read": "0.00000025",
+        "overrides": [
+          {
+            "completion": "0.0000225",
+            "input_cache_read": "0.0000005",
+            "min_prompt_tokens": 272000,
+            "prompt": "0.000005"
+          }
+        ],
+        "prompt": "0.0000025",
+        "web_search": "0.01"
+      },
+      "provider": "OpenAI",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null,
+        "temperature": null,
+        "top_k": null,
+        "top_p": null
+      },
+      "reasoning": {
+        "effort": "none"
+      },
+      "reasoning_mode": "none",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "openai",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "seed",
+        "max_tokens",
+        "response_format",
+        "structured_outputs",
+        "tools",
+        "tool_choice",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 7.5e-08
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 400000,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "gpt-5.4-mini"
+      ],
+      "input_price": 7.5e-07,
+      "key": "gpt-5-4-mini",
+      "label": "gpt-5.4-mini",
+      "legacy_reasoning": "off",
+      "max_completion_tokens": 128000,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-openai-gpt-5.4-mini.json",
+        "endpoint_name": "OpenAI | openai/gpt-5.4-mini-20260317",
+        "endpoint_sha256": "1d988e1087b504773574e1aeb26be5aa46deef0b0850c721080483d8124e2f59",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/openai/gpt-5.4-mini/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [
+        "Legacy plain label differs across boards; this row is explicit off. Pilot mini low belongs to the separate thinking row."
+      ],
+      "model": "openai/gpt-5.4-mini",
+      "model_reasoning_metadata": {
+        "default_effort": "medium",
+        "default_enabled": false,
+        "mandatory": false,
+        "supported_efforts": [
+          "xhigh",
+          "high",
+          "medium",
+          "low",
+          "none"
+        ]
+      },
+      "operational_context_upper_bound_usd": 0.373728,
+      "operational_max_input_price": 7.5e-07,
+      "operational_max_output_price": 4.5e-06,
+      "output_cap_applies": true,
+      "output_price": 4.5e-06,
+      "pricing_raw": {
+        "completion": "0.0000045",
+        "discount": 0,
+        "input_cache_read": "0.000000075",
+        "prompt": "0.00000075",
+        "web_search": "0.01"
+      },
+      "provider": "OpenAI",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null,
+        "temperature": null,
+        "top_k": null,
+        "top_p": null
+      },
+      "reasoning": {
+        "effort": "none"
+      },
+      "reasoning_mode": "none",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "openai",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "seed",
+        "max_tokens",
+        "response_format",
+        "structured_outputs",
+        "tools",
+        "tool_choice",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 7.5e-08
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 400000,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "gpt-5.4-mini\u00b7think"
+      ],
+      "input_price": 7.5e-07,
+      "key": "gpt-5-4-mini-think",
+      "label": "gpt-5.4-mini\u00b7think",
+      "legacy_reasoning": "on",
+      "max_completion_tokens": 128000,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-openai-gpt-5.4-mini.json",
+        "endpoint_name": "OpenAI | openai/gpt-5.4-mini-20260317",
+        "endpoint_sha256": "1d988e1087b504773574e1aeb26be5aa46deef0b0850c721080483d8124e2f59",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/openai/gpt-5.4-mini/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [
+        "Includes pilot mini configuration, which used low."
+      ],
+      "model": "openai/gpt-5.4-mini",
+      "model_reasoning_metadata": {
+        "default_effort": "medium",
+        "default_enabled": false,
+        "mandatory": false,
+        "supported_efforts": [
+          "xhigh",
+          "high",
+          "medium",
+          "low",
+          "none"
+        ]
+      },
+      "operational_context_upper_bound_usd": 0.373728,
+      "operational_max_input_price": 7.5e-07,
+      "operational_max_output_price": 4.5e-06,
+      "output_cap_applies": true,
+      "output_price": 4.5e-06,
+      "pricing_raw": {
+        "completion": "0.0000045",
+        "discount": 0,
+        "input_cache_read": "0.000000075",
+        "prompt": "0.00000075",
+        "web_search": "0.01"
+      },
+      "provider": "OpenAI",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null,
+        "temperature": null,
+        "top_k": null,
+        "top_p": null
+      },
+      "reasoning": {
+        "effort": "low"
+      },
+      "reasoning_mode": "low",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "openai",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "seed",
+        "max_tokens",
+        "response_format",
+        "structured_outputs",
+        "tools",
+        "tool_choice",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 2.5e-07
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1050000,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "gpt-5.4\u00b7think"
+      ],
+      "input_price": 2.5e-06,
+      "key": "gpt-5-4-think",
+      "label": "gpt-5.4\u00b7think",
+      "legacy_reasoning": "on",
+      "max_completion_tokens": 128000,
+      "max_output": 16384,
+      "max_prompt_tokens": 922000,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-openai-gpt-5.4.json",
+        "endpoint_name": "OpenAI | openai/gpt-5.4-20260305",
+        "endpoint_sha256": "ef736b94d847ec664d258080afb89c62ad4a1e2adf6771ab9c6821fe01301f2f",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/openai/gpt-5.4/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "openai/gpt-5.4",
+      "model_reasoning_metadata": {
+        "default_effort": "medium",
+        "default_enabled": false,
+        "mandatory": false,
+        "supported_efforts": [
+          "xhigh",
+          "high",
+          "medium",
+          "low",
+          "none"
+        ]
+      },
+      "operational_context_upper_bound_usd": 5.61864,
+      "operational_max_input_price": 5e-06,
+      "operational_max_output_price": 2.25e-05,
+      "output_cap_applies": true,
+      "output_price": 1.5e-05,
+      "pricing_raw": {
+        "completion": "0.000015",
+        "discount": 0,
+        "input_cache_read": "0.00000025",
+        "overrides": [
+          {
+            "completion": "0.0000225",
+            "input_cache_read": "0.0000005",
+            "min_prompt_tokens": 272000,
+            "prompt": "0.000005"
+          }
+        ],
+        "prompt": "0.0000025",
+        "web_search": "0.01"
+      },
+      "provider": "OpenAI",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null,
+        "temperature": null,
+        "top_k": null,
+        "top_p": null
+      },
+      "reasoning": {
+        "effort": "low"
+      },
+      "reasoning_mode": "low",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "openai",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "seed",
+        "max_tokens",
+        "response_format",
+        "structured_outputs",
+        "tools",
+        "tool_choice",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 2e-08,
+        "input_cache_write": 2.5e-07
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1050000,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "gpt-5.6-luna"
+      ],
+      "input_price": 2e-07,
+      "key": "gpt-5-6-luna",
+      "label": "gpt-5.6-luna",
+      "legacy_reasoning": "minimal",
+      "max_completion_tokens": 128000,
+      "max_output": 16384,
+      "max_prompt_tokens": 922000,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-openai-gpt-5.6-luna.json",
+        "endpoint_name": "OpenAI | openai/gpt-5.6-luna-20260709",
+        "endpoint_sha256": "cecbd715f2f832bef6219c3c6db608299aad08d808d8f0177af8f807e1d0cfc9",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/openai/gpt-5.6-luna/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [
+        "Legacy minimal is not advertised by current metadata; v2 explicitly migrates to low."
+      ],
+      "model": "openai/gpt-5.6-luna",
+      "model_reasoning_metadata": {
+        "default_effort": "medium",
+        "default_enabled": true,
+        "mandatory": false,
+        "supported_efforts": [
+          "max",
+          "xhigh",
+          "high",
+          "medium",
+          "low",
+          "none"
+        ]
+      },
+      "operational_context_upper_bound_usd": 0.5544912000000001,
+      "operational_max_input_price": 5e-07,
+      "operational_max_output_price": 1.8e-06,
+      "output_cap_applies": true,
+      "output_price": 1.2e-06,
+      "pricing_raw": {
+        "completion": "0.0000012",
+        "discount": 0,
+        "input_cache_read": "0.00000002",
+        "input_cache_write": "0.00000025",
+        "overrides": [
+          {
+            "completion": "0.0000018",
+            "input_cache_read": "0.00000004",
+            "input_cache_write": "0.0000005",
+            "min_prompt_tokens": 272000,
+            "prompt": "0.0000004"
+          }
+        ],
+        "prompt": "0.0000002",
+        "web_search": "0.01"
+      },
+      "provider": "OpenAI",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null,
+        "temperature": null,
+        "top_k": null,
+        "top_p": null
+      },
+      "reasoning": {
+        "effort": "low"
+      },
+      "reasoning_mode": "low",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "openai",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "seed",
+        "max_tokens",
+        "response_format",
+        "structured_outputs",
+        "tools",
+        "tool_choice",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 7.5e-08
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 131072,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "gpt-oss-120b\u00b7think",
+        "gpt-oss-120b"
+      ],
+      "input_price": 1.5e-07,
+      "key": "gpt-oss-120b-think",
+      "label": "gpt-oss-120b\u00b7think",
+      "legacy_reasoning": "on",
+      "max_completion_tokens": 65536,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-openai-gpt-oss-120b.json",
+        "endpoint_name": "Groq | openai/gpt-oss-120b",
+        "endpoint_sha256": "033479a8de377bf65f64ad5fe28f3217a6606b332b81d373e8105dc8894c5640",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/openai/gpt-oss-120b/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [
+        "Historical calibrated alias used low at B1 and medium at B5; v2 consolidates to fixed low at every budget, not historical equality."
+      ],
+      "model": "openai/gpt-oss-120b",
+      "model_reasoning_metadata": {
+        "default_effort": "medium",
+        "mandatory": true,
+        "supported_efforts": [
+          "high",
+          "medium",
+          "low"
+        ]
+      },
+      "operational_context_upper_bound_usd": 0.0294912,
+      "operational_max_input_price": 1.5e-07,
+      "operational_max_output_price": 6e-07,
+      "output_cap_applies": true,
+      "output_price": 6e-07,
+      "pricing_raw": {
+        "completion": "0.0000006",
+        "discount": 0,
+        "input_cache_read": "0.000000075",
+        "prompt": "0.00000015"
+      },
+      "provider": "Groq",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "temperature": null,
+        "top_p": null
+      },
+      "reasoning": {
+        "effort": "low"
+      },
+      "reasoning_mode": "low",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "groq",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "stop",
+        "seed",
+        "response_format",
+        "tools",
+        "tool_choice",
+        "structured_outputs",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 2e-07
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 256000,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "grok-build\u00b7think",
+        "grok-build-0.1"
+      ],
+      "input_price": 1e-06,
+      "key": "grok-build-think",
+      "label": "grok-build\u00b7think",
+      "legacy_reasoning": "default",
+      "max_completion_tokens": 230400,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-x-ai-grok-build-0.1.json",
+        "endpoint_name": "xAI | x-ai/grok-build-0.1-20260520",
+        "endpoint_sha256": "32a69dea561a9aed82e051dc0c4ca7e46d5626d7b962f120aafd973a1ef83f58",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/x-ai/grok-build-0.1/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "x-ai/grok-build-0.1",
+      "model_reasoning_metadata": {
+        "mandatory": true
+      },
+      "operational_context_upper_bound_usd": 0.577536,
+      "operational_max_input_price": 2e-06,
+      "operational_max_output_price": 4e-06,
+      "output_cap_applies": true,
+      "output_price": 2e-06,
+      "pricing_raw": {
+        "completion": "0.000002",
+        "discount": 0,
+        "input_cache_read": "0.0000002",
+        "overrides": [
+          {
+            "completion": "0.000004",
+            "input_cache_read": "0.0000004",
+            "min_prompt_tokens": 200000,
+            "prompt": "0.000002"
+          }
+        ],
+        "prompt": "0.000001",
+        "web_search": "0.005"
+      },
+      "provider": "xAI",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null,
+        "temperature": null,
+        "top_k": null,
+        "top_p": null
+      },
+      "reasoning": null,
+      "reasoning_mode": "native",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "xai",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "structured_outputs",
+        "response_format",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "seed",
+        "logprobs",
+        "top_logprobs",
+        "tools",
+        "tool_choice"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {},
+      "canary_requirements": [
+        "Pinned model identity",
+        "One flat Choice question",
+        "All input usage priced at frozen tariff",
+        "Explicit operational liability policy; context ceiling not established here"
+      ],
+      "context_length": null,
+      "historical_labels": [
+        "jev"
+      ],
+      "input_price": 4.2e-08,
+      "key": "jev",
+      "label": "jev",
+      "legacy_reasoning": "typed-choice",
+      "max_completion_tokens": null,
+      "max_output": 2048,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "api_url": "https://docs.typesafe.ai/api",
+        "context_limit_status": "not established by reviewed API reference",
+        "pricing_evidence_file": "data/v2/roster.json",
+        "pricing_evidence_sha256": "14e72b91d8b62fd902df78b7d8114de668ca7bbdd81c4e0e14ebac9d99d5e556",
+        "pricing_url": "https://typesafe.ai/blog/introducing-system-one-models-and-jev"
+      },
+      "migration_notes": [],
+      "model": "jev-1.13.0",
+      "model_reasoning_metadata": {},
+      "output_cap_applies": false,
+      "output_price": 0.0,
+      "pricing_raw": {
+        "completion": "0",
+        "prompt": "0.000000042"
+      },
+      "provider": "TypeSafe",
+      "provider_default_parameters": {},
+      "reasoning": null,
+      "reasoning_mode": "typed-choice",
+      "request_fee": 0.0,
+      "route_slug": "https://api.typesafe.ai/v1/systemone",
+      "status": "pending_corrected_protocol_canary",
+      "token_view_eligibility": "ineligible_generation_tokens_incomparable",
+      "transport": "typesafe"
+    },
+    {
+      "cache_prices": {},
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 327680,
+      "endpoint_quantization": "fp8",
+      "historical_labels": [
+        "llama-4-scout"
+      ],
+      "input_price": 1e-07,
+      "key": "llama-4-scout",
+      "label": "llama-4-scout",
+      "legacy_reasoning": "off",
+      "max_completion_tokens": 16384,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-meta-llama-llama-4-scout.json",
+        "endpoint_name": "DeepInfra | meta-llama/llama-4-scout-17b-16e-instruct",
+        "endpoint_sha256": "21221fa8dd1afe3e17f7c5c18696ac33b0cbb6f31ae0a296d3c9b20f4b39e3e0",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/meta-llama/llama-4-scout/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "meta-llama/llama-4-scout",
+      "model_reasoning_metadata": {},
+      "operational_context_upper_bound_usd": 0.0376832,
+      "operational_max_input_price": 1e-07,
+      "operational_max_output_price": 3e-07,
+      "output_cap_applies": true,
+      "output_price": 3e-07,
+      "pricing_raw": {
+        "completion": "0.0000003",
+        "discount": 0,
+        "prompt": "0.0000001"
+      },
+      "provider": "DeepInfra",
+      "provider_default_parameters": {},
+      "reasoning": null,
+      "reasoning_mode": "native",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "deepinfra/fp8",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "stop",
+        "frequency_penalty",
+        "presence_penalty",
+        "repetition_penalty",
+        "top_k",
+        "seed",
+        "min_p",
+        "logit_bias",
+        "structured_outputs"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 1.5e-08
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 262144,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "mistral-small"
+      ],
+      "input_price": 1.5e-07,
+      "key": "mistral-small",
+      "label": "mistral-small",
+      "legacy_reasoning": "off",
+      "max_completion_tokens": 209715,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-mistralai-mistral-small-2603.json",
+        "endpoint_name": "Mistral | mistralai/mistral-small-2603",
+        "endpoint_sha256": "c7fe820474667f5bd5727e110e84cc76a601c37dab68080891327f0a8adcd560",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/mistralai/mistral-small-2603/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "mistralai/mistral-small-2603",
+      "model_reasoning_metadata": {
+        "default_effort": "high",
+        "default_enabled": false,
+        "mandatory": false,
+        "supported_efforts": [
+          "high",
+          "none"
+        ]
+      },
+      "operational_context_upper_bound_usd": 0.049152,
+      "operational_max_input_price": 1.5e-07,
+      "operational_max_output_price": 6e-07,
+      "output_cap_applies": true,
+      "output_price": 6e-07,
+      "pricing_raw": {
+        "completion": "0.0000006",
+        "discount": 0,
+        "input_cache_read": "0.000000015",
+        "prompt": "0.00000015"
+      },
+      "provider": "Mistral",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null,
+        "temperature": null,
+        "top_k": null,
+        "top_p": null
+      },
+      "reasoning": {
+        "enabled": false
+      },
+      "reasoning_mode": "off",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "mistral",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "stop",
+        "frequency_penalty",
+        "presence_penalty",
+        "seed",
+        "response_format",
+        "structured_outputs",
+        "tools",
+        "tool_choice",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 3e-08
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 262144,
+      "endpoint_quantization": "fp8",
+      "historical_labels": [
+        "nemotron-3-nano"
+      ],
+      "input_price": 5e-08,
+      "key": "nemotron-3-nano",
+      "label": "nemotron-3-nano",
+      "legacy_reasoning": "off",
+      "max_completion_tokens": 235929,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-nvidia-nemotron-3-nano-30b-a3b.json",
+        "endpoint_name": "Crusoe | nvidia/nemotron-3-nano-30b-a3b",
+        "endpoint_sha256": "cac8bd13cbc7dd04d98ead9c860548f45c895be94f948b63dd7ca4976f97dce5",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/nvidia/nemotron-3-nano-30b-a3b/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "nvidia/nemotron-3-nano-30b-a3b",
+      "model_reasoning_metadata": {
+        "mandatory": false
+      },
+      "operational_context_upper_bound_usd": 0.016384,
+      "operational_max_input_price": 5e-08,
+      "operational_max_output_price": 2e-07,
+      "output_cap_applies": true,
+      "output_price": 2e-07,
+      "pricing_raw": {
+        "completion": "0.0000002",
+        "discount": 0,
+        "input_cache_read": "0.00000003",
+        "prompt": "0.00000005"
+      },
+      "provider": "Crusoe",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "temperature": null,
+        "top_p": null
+      },
+      "reasoning": {
+        "enabled": false
+      },
+      "reasoning_mode": "off",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "crusoe/fp8",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "stop",
+        "frequency_penalty",
+        "presence_penalty",
+        "seed",
+        "min_p",
+        "repetition_penalty",
+        "top_k",
+        "logit_bias",
+        "structured_outputs",
+        "tools",
+        "response_format"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {},
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 262144,
+      "endpoint_quantization": "fp8",
+      "historical_labels": [
+        "nemotron-3-super"
+      ],
+      "input_price": 8e-08,
+      "key": "nemotron-3-super",
+      "label": "nemotron-3-super",
+      "legacy_reasoning": "off",
+      "max_completion_tokens": 235929,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-nvidia-nemotron-3-super-120b-a12b.json",
+        "endpoint_name": "DekaLLM | nvidia/nemotron-3-super-120b-a12b-20230311",
+        "endpoint_sha256": "bdde023cf4e5d8a436e3ff3e4b8bd68cc25470511d9f715f552ceaea829e4103",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/nvidia/nemotron-3-super-120b-a12b/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "model_reasoning_metadata": {
+        "default_effort": "medium",
+        "default_enabled": true,
+        "mandatory": false,
+        "supported_efforts": [
+          "medium",
+          "low"
+        ],
+        "supports_max_tokens": true
+      },
+      "operational_context_upper_bound_usd": 0.02834432,
+      "operational_max_input_price": 8e-08,
+      "operational_max_output_price": 4.5e-07,
+      "output_cap_applies": true,
+      "output_price": 4.5e-07,
+      "pricing_raw": {
+        "completion": "0.00000045",
+        "discount": 0,
+        "prompt": "0.00000008"
+      },
+      "provider": "DekaLLM",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null,
+        "temperature": 1,
+        "top_k": null,
+        "top_p": 0.95
+      },
+      "reasoning": {
+        "enabled": false
+      },
+      "reasoning_mode": "off",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "dekallm/fp8",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "frequency_penalty",
+        "logit_bias",
+        "max_tokens",
+        "presence_penalty",
+        "seed",
+        "stop",
+        "temperature",
+        "top_p",
+        "response_format",
+        "tools",
+        "logprobs",
+        "top_logprobs",
+        "structured_outputs",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 1e-07
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 262144,
+      "endpoint_quantization": "fp4",
+      "historical_labels": [
+        "nemotron-3-ultra"
+      ],
+      "input_price": 5e-07,
+      "key": "nemotron-3-ultra",
+      "label": "nemotron-3-ultra",
+      "legacy_reasoning": "off",
+      "max_completion_tokens": 16384,
+      "max_output": 16384,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-nvidia-nemotron-3-ultra-550b-a55b.json",
+        "endpoint_name": "DeepInfra | nvidia/nemotron-3-ultra-550b-a55b-20260604",
+        "endpoint_sha256": "be0bbb2f6616aebb84d182dc5e78d7fca3a095a31a071b4eadc35a5e0e827bb4",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/nvidia/nemotron-3-ultra-550b-a55b/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "model_reasoning_metadata": {
+        "default_effort": "high",
+        "default_enabled": true,
+        "mandatory": false,
+        "supported_efforts": [
+          "high",
+          "medium"
+        ],
+        "supports_max_tokens": true
+      },
+      "operational_context_upper_bound_usd": 0.1671168,
+      "operational_max_input_price": 5e-07,
+      "operational_max_output_price": 2.2e-06,
+      "output_cap_applies": true,
+      "output_price": 2.2e-06,
+      "pricing_raw": {
+        "completion": "0.0000022",
+        "discount": 0,
+        "input_cache_read": "0.0000001",
+        "prompt": "0.0000005"
+      },
+      "provider": "DeepInfra",
+      "provider_default_parameters": {
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null,
+        "temperature": 1,
+        "top_k": null,
+        "top_p": 0.95
+      },
+      "reasoning": {
+        "enabled": false
+      },
+      "reasoning_mode": "off",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "deepinfra/fp4",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "stop",
+        "frequency_penalty",
+        "presence_penalty",
+        "repetition_penalty",
+        "top_k",
+        "seed",
+        "min_p",
+        "tools",
+        "tool_choice",
+        "structured_outputs",
+        "response_format",
+        "logit_bias",
+        "reasoning_effort"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    },
+    {
+      "block_reason": "No verified dedicated-container cost allocation or resource cap; no v2 strict-choice adapter.",
+      "cache_prices": {},
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": null,
+      "historical_labels": [
+        "phonellm-alpha-1\u2020"
+      ],
+      "hosting": {
+        "gpu": "B200",
+        "gpu_only_startup_liability_usd": 3.1248,
+        "gpu_usd_per_second": 0.001736,
+        "min_containers": 0,
+        "sglang_image": "lmsysorg/sglang:v0.5.18-cu130",
+        "startup_timeout_seconds": 1800,
+        "target_concurrency": 4
+      },
+      "input_price": null,
+      "key": "phonellm-alpha-1",
+      "label": "phonellm-alpha-1\u2020",
+      "legacy_reasoning": "off",
+      "max_completion_tokens": null,
+      "max_output": 2048,
+      "max_prompt_tokens": null,
+      "metadata_evidence": {
+        "deployment_sha256": "472093f857042ffc6df60363c45ec5a09d0f00715eb94a3fa0e23315a0c2adc8",
+        "deployment_source": "/Users/bassime/Desktop/fullstack/kitchen-rush/scripts/modal_phonellm_sglang.py",
+        "pricing_url": "https://modal.com/pricing"
+      },
+      "migration_notes": [],
+      "model": "modal:pipecat-ai/phonellm-alpha-1",
+      "model_reasoning_metadata": {},
+      "model_revision": "8e76aaa6e8ce4765ac943ba3fb339494d4d48dca",
+      "output_cap_applies": true,
+      "output_price": null,
+      "pricing_raw": {},
+      "provider": "Modal",
+      "provider_default_parameters": {},
+      "reasoning": {
+        "enabled": false
+      },
+      "reasoning_mode": "off",
+      "request_fee": null,
+      "route_slug": null,
+      "status": "blocked_cost_attribution",
+      "token_view_eligibility": "blocked_adapter_and_usage",
+      "transport": "modal-sglang-unimplemented"
+    },
+    {
+      "cache_prices": {
+        "input_cache_read": 6.4e-08,
+        "input_cache_write": 4e-07
+      },
+      "canary_requirements": [
+        "Exact model and provider identity",
+        "Strict full candidate enum output",
+        "Explicit reasoning supported without silent dropping",
+        "Usage includes all generated and reasoning tokens",
+        "Cost and operational reservation reconcile"
+      ],
+      "context_length": 1000000,
+      "endpoint_quantization": "unknown",
+      "historical_labels": [
+        "qwen3.7-plus"
+      ],
+      "input_price": 3.2e-07,
+      "key": "qwen3-7-plus",
+      "label": "qwen3.7-plus",
+      "legacy_reasoning": "off",
+      "max_completion_tokens": 131072,
+      "max_output": 16384,
+      "max_prompt_tokens": 983616,
+      "metadata_evidence": {
+        "endpoint_file": "data/v2/endpoints-qwen-qwen3.7-plus.json",
+        "endpoint_name": "Alibaba | qwen/qwen3.7-plus-20260602",
+        "endpoint_sha256": "67ca5ad9555b4469d74d28f50951e94b414ec5fc48d635c5de8f56e3d290b2be",
+        "endpoint_snapshot_retrieved_at_utc": "2026-09-17T05:01:23.160272+00:00",
+        "endpoint_url": "https://openrouter.ai/api/v1/models/qwen/qwen3.7-plus/endpoints",
+        "models_file": "data/v2/provenance/release-openrouter-models.json",
+        "models_sha256": "4353c65a81cb4bf5bc49ad7a3ca1c77f993f70e279763bd44551eff3a2568cd1",
+        "models_url": "https://openrouter.ai/api/v1/models"
+      },
+      "metadata_preflight_status": "compatible_schema_route_only",
+      "migration_notes": [],
+      "model": "qwen/qwen3.7-plus",
+      "model_reasoning_metadata": {
+        "default_enabled": true,
+        "mandatory": false
+      },
+      "operational_context_upper_bound_usd": 1.26291456,
+      "operational_max_input_price": 1.2e-06,
+      "operational_max_output_price": 3.84e-06,
+      "output_cap_applies": true,
+      "output_price": 1.28e-06,
+      "pricing_raw": {
+        "completion": "0.00000128",
+        "discount": 0,
+        "input_cache_read": "0.000000064",
+        "input_cache_write": "0.0000004",
+        "overrides": [
+          {
+            "completion": "0.00000384",
+            "input_cache_read": "0.000000192",
+            "input_cache_write": "0.0000012",
+            "min_prompt_tokens": 256000,
+            "prompt": "0.00000096"
+          }
+        ],
+        "prompt": "0.00000032"
+      },
+      "provider": "Alibaba",
+      "provider_default_parameters": {},
+      "reasoning": {
+        "enabled": false
+      },
+      "reasoning_mode": "off",
+      "request_fee": 0.0,
+      "request_fee_source": "not listed in selected endpoint pricing; zero inferred, enforce actual usage",
+      "reservation_tariff_policy": "Maximum text input/cache and output/reasoning tariffs across every nested pricing tier. No search/audio/image features requested.",
+      "route_slug": "alibaba",
+      "status": "pending_canary",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "seed",
+        "presence_penalty",
+        "response_format",
+        "logprobs",
+        "top_logprobs",
+        "tools",
+        "tool_choice",
+        "structured_outputs",
+        "top_k",
+        "frequency_penalty",
+        "stop"
+      ],
+      "token_view_eligibility": "pending_usage_conformance",
+      "transport": "openrouter"
+    }
+  ],
+  "provenance": {
+    "board_b10_snapshot": "data/v2/provenance/board_b10.json",
+    "reasoning_documentation": "https://openrouter.ai/docs/guides/best-practices/reasoning-tokens",
+    "route_documentation": "https://openrouter.ai/docs/guides/routing/provider-selection",
+    "source_board_hashes": {
+      "board.json": "69e70ebadd67c8facdbe6647fb66764ea1b8612426ab9ca83e753f005df15da6",
+      "board_b10.json": "642df369d50d3726dc242293c2ce14b1f0529ad0074679e430c3f43383cd8831",
+      "calibrated_board.json": "4dade00e7488928c7d2e3c15f8960fb092ca47171b27854edab32c38b890cd15"
+    },
+    "source_roster": "data/v2/roster.json"
+  },
+  "schema_version": "kitchen-rush-release-roster-r2",
+  "scope": "All 30 v2 configurations; 32 historical labels preserved; migration notes distinguish policy changes from aliases. Freeze does not imply canary eligibility.",
+  "supersedes": {
+    "path": "data/v2/release-roster.json",
+    "reason": "Development canary exposed per-call truncation and incomplete operational tariff maxima.",
+    "sha256": "9fcd5aadfbb34c17b1bfca14db50ee3a69b50a939eeea55f5a7784d44c71b6e4"
+  }
+}

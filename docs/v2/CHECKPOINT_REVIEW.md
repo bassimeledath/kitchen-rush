@@ -1,3 +1,5 @@
+> **Historical checkpoint document — superseded for release.** The choice-1 pilot exposed engine and budget-admission defects in independent review. Its results are diagnostic only. The current contract is [PROTOCOL.md](PROTOCOL.md); the full remodel and roster rerun are authorized.
+
 # Kitchen Rush v2 — checkpoints 1 and 2
 
 **Useful work. Limited budgets. Unfamiliar kitchens.**

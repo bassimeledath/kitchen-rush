@@ -1,13 +1,14 @@
 cff-version: 1.2.0
-message: "If you use Kitchen Rush, please cite it."
-title: "Kitchen Rush: A Benchmark for Accurate and Fast Tool Calling"
+message: "If you use Kitchen Rush, please cite it and identify the evaluated protocol."
+title: "Kitchen Rush: Useful Work under Resource Budgets in Unfamiliar Kitchens"
 abstract: >-
-  Kitchen Rush is a text-to-text, Overcooked-inspired benchmark in which a model plays a
-  chef on a seeded grid kitchen, issuing native function calls to fulfill orders before
-  they expire and before food burns. Its defining feature is that latency costs points by
-  construction: per-response thinking time is converted to game-seconds that advance a
-  shared world clock before each action resolves, making the speed-accuracy tradeoff the
-  object of measurement.
+  Kitchen Rush evaluates model action selection in generated kitchen tasks. Models receive
+  the same public state and candidate actions, including invalid choices, and complete
+  orders under episode-wide resource allowances. The shared dollar view compares task
+  quality and actual inference cost; a separate generation-token view measures compatible
+  models under enforced token allowances. Recipes and public cooking rules vary across
+  instances. Inference pauses kitchen time, so provider response latency does not affect
+  scores. V2 results are distinct from the archived v1 latency-based protocol.
 type: software
 authors:
   - family-names: Eledath
@@ -16,10 +17,10 @@ repository-code: "https://github.com/bassimeledath/kitchen-rush"
 url: "https://github.com/bassimeledath/kitchen-rush"
 keywords:
   - benchmark
-  - tool calling
-  - function calling
-  - latency
-  - realtime agents
+  - action selection
+  - token efficiency
+  - inference cost
+  - generalization
   - large language models
 license: Apache-2.0
 version: 0.1.0

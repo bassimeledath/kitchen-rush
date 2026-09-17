@@ -15,6 +15,40 @@ class ProviderError(RuntimeError):
     pass
 
 
+def reservation_tariffs(pricing):
+    """Conservative text tariffs, including nested tiers and cache-write durations."""
+    inputs, outputs, requests = [], [], []
+
+    def visit(value):
+        if isinstance(value, dict):
+            for key, item in value.items():
+                if isinstance(item, (dict, list)):
+                    visit(item)
+                elif item is not None:
+                    target = (
+                        inputs
+                        if key == "prompt" or key.startswith("input_cache_")
+                        else outputs
+                        if key in ("completion", "internal_reasoning")
+                        else requests
+                        if key == "request"
+                        else None
+                    )
+                    if target is not None:
+                        number = float(item)
+                        if not math.isfinite(number) or number < 0:
+                            raise ValueError("invalid reservation tariff")
+                        target.append(number)
+        elif isinstance(value, list):
+            for item in value:
+                visit(item)
+
+    visit(pricing)
+    if not inputs or not outputs:
+        raise ValueError("missing text tariff")
+    return max(inputs), max(outputs), max(requests, default=0.0)
+
+
 def load_env(path):
     # Explicit local file only. Never print values or persist credentials in run records.
     for line in Path(path).read_text().splitlines():
@@ -32,6 +66,12 @@ class Model:
     output_price: float
     reasoning: dict | None = None
     max_output: int = 2048
+    route_slug: str | None = None
+    prompt_limit: int | None = None
+    reservation_input_price: float | None = None
+    reservation_output_price: float | None = None
+    request_fee: float = 0.0
+    reservation_basis: str = "provider_context_limit"
 
 
 class Client:
@@ -55,7 +95,7 @@ class Client:
             ],
             "max_tokens": max_output if max_output is not None else self.model.max_output,
             "provider": {
-                "order": [self.model.provider],
+                "order": [self.model.route_slug or self.model.provider],
                 "allow_fallbacks": False,
                 "require_parameters": True,
             },
@@ -83,13 +123,23 @@ class Client:
         return payload
 
     def bound(self, payload):
-        # Conservative byte bound + provider template overhead. Assumption is validated on
-        # each response. One flat Jev question avoids speculative state replication.
-        prompt_bound = len(json.dumps(payload, ensure_ascii=True).encode()) + 4096
+        # Operational liability only; this must never determine scored action admission.
+        # Use the frozen endpoint's context ceiling and maximum input tariff. An estimated
+        # reserve (e.g. TypeSafe without a published cap) must be explicitly labeled.
+        if self.model.prompt_limit is None:
+            raise ProviderError("missing frozen operational input reservation")
+        prompt_bound = self.model.prompt_limit
         output_bound = 0 if self.model.provider == "TypeSafe" else payload["max_tokens"]
         return (
             prompt_bound,
-            prompt_bound * self.model.input_price + output_bound * self.model.output_price,
+            prompt_bound * (self.model.reservation_input_price or self.model.input_price)
+            + output_bound
+            * (
+                self.model.reservation_output_price
+                if self.model.reservation_output_price is not None
+                else self.model.output_price
+            )
+            + self.model.request_fee,
         )
 
     def prepare(self, canonical, remaining_usd, remaining_tokens=None):
@@ -98,24 +148,10 @@ class Client:
             if self.model.provider == "TypeSafe":
                 raise ValueError("Jev is not eligible for the generation-token view")
             maximum = min(maximum, remaining_tokens)
+        if maximum <= 0 or remaining_usd <= 0:
+            return None
         payload = self.payload(canonical, maximum)
         _, bound = self.bound(payload)
-        if bound > remaining_usd and self.model.provider != "TypeSafe":
-            # Reserve the entire prompt upper bound, then choose the largest affordable
-            # output cap. Never spend a token/dollar allowance on an unbounded request.
-            input_bound, _ = self.bound(payload)
-            maximum = min(
-                maximum,
-                math.floor(
-                    (remaining_usd - input_bound * self.model.input_price) / self.model.output_price
-                ),
-            )
-            if maximum < 16:
-                return None
-            payload = self.payload(canonical, maximum)
-            _, bound = self.bound(payload)
-        if maximum <= 0 or bound > remaining_usd:
-            return None
         return payload, bound
 
     def evaluate(self, payload):

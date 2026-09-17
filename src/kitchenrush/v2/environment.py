@@ -7,16 +7,23 @@ import itertools
 import json
 import math
 import random
-from dataclasses import asdict
+from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 
 from .. import config
-from ..engine import KitchenRushEngine
+from ..engine import (
+    INV_BAD_TARGET,
+    INV_EARLY_PICKUP,
+    INV_UNREACHABLE,
+    INV_WRONG_INVENTORY,
+    Component,
+    KitchenRushEngine,
+)
 from ..oracle import OracleAgent
 from ..procgen import KitchenSpec, OrderSpec, StationSpec
 from ..tools import ToolCall
 
-PROTOCOL = "kitchen-rush-v2-choice-1"
+PROTOCOL = "kitchen-rush-v2-choice-2"
 INVALID_WEIGHT = 0.1
 MAX_DECISIONS = 160
 WAITS = (1, 2, 5, 10, 20)
@@ -27,9 +34,11 @@ RULES = (
     "Station actions automatically walk to their station; walking and actions consume game time. "
     "Inference does not advance the kitchen. Feedback is supplied after every action. "
     "Use wait(seconds) to advance cooking or await orders. "
+    "Read this kitchen's ingredient_rules: preparation requirements and cooking timers vary. "
     "Collect gets RAW ingredients; chop requires a held RAW choppable ingredient; cook requires "
     "the ingredient state specified in ingredient_rules and a free burner. collect_cooked requires "
-    "a READY item BEFORE walking; food may burn during travel. You have four hand slots. "
+    "a READY item BEFORE walking; food may burn during travel. Pickup removes food from heat "
+    "on arrival, before the one-second handling duration. You have four hand slots. "
     "Plate requires exactly the card ingredients/states with no extra unplated components. "
     "Serve requires a matching held plate and ACTIVE order. Discard removes a held item. "
     "Burned food automatically disappears from its burner. Invalid actions consume three game "
@@ -78,6 +87,26 @@ def recipe_pool(size: int, split: str) -> list[dict]:
     return result
 
 
+@dataclass
+class Kitchen(KitchenSpec):
+    ingredient_rules: dict = field(default_factory=dict)
+
+
+def generate_profiles(seed, split):
+    """Unseen combinations of familiar physical rules; independent of menu draws."""
+    rng = random.Random(f"ingredient-profiles:{seed}")
+    while True:
+        profiles = {}
+        for name, item in sorted(config.INGREDIENTS.items()):
+            if item.cookable_from:
+                item = replace(item, cook_time=rng.randint(4, 12), burn_window=rng.randint(3, 8))
+                if name == "mushroom":
+                    item = replace(item, cookable_from=rng.choice(["RAW", "CHOPPED"]))
+            profiles[name] = asdict(item)
+        if int(digest(profiles), 16) % 10 in SPLITS[split]:
+            return profiles
+
+
 def generate(seed: int, split: str = "development", size: int = 3) -> KitchenSpec:
     """Three orders, 2/3/4-component families. No resource allowance affects generation.
 
@@ -88,6 +117,7 @@ def generate(seed: int, split: str = "development", size: int = 3) -> KitchenSpe
     if split not in SPLITS or size not in (2, 3, 4):
         raise ValueError("unknown split or component count")
     rng = random.Random(seed)
+    profiles = generate_profiles(seed, split)
     pool = recipe_pool(size, split)
     cards = {f"R{i + 1}": dict(card) for i, card in enumerate(rng.sample(pool, 3))}
     stations = []
@@ -120,7 +150,7 @@ def generate(seed: int, split: str = "development", size: int = 3) -> KitchenSpe
         # Worst-case single-order path: each station action <= 8 steps (1.2s).
         intrinsic = config.PLATE_GS + config.SERVE_GS + 2.4
         for ingredient, state in cards[rid].items():
-            ing = config.INGREDIENTS[ingredient]
+            ing = config.Ingredient(**profiles[ingredient])
             intrinsic += config.COLLECT_GS + 1.2
             if state == "CHOPPED" or (state == "COOKED" and ing.cookable_from == "CHOPPED"):
                 intrinsic += config.CHOP_GS + 1.2
@@ -129,7 +159,7 @@ def generate(seed: int, split: str = "development", size: int = 3) -> KitchenSpe
         finish = max(arrival, finish) + intrinsic
         deadline = math.ceil(finish * 1.35 + 10)
         orders.append(OrderSpec(f"O{idx + 1}", rid, arrival, deadline, 1.0))
-    return KitchenSpec(
+    return Kitchen(
         seed=seed,
         tier=f"v2-{split}-{size}",
         grid_n=7,
@@ -144,6 +174,7 @@ def generate(seed: int, split: str = "development", size: int = 3) -> KitchenSpe
         latency_budget=0,
         blocked=blocked,
         door=(6, 3),
+        ingredient_rules=profiles,
     )
 
 
@@ -161,14 +192,90 @@ def deserialize_spec(value):
     value["orders"] = [OrderSpec(**o) for o in value["orders"]]
     value["blocked"] = frozenset(tuple(c) for c in value["blocked"])
     value["active_recipes"] = tuple(value["active_recipes"])
-    return KitchenSpec(**value)
+    return Kitchen(**value)
 
 
 class Engine(KitchenRushEngine):
+    def __init__(self, spec, *, record_trace=False):
+        super().__init__(spec, record_trace=record_trace)
+        profiles = getattr(spec, "ingredient_rules", {})
+        if profiles:
+            if set(profiles) != set(config.INGREDIENTS):
+                raise ValueError("ingredient profile catalog mismatch")
+            for name, profile in profiles.items():
+                base = config.INGREDIENTS[name]
+                item = config.Ingredient(**profile)
+                expected = ("RAW", "CHOPPED") if name == "mushroom" else (base.cookable_from,)
+                if (
+                    item.name != name
+                    or item.choppable != base.choppable
+                    or item.cookable_from not in expected
+                    or not math.isfinite(item.cook_time)
+                    or not math.isfinite(item.burn_window)
+                    or (
+                        base.cookable_from
+                        and not (4 <= item.cook_time <= 12 and 3 <= item.burn_window <= 8)
+                    )
+                    or (not base.cookable_from and (item.cook_time or item.burn_window))
+                ):
+                    raise ValueError("invalid ingredient profile")
+                self.ingredient_rules[name] = item
+        # Collection legality depends only on public dispensers, never future recipes.
+        self.active_ingredients = {s.ingredient for s in spec.stations if s.type == config.ING}
+
     def step(self, calls, think_gs=0.0):
         if think_gs != 0 or len(calls) != 1:
             raise ValueError("v2 requires one action and zero inference game time")
-        return super().step(calls, 0)
+        super().step(calls, 0)
+        # Invalid actions also advance time and can expire the final order.
+        self._check_terminate()
+        return self.observe()
+
+    def _a_collect_cooked(self, args):
+        ingredient = args.get("ingredient")
+        want = args.get("burner_index")
+        if len(self.hands) >= config.HAND_SLOTS:
+            return self._invalid("hands full", INV_WRONG_INVENTORY)
+
+        def matches(index, burner):
+            return (
+                burner.job is not None
+                and burner.job.ingredient == ingredient
+                and (want is None or index == want)
+            )
+
+        targets = {
+            b.cell
+            for i, b in enumerate(self.burners)
+            if matches(i, b) and b.job.status(self.clock_gs) == "READY"
+        }
+        if not targets:
+            cooking = any(
+                matches(i, b) and b.job.status(self.clock_gs) == "COOKING"
+                for i, b in enumerate(self.burners)
+            )
+            return self._invalid(
+                f"{ingredient} is not ready yet"
+                if cooking
+                else f"no ready {ingredient} on a burner",
+                INV_EARLY_PICKUP if cooking else INV_BAD_TARGET,
+            )
+        if not self._walk_to_cells(targets):
+            return self._invalid(f"cannot reach the stove with {ingredient}", INV_UNREACHABLE)
+        adjacent = set(self._adjacent_stations(config.STOVE))
+        for i, burner in enumerate(self.burners):
+            if (
+                burner.cell in adjacent
+                and matches(i, burner)
+                and burner.job.status(self.clock_gs) == "READY"
+            ):
+                # Lift at arrival: the event sweep must not burn this same item while
+                # charging handling time. Other burners continue cooking normally.
+                burner.job = None
+                self.hands.append(Component(ingredient, config.COOKED))
+                self._charge(config.COOK_PICKUP_GS)
+                return self._ok("collect_cooked", f"took cooked {ingredient} off burner {i}")
+        return self._invalid(f"no ready {ingredient} on a burner here", INV_EARLY_PICKUP)
 
     def _ok(self, action, note):
         # The v1 reward/combo calculation is not the v2 objective. Do not leak obsolete
@@ -223,7 +330,7 @@ def public_state(engine: Engine) -> dict:
     state["requested_orders"] = len(engine._order_list)
     state["completed_orders"] = engine.counters["orders_served"]
     state["invalid_actions"] = engine.counters["invalid_actions"]
-    state["ingredient_rules"] = {i: asdict(p) for i, p in config.INGREDIENTS.items()}
+    state["ingredient_rules"] = {i: asdict(p) for i, p in engine.ingredient_rules.items()}
     state["action_seconds"] = dict(
         collect=2,
         chop=4,
@@ -293,7 +400,13 @@ class RecipeReader(OracleAgent):
     def choose(self, state):
         call = self._decide(state)
         if call is None:
-            return ToolCall("wait", {"seconds": 1})
+            remaining = [
+                b["ready_gs"] - state["clock_gs"]
+                for b in state["burners"]
+                if b["status"] == "COOKING"
+            ]
+            delay = min(remaining) if remaining else 1
+            return ToolCall("wait", {"seconds": max(n for n in WAITS if n <= max(1, delay))})
         if call.name == "collect_cooked":
             ready = next(
                 b
@@ -333,6 +446,8 @@ def verify_replay(episode):
         if engine.terminated:
             raise ValueError("actions after termination")
         engine.step([ToolCall(**action)])
+    if sum(f["kind"] == "action" for f in engine.trace) != len(episode["actions"]):
+        raise ValueError("admitted action has no action frame")
     if not math.isclose(quality(engine), episode["quality"], abs_tol=1e-9):
         raise ValueError("quality replay mismatch")
     if digest(engine.trace) != digest(episode["frames"]):

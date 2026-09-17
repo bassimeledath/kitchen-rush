@@ -1,0 +1,302 @@
+{
+  "batch": "corrected_pilot",
+  "configuration_hash": "7980de5739ba2beb710902d9c6d9f310d4ed8db6f59995b066a68bbbed130b01",
+  "cost_policy": "Actual paid cost includes the first non-admitted boundary response. Operational reservations constrain stage/global spending, not scored admission. TypeSafe reservation is an explicit estimate, not a guaranteed provider maximum.",
+  "jobs": [
+    {
+      "dollar_cap": 0.05,
+      "id": "corrected_pilot-jev-56102-2-0-d0.05-tNone",
+      "model": "jev",
+      "seed": 56102,
+      "size": 2,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "corrected_pilot-gpt-5-4-mini-think-56102-2-0-d0.05-tNone",
+      "model": "gpt-5-4-mini-think",
+      "seed": 56102,
+      "size": 2,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "corrected_pilot-claude-sonnet-4-6-56102-2-0-d0.05-tNone",
+      "model": "claude-sonnet-4-6",
+      "seed": 56102,
+      "size": 2,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "corrected_pilot-jev-56102-2-0-d0.4-tNone",
+      "model": "jev",
+      "seed": 56102,
+      "size": 2,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "corrected_pilot-gpt-5-4-mini-think-56102-2-0-d0.4-tNone",
+      "model": "gpt-5-4-mini-think",
+      "seed": 56102,
+      "size": 2,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "corrected_pilot-claude-sonnet-4-6-56102-2-0-d0.4-tNone",
+      "model": "claude-sonnet-4-6",
+      "seed": 56102,
+      "size": 2,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "corrected_pilot-jev-56103-3-0-d0.05-tNone",
+      "model": "jev",
+      "seed": 56103,
+      "size": 3,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "corrected_pilot-gpt-5-4-mini-think-56103-3-0-d0.05-tNone",
+      "model": "gpt-5-4-mini-think",
+      "seed": 56103,
+      "size": 3,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "corrected_pilot-claude-sonnet-4-6-56103-3-0-d0.05-tNone",
+      "model": "claude-sonnet-4-6",
+      "seed": 56103,
+      "size": 3,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "corrected_pilot-jev-56103-3-0-d0.4-tNone",
+      "model": "jev",
+      "seed": 56103,
+      "size": 3,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "corrected_pilot-gpt-5-4-mini-think-56103-3-0-d0.4-tNone",
+      "model": "gpt-5-4-mini-think",
+      "seed": 56103,
+      "size": 3,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "corrected_pilot-claude-sonnet-4-6-56103-3-0-d0.4-tNone",
+      "model": "claude-sonnet-4-6",
+      "seed": 56103,
+      "size": 3,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "corrected_pilot-jev-56104-4-0-d0.05-tNone",
+      "model": "jev",
+      "seed": 56104,
+      "size": 4,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "corrected_pilot-gpt-5-4-mini-think-56104-4-0-d0.05-tNone",
+      "model": "gpt-5-4-mini-think",
+      "seed": 56104,
+      "size": 4,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.05,
+      "id": "corrected_pilot-claude-sonnet-4-6-56104-4-0-d0.05-tNone",
+      "model": "claude-sonnet-4-6",
+      "seed": 56104,
+      "size": 4,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "corrected_pilot-jev-56104-4-0-d0.4-tNone",
+      "model": "jev",
+      "seed": 56104,
+      "size": 4,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "corrected_pilot-gpt-5-4-mini-think-56104-4-0-d0.4-tNone",
+      "model": "gpt-5-4-mini-think",
+      "seed": 56104,
+      "size": 4,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "corrected_pilot-claude-sonnet-4-6-56104-4-0-d0.4-tNone",
+      "model": "claude-sonnet-4-6",
+      "seed": 56104,
+      "size": 4,
+      "split": "pilot",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "corrected_pilot-gpt-5-4-mini-think-56200-3-0-d1.0-t512",
+      "model": "gpt-5-4-mini-think",
+      "seed": 56200,
+      "size": 3,
+      "split": "pilot",
+      "token_cap": 512,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "corrected_pilot-claude-sonnet-4-6-56200-3-0-d1.0-t512",
+      "model": "claude-sonnet-4-6",
+      "seed": 56200,
+      "size": 3,
+      "split": "pilot",
+      "token_cap": 512,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "corrected_pilot-gpt-5-4-mini-think-56200-3-0-d1.0-t2048",
+      "model": "gpt-5-4-mini-think",
+      "seed": 56200,
+      "size": 3,
+      "split": "pilot",
+      "token_cap": 2048,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "corrected_pilot-claude-sonnet-4-6-56200-3-0-d1.0-t2048",
+      "model": "claude-sonnet-4-6",
+      "seed": 56200,
+      "size": 3,
+      "split": "pilot",
+      "token_cap": 2048,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "corrected_pilot-gpt-5-4-mini-think-56200-3-0-d1.0-t8192",
+      "model": "gpt-5-4-mini-think",
+      "seed": 56200,
+      "size": 3,
+      "split": "pilot",
+      "token_cap": 8192,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 1.0,
+      "id": "corrected_pilot-claude-sonnet-4-6-56200-3-0-d1.0-t8192",
+      "model": "claude-sonnet-4-6",
+      "seed": 56200,
+      "size": 3,
+      "split": "pilot",
+      "token_cap": 8192,
+      "trial": 0
+    }
+  ],
+  "max_decisions": 160,
+  "models": {
+    "claude-sonnet-4-6": {
+      "input_price": 3e-06,
+      "key": "claude-sonnet-4-6",
+      "max_output": 2048,
+      "model": "anthropic/claude-sonnet-4.6",
+      "output_price": 1.5e-05,
+      "prompt_limit": 1000000,
+      "provider": "Anthropic",
+      "reasoning": {
+        "enabled": false
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 6e-06,
+      "route_slug": "anthropic"
+    },
+    "gpt-5-4-mini-think": {
+      "input_price": 7.5e-07,
+      "key": "gpt-5-4-mini-think",
+      "max_output": 2048,
+      "model": "openai/gpt-5.4-mini",
+      "output_price": 4.5e-06,
+      "prompt_limit": 400000,
+      "provider": "OpenAI",
+      "reasoning": {
+        "effort": "low"
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 7.5e-07,
+      "route_slug": "openai"
+    },
+    "jev": {
+      "input_price": 4.2e-08,
+      "key": "jev",
+      "max_output": 2048,
+      "model": "jev-1.13.0",
+      "output_price": 0.0,
+      "prompt_limit": 1000000,
+      "provider": "TypeSafe",
+      "reasoning": null,
+      "request_fee": 0.0,
+      "reservation_basis": "estimated_1M_input_tokens_no_documented_provider_limit",
+      "reservation_input_price": 4.2e-08,
+      "route_slug": "https://api.typesafe.ai/v1/systemone"
+    }
+  },
+  "opening_balance": 10.532554644,
+  "previous": "corrected_canary",
+  "protocol": "kitchen-rush-v2-choice-2",
+  "protocol_hash": "47421b61f030df539822268de77f57dc6808b8ecd0338f2a6861ad519c0a42ae",
+  "roster_sha256": "9fcd5aadfbb34c17b1bfca14db50ee3a69b50a939eeea55f5a7784d44c71b6e4",
+  "stage": "corrected_validation"
+}

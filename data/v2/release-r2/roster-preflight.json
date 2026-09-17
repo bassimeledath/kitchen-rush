@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "configurations": 30,
+  "historical_labels": 32,
+  "eligible_configurations": 29,
+  "endpoint_routes_verified": 28,
+  "shared_generated_output_ceiling": 16384,
+  "pricing_fields_excluded_as_unused_or_thresholds": [
+    "audio",
+    "discount",
+    "image",
+    "input_audio_cache",
+    "min_prompt_tokens",
+    "web_search"
+  ],
+  "runtime_mapping_verified": true,
+  "roster_sha256": "78deef542dce7f5f8471a9993caace262dbec9e74595badb7b074a19ea489172",
+  "note": "Offline metadata consistency only; paid API conformance remains a separate gate."
+}

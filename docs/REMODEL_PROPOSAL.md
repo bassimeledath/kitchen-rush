@@ -1,29 +1,15 @@
-# Kitchen Rush v2 — proposed changes
+# Kitchen Rush v2 — changes to review
 
 **Useful work. Limited budgets. Unfamiliar kitchens.**
 
-Approved scope for the remodel. Checkpoints 1–2 are implemented in this worktree; the full
-roster run and release remain checkpoint 3. Existing Jev diagnostics are not v2 results.
-See [the implemented protocol](v2/PROTOCOL.md) and [README rebuild outline](v2/README_OUTLINE.md).
+- **One shared leaderboard:** rerun the full roster, including Jev, on identical public states and candidate actions. Select one action per request, including waits and illegal choices. No adapter planners or repairs.
+- **Quality:** `100 × max(0, (completed orders − 0.1 × invalid actions) / 3)`, averaged equally across kitchen-size families. Report completion and invalid calls alongside it.
+- **Dollar view:** admit actions while cumulative actual charges fit the allowance. Pay and archive the first over-budget response, but do not execute it. Graph quality against actual total cost, including that boundary call.
+- **Token view:** separate generation-token allowances, including reasoning once. B80 is the smallest tested uncensored allowance reaching quality 80; also show the lower-confidence-bound version. Jev participates in the dollar view; its B80 is N/A.
+- **Kitchen clock:** inference pauses it. Actions and waits can still burn food or expire orders. Provider latency does not affect rankings.
+- **Unfamiliar kitchens:** generated recipe cards plus changing cooking times, burn windows and mushroom preparation requirements. Same verbs and animation; no recipe graph machinery. Hold out recipe/rule combinations and test fixed-script baselines. No memorization-proof claim.
+- **Presentation:** rebuild the README, graphs and replay around these three ideas. Replace legacy rankings with fresh evidence. Keep Kitchen Rush as the working name.
 
-| Area | What changes in v2 |
-|---|---|
-| **One shared leaderboard** | Rerun the full existing model roster, plus Jev, under one action-selection protocol. Rank by mean quality at a selected episode dollar allowance, identical for every configuration. The small pilot is only an early validation subset. |
-| **Shared actions** | Identical public observations and candidates, including invalid actions and waits. Execute one action, then provide fresh feedback. Jev returns typed choices; LLMs return their selected action. Unconstrained argument generation and multi-action responses leave the benchmark. |
-| **Resource accounting** | Count all API costs, including input, reasoning, unused speculative answers, and retries. Freeze prices and configurations per release. This measures practical API efficiency; equal dollars do not imply equal compute. |
-| **Token-efficiency view** | Separately test generation-token caps, counting reasoning, generated text/action arguments, and recovery once. **B80**: smallest tested allowance reaching mean quality 80, otherwise “not reached.” Jev’s B80 is **N/A** pending comparable accounting and enforcement; it remains on the shared leaderboard. |
-| **Kitchen clock** | Inference consumes allowance but pauses the kitchen. Actions and waits advance cooking, burning, and deadlines. Keep instances identical across budgets. Exclude provider latency from scoring, rankings, and public charts. |
-| **Unfamiliar kitchens** | Generate ingredient/state cards with stable tools and physics. Hold out recipe specifications and order combinations. Verify solvability; test changed-requirement pairs and memorization baselines. No new dependency-graph mechanics. |
-| **Quality** | Replace reference-chef normalization with `100 × mean(max(0, (completed − λ × invalid) / requested))`. Fix λ before scoring; also report completion and invalid calls. Typed choices can still be wrong actions. |
-| **Results** | Show quality versus dollar allowance, actual episode cost, and the cost–quality Pareto frontier. Include repeated trials, confidence intervals, and a conservative B80 variant using the lower confidence bound. |
-| **Fairness** | Candidates use public information only. No legality filters, hidden future orders, automatic repairs, or solver hints. Tune adapters with comparable effort on development instances. Freeze and disclose settings, adapters, prices, and stopping limits before held-out runs. |
-| **README rebuild** | Rewrite from scratch around useful work, limited budgets, and unfamiliar kitchens. Explain scoring, dollar/token views, B80, generalization limits, and reproduction. Replace all legacy graphs and conclusions with fresh v2 evidence. |
-| **Presentation** | Update methodology, replay UI, animations, labels, and linked documentation consistently. Show generated cards and remaining allowance. Choose the name separately; archive legacy results. |
+**Three checkpoints:** verify engine/accounting offline → audit revised controls and roster canaries → run matched dollar/token sweeps, repeat trials, confirm on fresh kitchens, then finish the presentation. Total spending stays under the $200 operational ceiling, including prior accounted costs. Token coverage comes before optional additional dollar-only depth. Unsupported configurations remain explicitly listed.
 
-**Three checkpoints:** (1) $0: validated offline environment, full model roster, README outline, and graph specifications. (2) Up to $50: staged canary/smoke/pilot, verified accounting and fairness, frozen protocol, and costed coverage for the entire roster. (3) $100 main + $30 confirmation: rerun all models on fresh instances, verify results, and finish the README, graphs, and replay experience. Retain $20 for recovery. Reserve costs before dispatch. Pilot costs determine balanced repeats; report any blocked model or insufficient budget before the main run, without silently shrinking the roster.
-
-Jev basis: [typed choices and speculative questions](https://docs.typesafe.ai/primitives/choice); [reported usage and documented API controls](https://docs.typesafe.ai/api); [pricing](https://typesafe.ai/blog/introducing-system-one-models-and-jev).
-
-**Pilot freeze:** paused inference clock; λ=0.1; dollar allowances $0.05/$0.15/$0.40;
-generation allowances 512/2,048/8,192 with a $1 operational backstop. Name and the final
-full-roster coverage remain release decisions; any protocol change requires fresh results.
+Earlier campaigns remain diagnostic: reviews found engine/admission defects, then per-call truncation and reservation gaps. R2 uses a shared 16,384-token call safeguard and all applicable tariff tiers. [Exact contract](v2/PROTOCOL.md).

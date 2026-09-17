@@ -114,7 +114,8 @@ class OracleAgent:
         for ing, term in sorted(recipe.items(), key=lambda kv: kv[1] == _COOKED):
             if have(ing, term):
                 continue
-            ic = config.INGREDIENTS[ing]
+            ic = (config.Ingredient(**obs["ingredient_rules"][ing])
+                  if "ingredient_rules" in obs else config.INGREDIENTS[ing])
             on_burner = next((b for b in burners
                               if b["ingredient"] == ing and b["status"] == "COOKING"), None)
             if on_burner is not None:

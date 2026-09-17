@@ -1,116 +1,89 @@
-# Kitchen Rush v2 protocol — checkpoint implementation
+# Kitchen Rush v2: frozen evaluation contract
 
-Useful work. Limited budgets. Unfamiliar kitchens.
+**Useful work. Limited budgets. Unfamiliar kitchens.**
 
-This is a new benchmark generation. No legacy scores carry over. The release name remains
-Kitchen Rush until a replacement is chosen. Checkpoints 1 and 2 are authorized; the full
-roster run and release are checkpoint 3.
+V2 measures action selection under resource constraints. It does not measure network speed,
+unconstrained tool-argument generation, or equal computational effort across architectures.
+The full roster rerun, README rebuild, graphs and replay presentation are authorized.
+Release epoch r2 supersedes the diagnostic 2,048-token per-request configuration.
+Legacy and preliminary `choice-1` pilot scores do not enter this release.
 
-## Task and action contract
+## Shared task
 
-A 7×7 kitchen, ten fixed ingredient types, two burners, four hand slots, and three requested
-orders per episode. Families require two, three, or four ingredients per card. Ingredient
-physics and verbs are stable; cards specify terminal RAW, CHOPPED, or COOKED states. Recipes
-belong to the instance, never to a patched process-global catalog.
+Each episode has a 7×7 room, ten dispensers, two burners, four hand slots and three orders.
+Cards require two, three or four ingredients in specified RAW/CHOPPED/COOKED states.
+Every model receives the same public state and syntactic candidate actions, including illegal
+choices and explicit waits. It selects exactly one action per request. Shared automatic walking
+is disclosed assistance; adapters supply no planner, legality filter or recovery policy.
 
-Every model receives the same public-state projection and full syntactic candidate set.
-All grid coordinates, ingredient/action combinations, known recipes and order IDs remain
-available even when invalid. Future dishes, recipe requirements, arrival times, deadlines,
-values, and derived horizon hints are hidden. Dispensers cover every ingredient irrespective
-of future orders. The pending order count is public. Recipe IDs carry no semantic meaning.
+Each request receives current public state and the previous action result; earlier conversation
+and private scratchpads are not carried forward. Future orders stay hidden until arrival. Public ingredient rules cover all dispensers and vary
+independently of the menu: cooking takes 4–12 game seconds, food burns 3–8 seconds later,
+and mushrooms require either RAW or CHOPPED preparation. Rules and recipes belong to each
+instance. Recipe and whole-profile signatures use disjoint development, pilot, main and
+confirmation hash buckets. This tests unfamiliar combinations, not immunity to training on
+the public generator. Learning a controller that reads these rules is intended progress.
 
-One selected action executes, then a fresh observation is supplied. There is no conversation
-memory beyond public state and the previous action result. All adapters share this contract.
-Jev answers one flat Choice question (under its 255-option limit); generative models output
-only strict-schema JSON containing the chosen candidate key. No model is asked to imitate another model's
-probability outputs. Malformed/refused/truncated model output is charged and counts as one
-invalid action. Transport or accounting failures quarantine an episode; they are not model
-mistakes and do not enter rankings. No retries occur automatically. Network requests use a 240-second operational timeout.
+Inference pauses the kitchen. Movement, actions and waits advance game time; food can burn
+and orders expire. Pickup removes food from heat upon arrival, before its handling duration.
+An invalid action consumes three game seconds. Termination is checked after invalid actions too.
+The episode ends when all orders resolve, at 600 game seconds, 160 decisions, 12 consecutive
+nonproductive decisions, or resource exhaustion. Valid waits reset the stall counter.
 
-Auto-navigation to a chosen station and nearest-free-burner selection are shared engine
-assistance inherited from v1. Neither plans dishes nor removes invalid choices. No model
-adapter calls the scripted solver, fixes choices, filters legality, or reads private state.
+## Quality and budgets
 
-## Time and termination
+For completed orders D, invalid actions I and requested orders N=3:
 
-Inference advances no game time. Actions, movement and explicit waits of 1/2/5/10/20 seconds
-advance cooking, burning, arrivals and expiry. Kitchens are identical across resource levels.
-The kitchen ends when all orders resolve, at 600 game seconds, at 160 decisions, or after 12
-consecutive nonproductive decisions. Successful waits reset the stall counter. Resource
-exhaustion can end it earlier. Unfinished and not-yet-arrived orders count as incomplete.
-API timing is debug metadata, excluded from score, B80 and public plots.
+    q = 100 max(0, (D − 0.1 I) / N).
 
-## Quality and resource views
+Report completion and invalid-action counts alongside quality. Average trials within kitchens,
+kitchens within each size family, then the three families equally. Unfinished orders receive
+no credit. Wrong actions reduce quality and consume resources; wasted tokens reduce the work
+possible within the allowance.
 
-For episode i, requested orders N_i=3, completions D_i and invalid actions I_i:
+**Shared dollar view:** each request is charged before its action is admitted. Execute its
+selection only when cumulative actual inference charges are at most the episode allowance B.
+The first response crossing B is archived and paid, but its action is never executed and it
+adds no invalid-action penalty. Then stop. Thus B limits the admitted action prefix; **actual
+API spending can exceed B by one request**. Plot quality against actual total cost, including
+that boundary request. Show failed attempts and their costs separately; completed-run costs
+alone are conditional economics. A Pareto point costs no more and scores no less than another,
+with at least one strict improvement. Freeze model configurations, routes and tariff provenance. Dollar calls use a common
+16,384-generation-token safeguard supported by every selected endpoint; truncation is fully
+charged and reported. This is a configured policy, not an unlimited-compute comparison.
 
-    q_i = 100 max(0, (D_i - 0.1 I_i) / N_i).
+**Generation-token view:** use separate episode allowances, including reasoning tokens once
+within reported completion usage. Bound every request by min(16,384, remaining tokens). The tested allowances
+512 / 2,048 / 8,192 are below that safeguard, so the episode wallet determines each call cap. Input tokens count
+toward dollars and are reported separately. Jev is ineligible for this view until compatible
+accounting and cap enforcement exist. Dollar backstops that truncate a token episode are
+marked censored. B80 is the smallest tested, uncensored token allowance with mean quality≥80;
+conservative B80 requires its 95% lower confidence bound≥80. No interpolation. Otherwise report
+“not reached within tested budgets.” Untested models are marked “not tested.”
 
-Quality is the equal-weight mean over seeds, with repeated trials averaged within each seed.
-Use equal seed counts per task family. Report raw completion and invalid calls alongside Q.
-There is no reference-chef normalization or latency penalty. Bad actions reduce Q and consume
-resources; waste consumes allowance that could have completed orders.
+Resample independent kitchens within each family, preserving trials, for 4,000 bootstrap draws.
+Intervals require at least two kitchens per family and remain exploratory at small samples.
+Provider response timing is operational debug data and does not enter scores or public graphs.
 
-Main view: rank Q at a selected episode USD allowance. The pilot grid is $0.05/$0.15/$0.40.
-Plot each configuration's Q against allowance and actual mean episode API cost. A point is
-Pareto-dominated if another costs no more, scores no less, and strictly improves one axis.
-These are economic comparisons, not equal-compute claims. Freeze prices and provider routes.
-OpenRouter usage.cost is provider-reported billing; Jev cost is usage.input_tokens multiplied
-by the published $0.042/M input tariff, with free output pricing. Mark that provenance.
+## Execution and evidence
 
-Token view: separate runs with 512/2,048/8,192 generation-token allowances. Provider completion
-usage includes reasoning: count it ONCE, never add its reasoning subset again. Inputs are
-recorded separately and included in cost. Max output per request is bounded by remaining
-allowance and model configuration. Jev is N/A until comparable generation-token accounting
-and cap control are established. A $1.00 operational backstop applies to pilot token runs;
-any cost-censored cell is explicitly excluded from B80, not silently treated as a pure token
-experiment. B80 is the smallest TESTED allowance with mean Q>=80. The conservative variant
-requires the 95% lower confidence bound >=80. No interpolation; no crossing means not reached.
+The total experiment allowance is $200, including $16.175129022 of prior accounted costs and
+retained uncertain liability. A durable ledger reserves operational liability before dispatch,
+settles actual charges, and blocks overspend or unresolved accounting. These reservations do
+not determine scored action admission. OpenRouter reserves the frozen endpoint context ceiling
+at the maximum input/cache-write tariff across all nested tiers and durations, plus capped
+output at the maximum output/reasoning tariff and request fees. Jev lacks a verified input
+ceiling; its explicitly estimated one-million-input-token reserve is not a provider guarantee.
+No automatic retries or auto-recharge are enabled by this experiment. A manually reviewed
+HTTP 408/429/5xx or transport failure can receive one identical replacement episode.
+The failed prefix must replay and reconcile; its trace and full uncertain liability are
+preserved. Completed, invalid, truncated or accounting-failure episodes cannot qualify.
+A second failure remains unscored; no third attempt is allowed.
 
-Resample seeds with replacement, retaining within-seed trials, for 4,000 deterministic bootstrap
-draws. Publish percentile 95% intervals; fewer than three seeds means interval unavailable.
-Pilot intervals are exploratory and never establish a full-roster winner.
-
-## Generalization and feasibility
-
-The generator partitions normalized ingredient/state specifications by SHA-256 modulo ten:
-development buckets 0–5, pilot 6–7, confirmation 8, main 9. Consequently even a fresh seed cannot
-reuse a development recipe in pilot/main. Order permutations and release timing vary too.
-Public seeds and grammar are reproducible, not permanently secret. After disclosure, fresh
-seeds do not cure training on the entire distribution. This is a large combinatorial kitchen,
-not a literal infinite or memorization-proof benchmark. Publication must say this clearly.
-
-The offline recipe-reading solver is a feasibility witness, never a model hint or score
-normalizer. Verify every scored instance through the same engine before dispatch. Compare
-recipe-reading with a fixed-card lookup baseline and test same-state changed-requirement pairs.
-Successful learning of stable operations is intended; benchmark-specific specialization remains
-a limitation to measure through broader transfer work, not something these checks prove absent.
-
-## Spending, failures and provenance
-
-A SQLite ledger atomically reserves a request before dispatch against episode, stage and total
-caps ($5 canary, $15 smoke, $30 pilot; $50 total). Reservations survive crashes. Settlements are
-idempotent; uncertain attempts retain their full liability and halt further dispatch. Any
-provider overrun is recorded before raising a stop. A request ID cannot be dispatched twice.
-
-Input liability uses an intentionally conservative serialized-byte token bound plus 4,096
-provider-template tokens; output liability uses the enforced per-request cap. Jev uses one
-question, avoiding speculative replication. These assume providers honor documented usage and
-prices; every response checks usage against the reservation. Never release an uncertain reserve
-on timeout alone. An abandoned unscored attempt may permanently retain its full liability
-(with actual billing explicitly unknown) so independent experiments can proceed within the cap. Unused residual allowance and inability to reserve another request are reported.
-
-Each episode preserves its full instance, protocol/source hash, frozen model settings, budget,
-public prompts, candidates, responses, usage, executed actions, and replay frames. Secrets and
-request headers are never recorded. Replay the actions in a fresh engine and compare every frame
-and final Q. A change to any load-bearing source invalidates mixing affected result generations.
-
-Stage progression additionally requires manifest completeness, matched seed/budget cells,
-reconciled ledger totals, no unresolved requests/overruns, and reviewed traces. Development
-canaries/smoke inform one fixed adapter configuration per model before fresh pilot evaluation.
-No main/confirmation model sweep is launched as part of the current authorization.
-
-Sources: [TypeSafe API](https://docs.typesafe.ai/api),
-[Choice](https://docs.typesafe.ai/primitives/choice),
-[Jev pricing](https://typesafe.ai/blog/introducing-system-one-models-and-jev),
-[OpenRouter reasoning usage](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens).
+Operational stops and provider/accounting failures are unscored, not quality zero. Unknown
+charges retain liability. Each run records exact source/configuration, task, public requests,
+responses, usage, admitted actions and replay frames. An independent audit regenerates prompts,
+reconciles charges, and replays every action before advancing: six-configuration canary → roster canaries → matched dollar sweep →
+token sweep → repeated trials → fresh confirmation → second main seed if funds permit.
+PhoneLLM remains explicitly blocked pending verified hosting accounting. Gemini 3.5 Flash
+historical “off” migrates explicitly to supported “minimal”; the medium-effort row stays separate.

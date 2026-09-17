@@ -1,3 +1,5 @@
+> **Historical checkpoint document — superseded for release.** The choice-1 pilot exposed engine and budget-admission defects in independent review. Its results are diagnostic only. The current contract is [PROTOCOL.md](PROTOCOL.md); the full remodel and roster rerun are authorized.
+
 # README rebuild and graph specifications
 
 The release README is written from scratch after checkpoint 3. No v1 graph is relabeled v2.

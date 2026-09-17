@@ -1,7 +1,7 @@
 [project]
 name = "kitchenrush"
 version = "0.1.0"
-description = "A benchmark for accurate AND fast native tool calling (latency costs points by construction)."
+description = "A benchmark for useful model actions under resource budgets in unfamiliar kitchens."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
@@ -11,8 +11,9 @@ keywords = [
     "tool-calling",
     "function-calling",
     "agents",
-    "latency",
-    "realtime",
+    "token-efficiency",
+    "inference-cost",
+    "action-selection",
     "llm",
     "evaluation",
 ]
