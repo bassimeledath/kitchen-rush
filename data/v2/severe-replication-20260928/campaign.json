@@ -1,0 +1,25 @@
+{
+  "campaign_ceiling_usd": 50,
+  "episode_cap_usd": 3.25,
+  "episode_wall_seconds": 3600,
+  "campaign_wall_seconds": 28800,
+  "models": [
+    "gpt-6-sol-low",
+    "gpt-6-sol-high"
+  ],
+  "seeds": [
+    90603,
+    90604,
+    90605,
+    90606,
+    90607,
+    90608,
+    90609,
+    90611,
+    90612,
+    90613,
+    90614,
+    90615
+  ],
+  "purpose": "Fixed 12-pair native severe replication, newly approved total cap; no adaptive seeds or retries."
+}

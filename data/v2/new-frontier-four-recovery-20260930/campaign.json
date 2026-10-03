@@ -1,0 +1,50 @@
+{
+  "name": "new-frontier-four-recovery-20260930",
+  "purpose": "Predeclared continuation of all 70 unscored or unattempted original assignments; original traces and accounting remain separate.",
+  "original_campaign": "new-frontier-four-20260929",
+  "original_protocol_hash": "e3e933493abb8dd8495455f1fc93daaa2da7c1877991628f051a3b6dc0b8e5ba",
+  "original_audit_sha256": "7467f29e764c7d08455524e65b8ad91774c9fe8f2a34e4309bc4a9c883c78f0b",
+  "configurations": [
+    {
+      "key": "gpt-6-1-sol-low",
+      "model": "openai/gpt-6.1-sol",
+      "provider": "OpenAI",
+      "route_slug": "openai",
+      "effort": "low"
+    },
+    {
+      "key": "gpt-6-1-sol-high",
+      "model": "openai/gpt-6.1-sol",
+      "provider": "OpenAI",
+      "route_slug": "openai",
+      "effort": "high"
+    },
+    {
+      "key": "claude-sonnet-5-5-low",
+      "model": "anthropic/claude-sonnet-5.5",
+      "provider": "Anthropic",
+      "route_slug": "anthropic",
+      "effort": "low"
+    },
+    {
+      "key": "claude-sonnet-5-5-high",
+      "model": "anthropic/claude-sonnet-5.5",
+      "provider": "Anthropic",
+      "route_slug": "anthropic",
+      "effort": "high"
+    }
+  ],
+  "assignments": 70,
+  "inference_ceiling_usd": 100.0,
+  "combined_with_original_accounted_ceiling_usd": 189.0,
+  "original_accounted_usd": 48.0869025,
+  "episode_ceiling_usd": 5.0,
+  "max_output_tokens_per_request": 32768,
+  "maximum_prompt_bytes": 32768,
+  "maximum_decisions_per_episode": 160,
+  "request_deadline_seconds": 600,
+  "episode_wall_seconds": 3600,
+  "maximum_parallel_episodes": 2,
+  "provider_concurrency": "At most one OpenAI and one Anthropic episode at a time after the original simultaneous OpenAI efforts hit upstream 429 responses.",
+  "retry_policy": "No retries within this continuation. Stop all spending on any upstream 429 (including a 429 embedded in an HTTP 200 stream) or HTTP 400/401/402/403, ledger overrun, source mismatch, or global budget gate. Otherwise park configuration after two quarantined continuation episodes. All 70 assignments fixed before continuation calls. One scored terminal result per assignment maximum."
+}

@@ -45,7 +45,11 @@ RULES = (
     "seconds and reduce quality. All unresolved orders count as incomplete. "
     "Future order contents/deadlines are hidden until arrival. Do not infer recipes from card IDs. "
     "The episode ends at the resource allowance, all orders resolved, 160 decisions, or 12 "
-    "consecutive nonproductive decisions. Explicit waits reset that stall counter."
+    "consecutive nonproductive decisions. A decision is nonproductive when it is invalid, or "
+    "when it changes nothing: move_to a cell you already occupy succeeds but consumes no game "
+    "time and changes no state, so it is nonproductive. Station actions already walk you to "
+    "their station, so move_to is rarely needed. Any action that consumes game time, including "
+    "an explicit wait, resets that stall counter."
 )
 
 

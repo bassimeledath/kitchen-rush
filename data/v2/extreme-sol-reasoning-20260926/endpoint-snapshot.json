@@ -1,0 +1,403 @@
+{
+  "architecture": {
+    "input_modalities": [
+      "file",
+      "image",
+      "text"
+    ],
+    "instruct_type": null,
+    "modality": "text+image+file->text",
+    "output_modalities": [
+      "text"
+    ],
+    "tokenizer": "GPT"
+  },
+  "created": 1790100775,
+  "description": "GPT-6 Sol is the cost-efficient high-end model in OpenAI's GPT-6 series, positioned below the flagship GPT-6 Astra and above the fast GPT-6 Luna tier. It is suited for demanding professional...",
+  "endpoints": [
+    {
+      "context_length": 1050000,
+      "latency_last_30m": null,
+      "max_completion_tokens": 128000,
+      "max_prompt_tokens": 922000,
+      "model_id": "openai/gpt-6-sol",
+      "model_name": "OpenAI: GPT-6 Sol",
+      "name": "OpenAI | openai/gpt-6-sol-20260922",
+      "pricing": {
+        "completion": "0.000005",
+        "discount": 0,
+        "input_cache_read": "0.0000001",
+        "input_cache_write": "0.00000125",
+        "overrides": [
+          {
+            "completion": "0.0000075",
+            "input_cache_read": "0.0000002",
+            "input_cache_write": "0.0000025",
+            "min_prompt_tokens": 272000,
+            "prompt": "0.000002"
+          }
+        ],
+        "prompt": "0.000001",
+        "web_search": "0.01"
+      },
+      "provider_name": "OpenAI",
+      "quantization": "unknown",
+      "status": 0,
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "seed",
+        "max_tokens",
+        "response_format",
+        "structured_outputs",
+        "tools",
+        "tool_choice",
+        "reasoning_effort"
+      ],
+      "supports_image_reference": false,
+      "supports_implicit_caching": false,
+      "supports_multiple_audio_references": false,
+      "supports_tool_choice": {
+        "auto": true,
+        "function": true,
+        "none": true,
+        "required": true
+      },
+      "supports_voice_cloning": false,
+      "tag": "openai/flex",
+      "throughput_last_30m": null,
+      "uptime_last_1d": 100,
+      "uptime_last_30m": 100,
+      "uptime_last_5m": 100
+    },
+    {
+      "context_length": 1050000,
+      "latency_last_30m": null,
+      "max_completion_tokens": 128000,
+      "max_prompt_tokens": 922000,
+      "model_id": "openai/gpt-6-sol",
+      "model_name": "OpenAI: GPT-6 Sol",
+      "name": "OpenAI | openai/gpt-6-sol-20260922",
+      "pricing": {
+        "completion": "0.00001",
+        "discount": 0,
+        "input_cache_read": "0.0000002",
+        "input_cache_write": "0.0000025",
+        "overrides": [
+          {
+            "completion": "0.000015",
+            "input_cache_read": "0.0000004",
+            "input_cache_write": "0.000005",
+            "min_prompt_tokens": 272000,
+            "prompt": "0.000004"
+          }
+        ],
+        "prompt": "0.000002",
+        "web_search": "0.01"
+      },
+      "provider_name": "OpenAI",
+      "quantization": "unknown",
+      "status": 0,
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "seed",
+        "max_tokens",
+        "response_format",
+        "structured_outputs",
+        "tools",
+        "tool_choice",
+        "reasoning_effort"
+      ],
+      "supports_image_reference": false,
+      "supports_implicit_caching": false,
+      "supports_multiple_audio_references": false,
+      "supports_tool_choice": {
+        "auto": true,
+        "function": true,
+        "none": true,
+        "required": true
+      },
+      "supports_voice_cloning": false,
+      "tag": "openai",
+      "throughput_last_30m": null,
+      "uptime_last_1d": 99.99283589327686,
+      "uptime_last_30m": 99.99471067386015,
+      "uptime_last_5m": 100
+    },
+    {
+      "context_length": 1050000,
+      "latency_last_30m": null,
+      "max_completion_tokens": 128000,
+      "max_prompt_tokens": 922000,
+      "model_id": "openai/gpt-6-sol",
+      "model_name": "OpenAI: GPT-6 Sol",
+      "name": "Azure | openai/gpt-6-sol-20260922",
+      "pricing": {
+        "completion": "0.00001",
+        "discount": 0,
+        "input_cache_read": "0.0000002",
+        "input_cache_write": "0.0000025",
+        "overrides": [
+          {
+            "completion": "0.000015",
+            "input_cache_read": "0.0000004",
+            "input_cache_write": "0.000005",
+            "min_prompt_tokens": 272000,
+            "prompt": "0.000004"
+          }
+        ],
+        "prompt": "0.000002",
+        "web_search": "0.01"
+      },
+      "provider_name": "Azure",
+      "quantization": "unknown",
+      "status": 0,
+      "supported_parameters": [
+        "max_completion_tokens",
+        "reasoning",
+        "include_reasoning",
+        "seed",
+        "response_format",
+        "structured_outputs",
+        "tools",
+        "tool_choice",
+        "reasoning_effort"
+      ],
+      "supports_image_reference": false,
+      "supports_implicit_caching": false,
+      "supports_multiple_audio_references": false,
+      "supports_tool_choice": {
+        "auto": true,
+        "function": true,
+        "none": true,
+        "required": true
+      },
+      "supports_voice_cloning": false,
+      "tag": "azure",
+      "throughput_last_30m": null,
+      "uptime_last_1d": 99.98515724588331,
+      "uptime_last_30m": 100,
+      "uptime_last_5m": 100
+    },
+    {
+      "context_length": 1050000,
+      "latency_last_30m": null,
+      "max_completion_tokens": 128000,
+      "max_prompt_tokens": null,
+      "model_id": "openai/gpt-6-sol",
+      "model_name": "OpenAI: GPT-6 Sol",
+      "name": "Azure | openai/gpt-6-sol-20260922",
+      "pricing": {
+        "completion": "0.000011",
+        "discount": 0,
+        "input_cache_read": "0.00000022",
+        "input_cache_write": "0.00000275",
+        "overrides": [
+          {
+            "completion": "0.0000165",
+            "input_cache_read": "0.00000044",
+            "input_cache_write": "0.0000055",
+            "min_prompt_tokens": 272000,
+            "prompt": "0.0000044"
+          }
+        ],
+        "prompt": "0.0000022",
+        "web_search": "0.01"
+      },
+      "provider_name": "Azure",
+      "quantization": "unknown",
+      "status": 0,
+      "supported_parameters": [
+        "max_completion_tokens",
+        "reasoning",
+        "include_reasoning",
+        "seed",
+        "response_format",
+        "structured_outputs",
+        "tools",
+        "tool_choice",
+        "reasoning_effort"
+      ],
+      "supports_image_reference": false,
+      "supports_implicit_caching": false,
+      "supports_multiple_audio_references": false,
+      "supports_tool_choice": {
+        "auto": true,
+        "function": true,
+        "none": true,
+        "required": true
+      },
+      "supports_voice_cloning": false,
+      "tag": "azure/us",
+      "throughput_last_30m": null,
+      "uptime_last_1d": 99.97404619776798,
+      "uptime_last_30m": null,
+      "uptime_last_5m": null
+    },
+    {
+      "context_length": 1050000,
+      "latency_last_30m": null,
+      "max_completion_tokens": 128000,
+      "max_prompt_tokens": null,
+      "model_id": "openai/gpt-6-sol",
+      "model_name": "OpenAI: GPT-6 Sol",
+      "name": "Azure | openai/gpt-6-sol-20260922",
+      "pricing": {
+        "completion": "0.000011",
+        "discount": 0,
+        "input_cache_read": "0.00000022",
+        "input_cache_write": "0.00000275",
+        "overrides": [
+          {
+            "completion": "0.0000165",
+            "input_cache_read": "0.00000044",
+            "input_cache_write": "0.0000055",
+            "min_prompt_tokens": 272000,
+            "prompt": "0.0000044"
+          }
+        ],
+        "prompt": "0.0000022",
+        "web_search": "0.01"
+      },
+      "provider_name": "Azure",
+      "quantization": "unknown",
+      "status": 0,
+      "supported_parameters": [
+        "max_completion_tokens",
+        "reasoning",
+        "include_reasoning",
+        "seed",
+        "response_format",
+        "structured_outputs",
+        "tools",
+        "tool_choice",
+        "reasoning_effort"
+      ],
+      "supports_image_reference": false,
+      "supports_implicit_caching": false,
+      "supports_multiple_audio_references": false,
+      "supports_tool_choice": {
+        "auto": true,
+        "function": true,
+        "none": true,
+        "required": true
+      },
+      "supports_voice_cloning": false,
+      "tag": "azure/eu",
+      "throughput_last_30m": null,
+      "uptime_last_1d": 100,
+      "uptime_last_30m": null,
+      "uptime_last_5m": null
+    },
+    {
+      "context_length": 1050000,
+      "latency_last_30m": null,
+      "max_completion_tokens": 128000,
+      "max_prompt_tokens": 922000,
+      "model_id": "openai/gpt-6-sol",
+      "model_name": "OpenAI: GPT-6 Sol",
+      "name": "Amazon Bedrock | openai/gpt-6-sol-20260922",
+      "pricing": {
+        "completion": "0.000011",
+        "discount": 0,
+        "input_cache_read": "0.00000022",
+        "input_cache_write": "0.00000275",
+        "overrides": [
+          {
+            "completion": "0.0000165",
+            "input_cache_read": "0.00000044",
+            "input_cache_write": "0.0000055",
+            "min_prompt_tokens": 272000,
+            "prompt": "0.0000044"
+          }
+        ],
+        "prompt": "0.0000022",
+        "web_search": "0.01"
+      },
+      "provider_name": "Amazon Bedrock",
+      "quantization": "unknown",
+      "status": 0,
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "tools",
+        "tool_choice",
+        "reasoning_effort"
+      ],
+      "supports_image_reference": false,
+      "supports_implicit_caching": true,
+      "supports_multiple_audio_references": false,
+      "supports_tool_choice": {
+        "auto": true,
+        "function": true,
+        "none": true,
+        "required": true
+      },
+      "supports_voice_cloning": false,
+      "tag": "amazon-bedrock/us-east-1",
+      "throughput_last_30m": null,
+      "uptime_last_1d": 99.73190348525469,
+      "uptime_last_30m": null,
+      "uptime_last_5m": 100
+    },
+    {
+      "context_length": 1050000,
+      "latency_last_30m": null,
+      "max_completion_tokens": 128000,
+      "max_prompt_tokens": 922000,
+      "model_id": "openai/gpt-6-sol",
+      "model_name": "OpenAI: GPT-6 Sol",
+      "name": "OpenAI | openai/gpt-6-sol-20260922",
+      "pricing": {
+        "completion": "0.00002",
+        "discount": 0,
+        "input_cache_read": "0.0000004",
+        "input_cache_write": "0.000005",
+        "overrides": [
+          {
+            "completion": "0.00003",
+            "input_cache_read": "0.0000008",
+            "input_cache_write": "0.00001",
+            "min_prompt_tokens": 272000,
+            "prompt": "0.000008"
+          }
+        ],
+        "prompt": "0.000004",
+        "web_search": "0.01"
+      },
+      "provider_name": "OpenAI",
+      "quantization": "unknown",
+      "status": 0,
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "seed",
+        "max_tokens",
+        "response_format",
+        "structured_outputs",
+        "tools",
+        "tool_choice",
+        "reasoning_effort"
+      ],
+      "supports_image_reference": false,
+      "supports_implicit_caching": false,
+      "supports_multiple_audio_references": false,
+      "supports_tool_choice": {
+        "auto": true,
+        "function": true,
+        "none": true,
+        "required": true
+      },
+      "supports_voice_cloning": false,
+      "tag": "openai/fast",
+      "throughput_last_30m": null,
+      "uptime_last_1d": 99.98928418345477,
+      "uptime_last_30m": 100,
+      "uptime_last_5m": null
+    }
+  ],
+  "id": "openai/gpt-6-sol",
+  "name": "OpenAI: GPT-6 Sol"
+}

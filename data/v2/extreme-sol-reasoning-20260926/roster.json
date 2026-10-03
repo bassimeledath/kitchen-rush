@@ -1,0 +1,55 @@
+{
+  "arms": [
+    "brutal",
+    "severe"
+  ],
+  "campaign_ceiling_usd": 6,
+  "configurations": [
+    {
+      "episode_cap_usd": 2.5,
+      "model": {
+        "input_price": 2e-06,
+        "key": "gpt-6-sol-low",
+        "max_output": 32768,
+        "model": "openai/gpt-6-sol",
+        "output_price": 1e-05,
+        "prompt_limit": 32768,
+        "provider": "OpenAI",
+        "reasoning": {
+          "effort": "low"
+        },
+        "request_fee": 0.0,
+        "reservation_basis": "frozen_endpoint_undiscounted_max_tier_and_32768_input_ceiling",
+        "reservation_input_price": 5e-06,
+        "reservation_output_price": 1.5e-05,
+        "route_slug": "openai"
+      }
+    },
+    {
+      "episode_cap_usd": 2.5,
+      "model": {
+        "input_price": 2e-06,
+        "key": "gpt-6-sol-high",
+        "max_output": 32768,
+        "model": "openai/gpt-6-sol",
+        "output_price": 1e-05,
+        "prompt_limit": 32768,
+        "provider": "OpenAI",
+        "reasoning": {
+          "effort": "high"
+        },
+        "request_fee": 0.0,
+        "reservation_basis": "frozen_endpoint_undiscounted_max_tier_and_32768_input_ceiling",
+        "reservation_input_price": 5e-06,
+        "reservation_output_price": 1.5e-05,
+        "route_slug": "openai"
+      }
+    }
+  ],
+  "purpose": "New user-authorized extreme low/high comparison; separate $6 campaign, preserving prior campaign ceilings and global/stage caps.",
+  "seeds": [
+    90601,
+    90602
+  ],
+  "selection_plan": "First brutal seed 90601 pair. If it separates completion, confirm seed 90602. If both fail, test severe 90601 within the same cap. Adaptive calibration, never a ranking."
+}
