@@ -22,7 +22,7 @@ from .env import (
 )
 from .metrics import format_markdown_table, summarize_campaign
 
-VALID_HISTORY_MODES = ("last_turn", "on_demand", "full_chat")
+VALID_HISTORY_MODES = ("full_chat", "last_turn")
 
 
 class SpendLedger:
@@ -169,7 +169,7 @@ def run_episode(
     ledger: SpendLedger,
     *,
     max_turns: int = MAX_DECISIONS,
-    history_mode: str = "last_turn",
+    history_mode: str = "full_chat",
 ) -> dict[str, Any]:
     """Run one complete episode with batched tool calls, atomic spend reservation, and replay verification."""
     if history_mode not in VALID_HISTORY_MODES:
@@ -177,9 +177,7 @@ def run_episode(
 
     engine = UnifiedEngine(spec, record_trace=True, early_stop=True)
     s_ctx = static_context(engine)
-    all_compact_turns: list[dict[str, Any]] = []
     last_turn: dict[str, Any] | None = None
-    pending_requested_history: list[dict[str, Any]] | None = None
     chat_messages: list[dict[str, Any]] = []
     batches: list[list[dict[str, Any]]] = []
     turn_logs: list[dict[str, Any]] = []
@@ -191,9 +189,6 @@ def run_episode(
     cached_tok = 0
     empty_turns = 0
     truncated_turns = 0
-    history_lookups = 0
-    history_lookup_depths: list[int] = []
-    consecutive_history_only = 0
     api_turns = 0
     routes_seen: set[str] = set()
     status = "complete"
@@ -209,17 +204,12 @@ def run_episode(
             break
 
         dyn = dynamic_state(engine, None if history_mode == "full_chat" else last_turn)
-        if history_mode == "on_demand" and pending_requested_history is not None:
-            dyn["requested_history"] = pending_requested_history
-            pending_requested_history = None
-
         user_text = f"STATE_JSON:\n{json.dumps(dyn, separators=(',', ':'))}"
         try:
             decision = adapter.act(
                 s_ctx,
                 dyn,
                 chat_messages=chat_messages if history_mode == "full_chat" else None,
-                allow_inspect_history=(history_mode == "on_demand"),
             )
         except ProviderError as exc:
             ledger.release(
@@ -276,63 +266,12 @@ def run_episode(
             },
         )
 
-        # Handle optional zero-game-time `inspect_history` tool cleanly outside UnifiedEngine.
-        kitchen_calls = []
-        requested_depth: int | None = None
-        for c in decision.calls:
-            if history_mode == "on_demand" and c.name == "inspect_history":
-                try:
-                    depth = max(1, min(50, int((c.arguments or {}).get("turns", 5))))
-                except (TypeError, ValueError):
-                    depth = 5
-                requested_depth = depth
-                history_lookups += 1
-                history_lookup_depths.append(depth)
-            else:
-                kitchen_calls.append(c)
-
-        if requested_depth is not None:
-            pending_requested_history = all_compact_turns[-requested_depth:] if all_compact_turns else []
-
-        if requested_depth is not None and not kitchen_calls:
-            consecutive_history_only += 1
-            compact_turn = {
-                "turn": api_turns,
-                "clock_gs": round(engine.clock_gs, 2),
-                "calls": [{"call": "inspect_history", "args": {"turns": requested_depth}, "ok": True, "note": f"returned {len(pending_requested_history or [])} prior turns"}],
-                "aborted": [],
-                "interrupted": None,
-                "events": [],
-            }
-            last_turn = compact_turn
-            turn_logs.append({
-                **compact_turn,
-                "prompt_tokens": decision.prompt_tokens,
-                "completion_tokens": decision.completion_tokens,
-                "reasoning_tokens": decision.reasoning_tokens,
-                "cached_tokens": decision.cached_tokens,
-                "cost_usd": decision.cost_usd,
-                "cost_source": decision.cost_source,
-                "latency_s": decision.latency_s,
-                "finish_reason": decision.finish_reason,
-                "provider_route": decision.provider_route,
-                "requested_effort": decision.requested_effort,
-                "max_tokens": decision.max_tokens,
-                "parse_errors": decision.parse_errors,
-            })
-            if consecutive_history_only >= 4:
-                engine.terminated = True
-                engine.termination_reason = "stalled"
-                break
-            continue
-
-        consecutive_history_only = 0
-        batch_dicts = [{"name": c.name, "arguments": dict(c.arguments)} for c in kitchen_calls]
+        batch_dicts = [{"name": c.name, "arguments": dict(c.arguments)} for c in decision.calls]
         batches.append(batch_dicts)
-        step_res = engine.step_batch(kitchen_calls)
+        step_res = engine.step_batch(decision.calls)
 
         if history_mode == "full_chat":
-            _append_full_chat_turn(chat_messages, user_text, kitchen_calls, decision.raw_content, step_res)
+            _append_full_chat_turn(chat_messages, user_text, decision.calls, decision.raw_content, step_res)
 
         compact_turn = {
             "turn": step_res["turn"],
@@ -345,7 +284,6 @@ def run_episode(
             "interrupted": step_res["interrupted_reason"],
             "events": step_res["events"],
         }
-        all_compact_turns.append(compact_turn)
         last_turn = compact_turn
         turn_logs.append({
             **compact_turn,
@@ -414,8 +352,6 @@ def run_episode(
         "expired": engine.counters["orders_expired"],
         "empty_turns": empty_turns,
         "truncated_turns": truncated_turns,
-        "history_lookups": history_lookups,
-        "history_lookup_depths": history_lookup_depths,
         "actions": engine._action_count,
         "turns": api_turns,
         "chained_turns": engine.counters["chained_turns"],
@@ -455,7 +391,7 @@ def run_campaign(
     levels: tuple[int, ...] = (1, 2, 3, 4, 5),
     max_seeds: int | None = None,
     campaign_cap_usd: float = 12.0,
-    history_mode: str = "last_turn",
+    history_mode: str = "full_chat",
     workers: int = 1,
     verbose: bool = True,
 ) -> dict[str, Any]:
@@ -470,7 +406,7 @@ def run_campaign(
     if max_seeds is not None:
         n_seeds = min(n_seeds, max_seeds)
 
-    suffix = "" if history_mode == "last_turn" else f"__{history_mode}"
+    suffix = "" if history_mode == "full_chat" else f"__{history_mode}"
     jobs: list[tuple[int, UnifiedKitchen, AgentAdapter, Path]] = []
     for seed_idx in range(n_seeds):
         for level in levels:
@@ -495,12 +431,11 @@ def run_campaign(
         ep_path.write_text(json.dumps(res, indent=2), encoding="utf-8")
         if verbose:
             cap_banner = f" [CAP_HIT: {', '.join(res['cap_hits'])}]" if res["cap_hits"] else ""
-            hl_str = f" hlook={res['history_lookups']}" if history_mode == "on_demand" else ""
             with print_lock:
                 print(
                     f"D={level} seed={spec.seed} {res['model']:28s} | "
                     f"status={res['status']:14s} served={res['served']}/{res['requested']} "
-                    f"inv={res['invalid']} burn={res['burns']} emp={res['empty_turns']} trunc={res['truncated_turns']}{hl_str} "
+                    f"inv={res['invalid']} burn={res['burns']} emp={res['empty_turns']} trunc={res['truncated_turns']} "
                     f"acts={res['actions']:2d} turns={res['turns']:2d} "
                     f"out={res['output_tokens']:5d} cost=${res['cost_usd']:.4f} "
                     f"(cum=${ledger.total_usd:.4f}) reason={res['termination_reason']}{cap_banner}",

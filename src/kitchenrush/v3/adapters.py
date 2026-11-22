@@ -25,23 +25,6 @@ from .env import MAX_BATCH_CALLS, RULES_TEXT, TOOL_SCHEMAS
 
 DEFAULT_MAX_TOKENS = 16384
 
-INSPECT_HISTORY_TOOL: dict[str, Any] = {
-    "type": "function",
-    "function": {
-        "name": "inspect_history",
-        "description": (
-            "Zero-game-time read-only lookup: return the last N turns of your own turn history (1 to 50) "
-            "in the next observation. Does not advance game time or consume a kitchen action."
-        ),
-        "parameters": {
-            "type": "object",
-            "properties": {"turns": {"type": "integer", "minimum": 1, "maximum": 50}},
-            "required": ["turns"],
-            "additionalProperties": False,
-        },
-    },
-}
-
 
 class ProviderError(RuntimeError):
     def __init__(self, message: str, status_code: int | None = None, uncertain_billing: bool = False):
@@ -103,7 +86,6 @@ class AgentAdapter(ABC):
         dyn_state: dict[str, Any],
         *,
         chat_messages: list[dict[str, Any]] | None = None,
-        allow_inspect_history: bool = False,
     ) -> TurnDecision:
         ...
 
@@ -126,7 +108,6 @@ class DecisionModelAdapter(AgentAdapter, ABC):
         dyn_state: dict[str, Any],
         *,
         chat_messages: list[dict[str, Any]] | None = None,
-        allow_inspect_history: bool = False,
     ) -> TurnDecision:
         decision = self.choose_one(static_ctx, dyn_state)
         if len(decision.calls) > 1:
@@ -154,15 +135,9 @@ def load_openrouter_key(env_paths: tuple[Path, ...] | None = None) -> str:
     raise RuntimeError("OPENROUTER_API_KEY not found in environment or .env")
 
 
-def _build_system_prompt(static_ctx: dict[str, Any], *, allow_inspect_history: bool = False) -> str:
-    extra = (
-        "\nYou also have an optional zero-game-time `inspect_history(turns)` tool if you ever want to review "
-        "earlier turns beyond `last_turn`; it does not advance the kitchen clock or count as a kitchen action."
-        if allow_inspect_history
-        else ""
-    )
+def _build_system_prompt(static_ctx: dict[str, Any]) -> str:
     return (
-        f"{RULES_TEXT}{extra}\n\n"
+        f"{RULES_TEXT}\n\n"
         "Respond by calling 1 to 8 kitchen tools in sequential execution order for this turn. "
         "Queue multiple deterministic steps (e.g., collect -> chop -> cook, or collect_cooked -> plate -> serve) "
         "whenever safe to save turns and tokens; stop your batch before an uncertain event if needed.\n\n"
@@ -232,9 +207,8 @@ class OpenRouterToolAdapter(AgentAdapter):
         dyn_state: dict[str, Any],
         *,
         chat_messages: list[dict[str, Any]] | None = None,
-        allow_inspect_history: bool = False,
     ) -> dict[str, Any]:
-        sys_text = _build_system_prompt(static_ctx, allow_inspect_history=allow_inspect_history)
+        sys_text = _build_system_prompt(static_ctx)
         is_anthropic = self.spec.model_id.startswith("anthropic/")
         if is_anthropic:
             sys_content: Any = [
@@ -257,11 +231,10 @@ class OpenRouterToolAdapter(AgentAdapter):
                     messages.append(m)
         messages.append({"role": "user", "content": user_text})
 
-        tools = list(TOOL_SCHEMAS) + ([INSPECT_HISTORY_TOOL] if allow_inspect_history else [])
         payload: dict[str, Any] = {
             "model": self.spec.model_id,
             "messages": messages,
-            "tools": tools,
+            "tools": TOOL_SCHEMAS,
             "tool_choice": "auto",
             "max_tokens": self.spec.max_tokens,
             "usage": {"include": True},
@@ -284,14 +257,8 @@ class OpenRouterToolAdapter(AgentAdapter):
         dyn_state: dict[str, Any],
         *,
         chat_messages: list[dict[str, Any]] | None = None,
-        allow_inspect_history: bool = False,
     ) -> TurnDecision:
-        payload = self._build_payload(
-            static_ctx,
-            dyn_state,
-            chat_messages=chat_messages,
-            allow_inspect_history=allow_inspect_history,
-        )
+        payload = self._build_payload(static_ctx, dyn_state, chat_messages=chat_messages)
         body = json.dumps(payload).encode("utf-8")
         headers = {
             "Authorization": f"Bearer {self.api_key}",

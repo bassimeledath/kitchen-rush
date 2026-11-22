@@ -195,41 +195,12 @@ def test_no_oracle_witness_and_replay_export():
         assert doc["catalog"]["ingredients"][ing]["cookable_from"] == prof["cookable_from"]
 
 
-def test_history_modes_on_demand_and_full_chat(tmp_path: Path):
+def test_history_modes_full_chat_and_last_turn(tmp_path: Path):
     from kitchenrush.v3.adapters import AgentAdapter
 
     spec, _ = generate_kitchen(2000, 1)
 
-    # 1. on_demand: inspect_history returns requested turns at zero game-time without breaking replay.
-    seen_requested: list[list[dict]] = []
-
-    class OnDemandDummy(AgentAdapter):
-        def __init__(self):
-            self.step = 0
-
-        @property
-        def name(self) -> str:
-            return "on-demand-dummy"
-
-        def act(self, static_ctx, dyn_state, *, chat_messages=None, allow_inspect_history=False) -> TurnDecision:
-            assert allow_inspect_history is True
-            if "requested_history" in dyn_state:
-                seen_requested.append(dyn_state["requested_history"])
-            self.step += 1
-            if self.step == 1:
-                return TurnDecision(calls=[ToolCall("wait", {"seconds": 10})])
-            if self.step == 2:
-                return TurnDecision(calls=[ToolCall("inspect_history", {"turns": 2})])
-            return TurnDecision(calls=[ToolCall("wait", {"seconds": 60})])
-
-    ledger1 = SpendLedger(tmp_path / "spend1.jsonl", campaign_cap_usd=1.0)
-    ep1 = run_episode(spec, OnDemandDummy(), ledger1, history_mode="on_demand", max_turns=10)
-    assert ep1["scored"] is True and ep1["replay_verified"] is True
-    assert ep1["history_lookups"] == 1
-    assert ep1["history_lookup_depths"] == [2]
-    assert len(seen_requested) == 1 and len(seen_requested[0]) == 1
-
-    # 2. full_chat: grows append-only assistant/tool message history and replays cleanly.
+    # 1. full_chat (default): grows append-only assistant/tool message history and replays cleanly.
     observed_msg_counts: list[int] = []
 
     class FullChatDummy(AgentAdapter):
@@ -237,13 +208,32 @@ def test_history_modes_on_demand_and_full_chat(tmp_path: Path):
         def name(self) -> str:
             return "full-chat-dummy"
 
-        def act(self, static_ctx, dyn_state, *, chat_messages=None, allow_inspect_history=False) -> TurnDecision:
+        def act(self, static_ctx, dyn_state, *, chat_messages=None) -> TurnDecision:
             observed_msg_counts.append(len(chat_messages or []))
             assert "last_turn" not in dyn_state
             return TurnDecision(calls=[ToolCall("wait", {"seconds": 30}, id=f"tc_{len(observed_msg_counts)}")])
 
-    ledger2 = SpendLedger(tmp_path / "spend2.jsonl", campaign_cap_usd=1.0)
-    ep2 = run_episode(spec, FullChatDummy(), ledger2, history_mode="full_chat", max_turns=10)
-    assert ep2["scored"] is True and ep2["replay_verified"] is True
+    ledger1 = SpendLedger(tmp_path / "spend1.jsonl", campaign_cap_usd=1.0)
+    ep1 = run_episode(spec, FullChatDummy(), ledger1, history_mode="full_chat", max_turns=10)
+    assert ep1["scored"] is True and ep1["replay_verified"] is True
     assert observed_msg_counts[0] == 0
     assert observed_msg_counts[-1] >= 3
+
+    # 2. last_turn (for 1-step decision models): passes only last_turn feedback with no chat_messages.
+    seen_last_turns: list[bool] = []
+
+    class LastTurnDummy(AgentAdapter):
+        @property
+        def name(self) -> str:
+            return "last-turn-dummy"
+
+        def act(self, static_ctx, dyn_state, *, chat_messages=None) -> TurnDecision:
+            assert chat_messages is None
+            seen_last_turns.append("last_turn" in dyn_state)
+            return TurnDecision(calls=[ToolCall("wait", {"seconds": 30})])
+
+    ledger2 = SpendLedger(tmp_path / "spend2.jsonl", campaign_cap_usd=1.0)
+    ep2 = run_episode(spec, LastTurnDummy(), ledger2, history_mode="last_turn", max_turns=10)
+    assert ep2["scored"] is True and ep2["replay_verified"] is True
+    assert seen_last_turns[0] is False
+    assert any(seen_last_turns[1:])

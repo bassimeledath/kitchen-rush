@@ -75,14 +75,18 @@ flowchart LR
     F -- "Yes" --> G["Deterministic Replay\nVerification"]
 ```
 
-### C. Context & Turn History Policy (Why We Dropped Arbitrary "Last 5 Turns")
-Every turn sends two clean blocks:
-1. **Static System Prefix (byte-identical across all turns):** Rules (explicitly instructing the chef to prioritize **clearing the entire kitchen**, with partial credit tracked) + action durations + per-kitchen `ingredient_rules` + station coordinates (~1,350 tokens, cached across turns $2 \dots T$).
-2. **Compact Dynamic User State (~350 tokens):** Current `clock_gs`, `chef_pos`, `hands`, `burners` (`ready_in_gs` / `burns_in_gs`), `active_orders` (`deadline_gs`, `time_left_gs`), visible `recipe_cards`, count of hidden pending orders (never their contents), and **`last_turn`** (exact tool outcomes, interrupts, and events from the immediately preceding turn).
+### C. Context & Turn History Policy (Locked on Native `full_chat`)
+Every turn keeps the static system prompt byte-identical and grows an append-only native multi-turn conversation (`history_mode="full_chat"`):
+1. **Static System Prefix (cached across all turns):** Rules (prioritizing full kitchen clears, with partial credit tracked) + action durations + per-kitchen `ingredient_rules` + station coordinates (~1,350 tokens).
+2. **Native Multi-Turn Transcript (`full_chat`, default for LLMs):** Standard OpenAI/Anthropic `user(STATE_JSON) → assistant(tool_calls) → tool(tool_result) → user(next STATE_JSON)` loop, with Anthropic ephemeral cache checkpoints on the growing prefix (yielding **80% cache hit rates on Anthropic** and **97–98% on OpenAI**).
+3. **Stateless `last_turn` mode (for 1-step decision models):** Retained cleanly as `history_mode="last_turn"` for stateless 1-step policies (`DecisionModelAdapter` / TypeSafe Jev) that cannot hold a multi-turn chat transcript.
 
-**Why `last_turn` replaced `recent_turns[-5:]` — and an open experiment:**
-* `5` was an arbitrary magic constant. Because Kitchen Rush's physical state is **Markovian** (every timer, hand slot, burner, and active ticket is already in `dynamic_state`), `last_turn` is the cleanest zero-parameter RL interface and stays 100% apples-to-apples with 1-step decision models (`DecisionModelAdapter` / TypeSafe Jev).
-* **Open scientific question:** Could **full native multi-turn chat history** (append-only `assistant (tool_calls) → tool (tool_result)` messages, where the model's own attention decides how far back to look) improve plan continuity on hard kitchens (`D=4..5`), or does repeating stale timers hurt accuracy and inflate input cost? Rather than guessing, this is cleanly testable as a controlled A/B (`last_turn` vs `full_chat`) on matched seeds.
+**Why `full_chat` won decisively (controlled 3-way A/B/C across both tiers):**
+We dropped the arbitrary 5-turn window and tested three non-arbitrary policies head-to-head on matched seeds (`last_turn`, an optional zero-game-time `inspect_history(turns)` tool, and native `full_chat`):
+* **Models ignored `inspect_history`:** Haiku called it **1 time in 18 episodes**; `gpt-6.2-sol-low` called it **0 times in 12 episodes**.
+* **`full_chat` dominated on EVERY axis for BOTH small and frontier models:**
+  * **Haiku 5.5 (`low`, `D=3`):** Clears jumped `0/6 → 2/6` (`79.2%`), output tokens dropped **~2×** (`144k` vs `283k` across D3–D5), and total USD spend dropped **20%** (`\$0.138` vs `\$0.173`).
+  * **`gpt-6.2-sol-low` (`D=4, D=5`):** D=4 hit **6/6 full clears (100%, 0 invalids, 0 burns)** vs `5/6` (`last_turn`); D=5 clears quadrupled from **1/6 → 4/6 (94.4%)**; D=5 output tokens per cleared order fell **4×** (`1,765 → 435`); D=5 USD per cleared order fell **2.3×** (`\$0.1208 → \$0.0535`) with **97.3–98.1% prompt caching**.
 
 ---
 
@@ -158,34 +162,43 @@ For each `(model, level)` cell over scored episodes $e = 1, \dots, K$, let:
 
 ---
 
-## 6. Low-Effort Pilot Baseline (Rescored with Full-Clear Gating)
+## 6. Empirical Validation Evidence (Calibration v1 + v2 + History A/B)
 
-From our verified 150-episode low-effort pilot (`runs/v3/calibration_v1/`, `\$6.85` episode spend; note Haiku was truncated by the old `2048` cap on 47 turns at D3–D5):
+### A. Reasoning-Effort & Tier Crossover (`runs/v3/calibration_v2/`, `max_tokens=16384`, `last_turn`, 90/90 scored, \$5.48, 0 cap hits)
 
-| Level | `haiku-5.5-low` | `luna-low` | `flash-3.8-low` | `sonnet-5.5-low` | `gpt-6.1-sol-low` |
-| :-: | :--- | :--- | :--- | :--- | :--- |
-| **D=1** | 6/6 (`\$0.0012`) | 2/6 (`\$0.0036`) | 6/6 (`\$0.0055`) | 6/6 (`\$0.0153`) | 6/6 (`\$0.0133`) |
-| **D=2** | 4/6 (`\$0.0022`) | 0/6 (`no clear`) | 4/6 (`\$0.0111`) | 2/6 (`\$0.0566`) | 6/6 (`\$0.0200`) |
-| **D=3** | 0/6* (`no clear`) | 0/6 (`no clear`) | **2/6 (`\$0.0190`)** | 2/6 (`\$0.0691`) | 4/6 (`\$0.0274`) |
-| **D=4** | 0/6* (`no clear`) | 0/6 (`no clear`) | 1/6 (`\$0.0651`) | 0/6 (`no clear`) | **3/6 (`\$0.0490`)** |
-| **D=5** | 0/6* (`no clear`) | 0/6 (`no clear`) | 0/6 (`no clear`) | 0/6 (`no clear`) | 0/6 (`no clear`) |
+| Level | `claude-haiku-5.5-low` | `gpt-6.2-sol-low` | `gpt-6.2-sol-medium` | Winner on `USD / Cleared Ord` |
+| :-: | :--- | :--- | :--- | :--- |
+| **D=1** | **6/6 (\$0.0010)** | 6/6 (\$0.0100) | 6/6 (\$0.0122) | Small (`haiku`, 10× cheaper) |
+| **D=2** | **2/6 (\$0.0042)** | 6/6 (\$0.0149) | 6/6 (\$0.0215) | Small (`haiku`, 3.5× cheaper) |
+| **D=3** | 0/6 (`no clear`) | **4/6 (\$0.0229)** | 5/6 (\$0.0259) | Frontier `low` (`6.2-sol-low`) |
+| **D=4** | 0/6 (`no clear`) | **5/6 (\$0.0246)** | 5/6 (\$0.0359) | Frontier `low` (`6.2-sol-low`, 4× fewer out tok) |
+| **D=5** | 0/6 (`no clear`) | 1/6 (\$0.1208) | **2/6 (\$0.1025)** | **Frontier `medium` flips cheaper than `low`!** |
 
-*(Values in parentheses are `USD / Cleared Ord`. `*` Haiku hit the old `2048` cap on 47 turns at D3–D5; currently being re-evaluated at `max_tokens=16384` alongside `gpt-6.2-sol` low & medium.)*
+*(Across all 30 episodes of `gpt-6.2-sol-medium`, it made **0 invalid actions** and hit **0 empty/truncated turns**. Earlier v1 pilot on the same 6 seeds also showed `gemini-3.8-flash-low` winning `D=3` at \$0.0190 vs `gpt-6.1-sol-low` \$0.0274 before `gpt-6.1-sol-low` flipped ahead at `D=4` at \$0.0490 vs \$0.0651.)*
 
-Look at the **true dollar crossover** revealed by Full-Clear Gating:
-* At **D=1..2**, small/medium models (`haiku-5.5`, `flash-3.8`) beat frontier `gpt-6.1-sol` by **2×–11×** on dollars per cleared order.
-* At **D=3**, `gemini-3.8-flash-low` still leads `gpt-6.1-sol-low` (**\$0.0190** vs **\$0.0274**).
-* At **D=4**, **`gpt-6.1-sol-low` flips ahead** (**\$0.0490** vs Flash's **\$0.0651**, with 3/6 clears vs 1/6).
-* At **D=5**, **0/5 low-effort models** clear a single kitchen — leaving genuine headroom for `gpt-6.2-sol` and `medium`/`high` reasoning.
+### B. 3-Way History Mode Comparison (`D=4..5` on `gpt-6.2-sol-low`, 6 matched seeds, 0 cap hits)
+
+| Mode (`gpt-6.2-sol-low`) | D=4 Clears (Comp) | D=5 Clears (Comp) | D=5 Out Tok / Cleared Ord | D=5 USD / Cleared Ord | Cache % |
+| :--- | :---: | :---: | ---: | ---: | :-: |
+| `last_turn` *(1 turn)* | 5/6 (96.7%) | 1/6 (83.3%) | 1,765 | \$0.1208 | 72.1% |
+| `on_demand` *(`inspect_history`)* | 3/6 (90.0%) | 1/6 (83.3%) | 2,056 | \$0.1320 | 71.6% |
+| **`full_chat` *(locked default)*** | **6/6 (100.0%)** | **4/6 (94.4%)** | **435** | **\$0.0535** | **98.1%** |
+
+**Headroom note for future official runs:** Under `full_chat`, `gpt-6.2-sol-low` already reaches `4/6` clears at `D=5`. Before publishing an official leaderboard with `medium`/`high` reasoning models under `full_chat`, we should check whether `D=5` saturates and—if so—include `D=6` (scaling `max_actions` proportionally with `N`).
+
+### C. Pre-Leaderboard Checklist
+1. **Generate fresh private held-out seeds** (e.g., 10–20 seeds/level kept outside Git; keep `calibration_bank_v1.json` as the public dev set).
+2. **Verify Google/Gemini prompt caching on OpenRouter** (earlier Flash showed `0%` cache hits vs `70–98%` on Anthropic/OpenAI).
+3. **Run all models under the single locked protocol:** `history_mode="full_chat"`, `max_tokens=16384`, `max_turns=160`, Full-Clear Gated metrics + loud Cap & Reliability Alerts.
 
 ---
 
 ## 7. Modular Architecture & Visual Replay Hook
 
 All v3 code lives cleanly in 6 compact modules inside `src/kitchenrush/v3/`:
-* `src/kitchenrush/v3/env.py` — `UnifiedEngine`, `difficulty_profile(D)`, `generate_kitchen(seed, D)`, 8 native `TOOL_SCHEMAS`, `static_context`, `dynamic_state` (`last_turn`), `verify_replay`.
-* `src/kitchenrush/v3/solvers.py` — `run_sequential_solver`, `run_greedy_overlap_solver`, `scheduled_witness` (with `allow_arrival_peek=False` no-oracle reference mode).
-* `src/kitchenrush/v3/adapters.py` — `AgentAdapter`, `OpenRouterToolAdapter` (uniform `max_tokens=16384`, caching, route/finish-reason capture), and `DecisionModelAdapter` (1-step base class for future TypeSafe / Jev integration).
-* `src/kitchenrush/v3/metrics.py` — Full-clear gated primary metrics + partial credit + secondary per-served-order ratios + 4,000-draw paired-seed bootstrap CIs.
-* `src/kitchenrush/v3/runner.py` — Single atomic-reservation `SpendLedger`, `max_turns=160`, resumable seed-wave execution, mandatory `verify_replay`.
-* `src/kitchenrush/v3/replay.py` — Zero-cost exporter converting any v3 episode JSON into the existing pixel-art `ui/` viewer format (supporting 1–4 model synchronized **Race Mode** duels).
+* [`env.py`](file:///Users/bassime/Desktop/fullstack/kitchen-rush/.worktrees/v3-unified/src/kitchenrush/v3/env.py) — `UnifiedEngine`, `difficulty_profile(D)`, `generate_kitchen(seed, D)`, 8 native `TOOL_SCHEMAS`, `static_context`, `dynamic_state` (`last_turn`), `verify_replay`.
+* [`solvers.py`](file:///Users/bassime/Desktop/fullstack/kitchen-rush/.worktrees/v3-unified/src/kitchenrush/v3/solvers.py) — `run_sequential_solver`, `run_greedy_overlap_solver`, `scheduled_witness` (with `allow_arrival_peek=False` no-oracle reference mode).
+* [`adapters.py`](file:///Users/bassime/Desktop/fullstack/kitchen-rush/.worktrees/v3-unified/src/kitchenrush/v3/adapters.py) — `AgentAdapter`, `OpenRouterToolAdapter` (uniform `max_tokens=16384`, caching, route/finish-reason capture), and `DecisionModelAdapter` (1-step base class for future TypeSafe / Jev integration).
+* [`metrics.py`](file:///Users/bassime/Desktop/fullstack/kitchen-rush/.worktrees/v3-unified/src/kitchenrush/v3/metrics.py) — Full-clear gated primary metrics + partial credit + secondary per-served-order ratios + 4,000-draw paired-seed bootstrap CIs.
+* [`runner.py`](file:///Users/bassime/Desktop/fullstack/kitchen-rush/.worktrees/v3-unified/src/kitchenrush/v3/runner.py) — Single atomic-reservation `SpendLedger`, `max_turns=160`, resumable seed-wave execution, mandatory `verify_replay`.
+* [`replay.py`](file:///Users/bassime/Desktop/fullstack/kitchen-rush/.worktrees/v3-unified/src/kitchenrush/v3/replay.py) — Zero-cost exporter converting any v3 episode JSON into the existing pixel-art [ui/](file:///Users/bassime/Desktop/fullstack/kitchen-rush/ui/README.md) viewer format (supporting 1–4 model synchronized **Race Mode** duels).

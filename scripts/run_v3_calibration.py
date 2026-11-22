@@ -204,7 +204,7 @@ def main() -> None:
     p_r.add_argument("--levels", default="1,2,3,4,5")
     p_r.add_argument("--seeds", type=int, default=6)
     p_r.add_argument("--campaign-cap", type=float, default=12.0)
-    p_r.add_argument("--history-mode", choices=("last_turn", "on_demand", "full_chat"), default="last_turn")
+    p_r.add_argument("--history-mode", choices=("full_chat", "last_turn"), default="full_chat")
     p_r.add_argument("--workers", type=int, default=4)
     p_r.set_defaults(func=cmd_run)
 
