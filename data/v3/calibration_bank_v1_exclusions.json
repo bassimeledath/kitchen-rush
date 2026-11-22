@@ -1,0 +1,25 @@
+{
+  "D1": [],
+  "D2": [],
+  "D3": [],
+  "D4": [
+    {
+      "seed": 3000,
+      "reason": "witness only served 3/5 on D=4 seed=3000"
+    },
+    {
+      "seed": 3006,
+      "reason": "witness only served 1/5 on D=4 seed=3006"
+    }
+  ],
+  "D5": [
+    {
+      "seed": 3009,
+      "reason": "witness only served 3/6 on D=5 seed=3009"
+    },
+    {
+      "seed": 3010,
+      "reason": "witness only served 3/6 on D=5 seed=3010"
+    }
+  ]
+}
