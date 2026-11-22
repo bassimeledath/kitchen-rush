@@ -209,8 +209,8 @@ class OpenRouterToolAdapter(AgentAdapter):
         chat_messages: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         sys_text = _build_system_prompt(static_ctx)
-        is_anthropic = self.spec.model_id.startswith("anthropic/")
-        if is_anthropic:
+        uses_explicit_cache = self.spec.model_id.startswith(("anthropic/", "google/"))
+        if uses_explicit_cache:
             sys_content: Any = [
                 {"type": "text", "text": sys_text, "cache_control": {"type": "ephemeral"}}
             ]
@@ -222,7 +222,7 @@ class OpenRouterToolAdapter(AgentAdapter):
         if chat_messages:
             last_user_idx = max((i for i, m in enumerate(chat_messages) if m.get("role") == "user"), default=-1)
             for idx, m in enumerate(chat_messages):
-                if is_anthropic and idx == last_user_idx and isinstance(m.get("content"), str):
+                if uses_explicit_cache and idx == last_user_idx and isinstance(m.get("content"), str):
                     messages.append({
                         "role": "user",
                         "content": [{"type": "text", "text": m["content"], "cache_control": {"type": "ephemeral"}}],

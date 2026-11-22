@@ -47,6 +47,8 @@ MODELS: dict[str, ModelSpec] = {
     "gpt-6.1-sol-medium": _spec("gpt-6.1-sol-medium", "openai/gpt-6.1-sol", "frontier", 2.00, 10.00, "medium"),
     "gpt-6.2-sol-low": _spec("gpt-6.2-sol-low", "openai/gpt-6.2-sol", "frontier", 2.00, 10.00, "low"),
     "gpt-6.2-sol-medium": _spec("gpt-6.2-sol-medium", "openai/gpt-6.2-sol", "frontier", 2.00, 10.00, "medium"),
+    "gemini-4-neon-low": _spec("gemini-4-neon-low", "google/gemini-4-neon", "frontier", 3.00, 15.00, "low"),
+    "gemini-4-neon-medium": _spec("gemini-4-neon-medium", "google/gemini-4-neon", "frontier", 3.00, 15.00, "medium"),
 }
 
 
