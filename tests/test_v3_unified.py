@@ -333,3 +333,28 @@ def test_wilson_ci_nonzero_width_at_zero_and_full_clears():
     ci_full = bootstrap_cell([{**base, "seed": i, "clear": True, "served": 6} for i in range(6)])["full_clear_rate"]
     assert ci_zero is not None and ci_zero[0] == 0.0 and 0.35 < ci_zero[1] < 0.45
     assert ci_full is not None and 0.55 < ci_full[0] < 0.65 and ci_full[1] == 1.0
+
+
+def test_configurable_max_tokens_and_high_effort_models():
+    import dataclasses
+    import importlib.util
+    from kitchenrush.v3.adapters import DEFAULT_MAX_TOKENS, ModelSpec, OpenRouterToolAdapter
+
+    assert DEFAULT_MAX_TOKENS == 32768
+    spec_default = ModelSpec(key="neon", model_id="google/gemini-4-neon", tier="frontier", input_price_per_m=3.0, output_price_per_m=15.0)
+    spec_custom = dataclasses.replace(spec_default, max_tokens=65536)
+    a_def = OpenRouterToolAdapter(spec_default, api_key="test-key")
+    a_cus = OpenRouterToolAdapter(spec_custom, api_key="test-key")
+    assert a_def.metadata["max_tokens"] == 32768
+    assert a_cus.metadata["max_tokens"] == 65536
+    assert a_cus._reserve_for_bytes(18_000) > a_def._reserve_for_bytes(18_000) + 0.45
+
+    cli_path = Path(__file__).resolve().parents[1] / "scripts" / "run_v3_calibration.py"
+    mod_spec = importlib.util.spec_from_file_location("run_v3_calibration", cli_path)
+    assert mod_spec and mod_spec.loader
+    mod = importlib.util.module_from_spec(mod_spec)
+    mod_spec.loader.exec_module(mod)
+    for k in ("claude-sonnet-5.5-high", "gpt-6.1-sol-high", "gpt-6.2-sol-high", "gemini-4-neon-high"):
+        assert k in mod.MODELS
+        assert mod.MODELS[k].reasoning == {"effort": "high"}
+        assert mod.MODELS[k].max_tokens == DEFAULT_MAX_TOKENS

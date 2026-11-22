@@ -23,7 +23,8 @@ from ..tools import ToolCall
 from .env import MAX_BATCH_CALLS, RULES_TEXT, TOOL_SCHEMAS
 
 
-DEFAULT_MAX_TOKENS = 16384
+DEFAULT_MAX_TOKENS = 32768
+DEFAULT_REQUEST_TIMEOUT_S = 180
 
 
 class ProviderError(RuntimeError):
@@ -197,7 +198,7 @@ class OpenRouterToolAdapter(AgentAdapter):
 
     ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
 
-    def __init__(self, spec: ModelSpec, api_key: str | None = None, timeout: int = 120):
+    def __init__(self, spec: ModelSpec, api_key: str | None = None, timeout: int = DEFAULT_REQUEST_TIMEOUT_S):
         self.spec = spec
         self.api_key = api_key or load_openrouter_key()
         self.timeout = timeout

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import replace
 import json
 import sys
 from pathlib import Path
@@ -11,7 +12,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from kitchenrush.v3.adapters import DEFAULT_MAX_TOKENS, ModelSpec, OpenRouterToolAdapter  # noqa: E402
+from kitchenrush.v3.adapters import (  # noqa: E402
+    DEFAULT_MAX_TOKENS,
+    DEFAULT_REQUEST_TIMEOUT_S,
+    ModelSpec,
+    OpenRouterToolAdapter,
+)
 from kitchenrush.v3.env import generate_kitchen, serialize_spec  # noqa: E402
 from kitchenrush.v3.metrics import format_markdown_table, paired_delta_bootstrap, summarize_campaign  # noqa: E402
 from kitchenrush.v3.replay import export_v3_replay  # noqa: E402
@@ -43,12 +49,16 @@ MODELS: dict[str, ModelSpec] = {
     "gpt-6.1-terra-low": _spec("gpt-6.1-terra-low", "openai/gpt-6.1-terra", "medium", 1.00, 5.00, "low"),
     "claude-sonnet-5.5-low": _spec("claude-sonnet-5.5-low", "anthropic/claude-sonnet-5.5", "frontier", 2.00, 10.00, "low"),
     "claude-sonnet-5.5-medium": _spec("claude-sonnet-5.5-medium", "anthropic/claude-sonnet-5.5", "frontier", 2.00, 10.00, "medium"),
+    "claude-sonnet-5.5-high": _spec("claude-sonnet-5.5-high", "anthropic/claude-sonnet-5.5", "frontier", 2.00, 10.00, "high"),
     "gpt-6.1-sol-low": _spec("gpt-6.1-sol-low", "openai/gpt-6.1-sol", "frontier", 2.00, 10.00, "low"),
     "gpt-6.1-sol-medium": _spec("gpt-6.1-sol-medium", "openai/gpt-6.1-sol", "frontier", 2.00, 10.00, "medium"),
+    "gpt-6.1-sol-high": _spec("gpt-6.1-sol-high", "openai/gpt-6.1-sol", "frontier", 2.00, 10.00, "high"),
     "gpt-6.2-sol-low": _spec("gpt-6.2-sol-low", "openai/gpt-6.2-sol", "frontier", 2.00, 10.00, "low"),
     "gpt-6.2-sol-medium": _spec("gpt-6.2-sol-medium", "openai/gpt-6.2-sol", "frontier", 2.00, 10.00, "medium"),
+    "gpt-6.2-sol-high": _spec("gpt-6.2-sol-high", "openai/gpt-6.2-sol", "frontier", 2.00, 10.00, "high"),
     "gemini-4-neon-low": _spec("gemini-4-neon-low", "google/gemini-4-neon", "frontier", 3.00, 15.00, "low"),
     "gemini-4-neon-medium": _spec("gemini-4-neon-medium", "google/gemini-4-neon", "frontier", 3.00, 15.00, "medium"),
+    "gemini-4-neon-high": _spec("gemini-4-neon-high", "google/gemini-4-neon", "frontier", 3.00, 15.00, "high"),
 }
 
 
@@ -116,10 +126,13 @@ def cmd_run(args: argparse.Namespace) -> None:
     bank = load_bank(Path(args.bank))
     model_keys = [k.strip() for k in args.models.split(",") if k.strip()]
     adapters = []
+    if args.max_tokens <= 0:
+        raise SystemExit("--max-tokens must be a positive integer")
     for k in model_keys:
         if k not in MODELS:
             raise SystemExit(f"Unknown model key {k!r}; available: {sorted(MODELS)}")
-        adapters.append(OpenRouterToolAdapter(MODELS[k]))
+        spec = replace(MODELS[k], max_tokens=args.max_tokens)
+        adapters.append(OpenRouterToolAdapter(spec, timeout=args.timeout))
 
     levels = tuple(int(x) for x in args.levels.split(","))
     summary = run_campaign(
@@ -224,6 +237,8 @@ def main() -> None:
     p_r.add_argument("--levels", default="1,2,3,4,5")
     p_r.add_argument("--seeds", type=int, default=6)
     p_r.add_argument("--campaign-cap", type=float, default=12.0)
+    p_r.add_argument("--max-tokens", type=int, default=DEFAULT_MAX_TOKENS, help="Per-turn output+reasoning token ceiling applied uniformly across models.")
+    p_r.add_argument("--timeout", type=int, default=DEFAULT_REQUEST_TIMEOUT_S, help="HTTP request timeout in seconds per turn.")
     p_r.add_argument("--history-mode", choices=("full_chat", "last_turn"), default="full_chat")
     p_r.add_argument("--workers", type=int, default=4)
     p_r.set_defaults(func=cmd_run)

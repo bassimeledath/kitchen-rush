@@ -55,7 +55,7 @@ A sharp question anyone should ask: *If a deterministic Python solver can beat e
 * **Atomic `wait(seconds)`:** A `wait(t)` runs to completion for the full `t` seconds; any arrival/expiry/burn that happens during the wait cancels *subsequent* queued calls after the wait, not the wait itself. Models must calculate wait durations rather than blindly calling `wait(120)`.
 * **Invalid action penalty:** Illegal calls cost **3 game-seconds**, increment `invalid`, and interrupt the rest of that batch.
 * **No hidden harness traps:**
-  * **One generous output token ceiling (`max_tokens=16384`)** across every model so `reasoning_effort`—never silent truncation—governs thinking length. *(Our independent audit caught that an earlier `2048` cap silently truncated Haiku on 47 empty turns!)*
+  * **One generous, configurable output token ceiling (`DEFAULT_MAX_TOKENS = 32768`, overridable via `--max-tokens`)** applied uniformly across every model in a campaign so `reasoning_effort`—never silent truncation—governs thinking length. *(Earlier audits caught Haiku clipping 47 empty turns at `2048` and `gemini-4-neon-medium` clipping 2 opening planning turns at `16384`; `32768` gives `medium` reasoners headroom across all models, and anyone running `high` reasoning configs can pass `--max-tokens 65536`.)*
   * **Scaled action & turn limits (`max_actions = max_turns = max(160, 24 × N)`):** Keeps `160` for `D=1..5` and scales smoothly with order count `N = D + 1` for `D=6+`, removing any artificial ceiling while ensuring 1-call/turn models are never cut off early.
   * **Mandatory tool calling (`tool_choice="required"`):** Prevents models from wasting turns emitting plain-text chatter instead of kitchen actions.
   * **Immutable campaign manifest (`manifest.json`):** Stores bank/spec SHA-256 hashes, protocol, history mode, `tool_choice`, and exact planned episodes — refusing to silently reuse stale files on resume and aggregating strictly manifest members (reporting `planned / scored / missing` explicitly).
@@ -212,11 +212,19 @@ For each `(model, level)` cell over scored episodes $e = 1, \dots, K$, let:
 | **D=5** | 0/4 clears (66.7%, `no clear`, 5.19 batch, 54% cache) | **2/4 clears** (87.5%, **\$0.0691**/cleared ord, 1.00 batch, 97% cache) |
 | **D=6** | 0/4 clears (75.0%, `no clear`, 4.52 batch, 65% cache) | **1/3 clears** (81.0%, **\$0.1198**/cleared ord, 1.00 batch, 97% cache) |
 
-*(Every single episode had `0` empty turns and `0` length truncations; 1 `D=6` Sol episode stopped cleanly at the `\$6.00` verification cap.)*
+*(Every single `low` episode had `0` empty turns and `0` length truncations; 1 `D=6` Sol episode stopped cleanly at the `\$6.00` verification cap.)*
+
+**Follow-up `medium`-reasoning check on `Bank v2` (`D=5..6`, exact same paired seeds, `full_chat`, `tool_choice="required"`):**
+* **`gpt-6.2-sol-medium` (3 paired seeds, \$1.86 total, `0` invalids/burns/truncations, `97.7%` cache):**
+  * **D=5 (`6000–6002`):** **3/3 clears (100%, \$0.0436/cleared ord)** — beat `low` (`2/3`, \$0.0517/cleared ord on the same 3 seeds) on both reliability *and* cost per cleared dish.
+  * **D=6 (`6001, 6002, 6004`):** **1/3 clears (90.5% completion, \$0.1533/cleared ord)** — lifted order completion from `17/21` (`low`) to `19/21` (`medium`) with `0` mistakes, proving `D=6` still has pure scheduling headroom even at `medium` reasoning.
+* **`gemini-4-neon-medium` (2 paired seeds, \$2.53 total, `0` invalids/burns, `54–61%` cache):**
+  * **D=5 (`6000–6001`):** **0/2 clears (`10/12 = 83.3%` vs `66.7%` at `low`)**; hit `max_tokens=16384` twice on Turn 1–2 of `seed=6000` (`[CAP_HIT: output_length_cap(2), empty_turns(2)]`), directly motivating bumping `DEFAULT_MAX_TOKENS` to `32768` (configurable via `--max-tokens`).
+  * **D=6 (`6001–6002`):** **0/2 clears (`10/14 = 71.4%` vs `64.3%` at `low`, `0` truncations)**.
 
 **What this proves:**
-* **No saturation:** `gpt-6.2-sol-low` steps cleanly down **`100% → 50% → 33%` clears** across `D=4 → D=5 → D=6`, while `gemini-4-neon-low` drops **`50% → 0% → 0%`** — cleanly separating two top frontier models that had previously tied on the old throttled bank!
-* **Clean pre-leaderboard checklist:** Generate a fresh private held-out seed bank (outside Git) and run all target models under this single locked protocol (`full_chat`, `tool_choice="required"`, `max_tokens=16384`, `max_actions = max_turns = max(160, 24 × N)`, Full-Clear Gated metrics).
+* **No saturation:** `gpt-6.2-sol-low` steps cleanly down **`100% → 50% → 33%` clears** across `D=4 → D=5 → D=6`, `gpt-6.2-sol-medium` reaches `100%` on `D=5` yet still sits at **`33%` on `D=6`**, and `gemini-4-neon` (`low` & `medium`) remains at `0%` on `D=5..6` — cleanly separating top frontier models and reasoning tiers without needing `D=7` for v1.
+* **Clean pre-leaderboard checklist:** Generate a fresh private held-out seed bank (outside Git) and run all target models under this single locked protocol (`full_chat`, `tool_choice="required"`, `DEFAULT_MAX_TOKENS=32768` configurable via `--max-tokens`, `max_actions = max_turns = max(160, 24 × N)`, Full-Clear Gated metrics).
 
 ---
 
@@ -224,8 +232,8 @@ For each `(model, level)` cell over scored episodes $e = 1, \dots, K$, let:
 
 All v3 code lives cleanly in 6 compact modules inside `src/kitchenrush/v3/`:
 * [`env.py`](file:///Users/bassime/Desktop/fullstack/kitchen-rush/.worktrees/v3-unified/src/kitchenrush/v3/env.py) — `UnifiedEngine`, `difficulty_profile(D)`, `generate_kitchen(seed, D)`, 8 native `TOOL_SCHEMAS`, `static_context`, `dynamic_state` (`last_turn`), `verify_replay`.
-* [`solvers.py`](file:///Users/bassime/Desktop/fullstack/kitchen-rush/.worktrees/v3-unified/src/kitchenrush/v3/solvers.py) — `run_sequential_solver`, `run_greedy_overlap_solver`, `scheduled_witness` (with `allow_arrival_peek=False` no-oracle reference mode).
-* [`adapters.py`](file:///Users/bassime/Desktop/fullstack/kitchen-rush/.worktrees/v3-unified/src/kitchenrush/v3/adapters.py) — `AgentAdapter`, `OpenRouterToolAdapter` (uniform `max_tokens=16384`, caching, route/finish-reason capture), and `DecisionModelAdapter` (1-step base class for future TypeSafe / Jev integration).
-* [`metrics.py`](file:///Users/bassime/Desktop/fullstack/kitchen-rush/.worktrees/v3-unified/src/kitchenrush/v3/metrics.py) — Full-clear gated primary metrics + partial credit + secondary per-served-order ratios + 4,000-draw paired-seed bootstrap CIs.
-* [`runner.py`](file:///Users/bassime/Desktop/fullstack/kitchen-rush/.worktrees/v3-unified/src/kitchenrush/v3/runner.py) — Single atomic-reservation `SpendLedger`, `max_turns=160`, resumable seed-wave execution, mandatory `verify_replay`.
+* [`solvers.py`](file:///Users/bassime/Desktop/fullstack/kitchen-rush/.worktrees/v3-unified/src/kitchenrush/v3/solvers.py) — `run_sequential_solver`, `run_greedy_overlap_solver`, `scheduled_witness`, and `best_parallel_witness` (with `allow_arrival_peek=False` no-oracle reference mode).
+* [`adapters.py`](file:///Users/bassime/Desktop/fullstack/kitchen-rush/.worktrees/v3-unified/src/kitchenrush/v3/adapters.py) — `AgentAdapter`, `OpenRouterToolAdapter` (uniform configurable `DEFAULT_MAX_TOKENS=32768`, explicit Anthropic/Google caching, dynamic payload spend reservations, route/finish-reason capture), and `DecisionModelAdapter` (1-step base class for future TypeSafe / Jev integration).
+* [`metrics.py`](file:///Users/bassime/Desktop/fullstack/kitchen-rush/.worktrees/v3-unified/src/kitchenrush/v3/metrics.py) — Full-clear gated primary metrics + partial credit + secondary per-served-order ratios + Wilson 95% single-model CIs + 4,000-draw paired-seed bootstrap CIs.
+* [`runner.py`](file:///Users/bassime/Desktop/fullstack/kitchen-rush/.worktrees/v3-unified/src/kitchenrush/v3/runner.py) — Crash-safe persistent `SpendLedger`, immutable `manifest.json` validation, scaled `max_turns = max_actions`, resumable seed-wave execution, mandatory `verify_replay`.
 * [`replay.py`](file:///Users/bassime/Desktop/fullstack/kitchen-rush/.worktrees/v3-unified/src/kitchenrush/v3/replay.py) — Zero-cost exporter converting any v3 episode JSON into the existing pixel-art [ui/](file:///Users/bassime/Desktop/fullstack/kitchen-rush/ui/README.md) viewer format (supporting 1–4 model synchronized **Race Mode** duels).
