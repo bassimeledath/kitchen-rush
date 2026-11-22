@@ -23,10 +23,31 @@ from ..tools import ToolCall
 from .env import MAX_BATCH_CALLS, RULES_TEXT, TOOL_SCHEMAS
 
 
+DEFAULT_MAX_TOKENS = 16384
+
+INSPECT_HISTORY_TOOL: dict[str, Any] = {
+    "type": "function",
+    "function": {
+        "name": "inspect_history",
+        "description": (
+            "Zero-game-time read-only lookup: return the last N turns of your own turn history (1 to 50) "
+            "in the next observation. Does not advance game time or consume a kitchen action."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {"turns": {"type": "integer", "minimum": 1, "maximum": 50}},
+            "required": ["turns"],
+            "additionalProperties": False,
+        },
+    },
+}
+
+
 class ProviderError(RuntimeError):
-    def __init__(self, message: str, status_code: int | None = None):
+    def __init__(self, message: str, status_code: int | None = None, uncertain_billing: bool = False):
         super().__init__(message)
         self.status_code = status_code
+        self.uncertain_billing = uncertain_billing
 
 
 @dataclass(frozen=True)
@@ -36,7 +57,7 @@ class ModelSpec:
     tier: str  # "small" | "medium" | "frontier"
     input_price_per_m: float
     output_price_per_m: float
-    max_tokens: int = 2048
+    max_tokens: int = DEFAULT_MAX_TOKENS
     reasoning: dict[str, Any] | None = None
     temperature: float | None = 0.0
     route_order: tuple[str, ...] | None = None
@@ -53,6 +74,9 @@ class TurnDecision:
     cost_source: str = "provider"
     latency_s: float = 0.0
     finish_reason: str | None = None
+    provider_route: str | None = None
+    requested_effort: str | None = None
+    max_tokens: int | None = None
     raw_content: str | None = None
     parse_errors: list[str] = field(default_factory=list)
 
@@ -65,8 +89,22 @@ class AgentAdapter(ABC):
     def name(self) -> str:
         ...
 
+    @property
+    def metadata(self) -> dict[str, Any]:
+        return {}
+
+    def max_turn_reserve_usd(self) -> float:
+        return 0.0
+
     @abstractmethod
-    def act(self, static_ctx: dict[str, Any], dyn_state: dict[str, Any]) -> TurnDecision:
+    def act(
+        self,
+        static_ctx: dict[str, Any],
+        dyn_state: dict[str, Any],
+        *,
+        chat_messages: list[dict[str, Any]] | None = None,
+        allow_inspect_history: bool = False,
+    ) -> TurnDecision:
         ...
 
 
@@ -82,7 +120,14 @@ class DecisionModelAdapter(AgentAdapter, ABC):
     def choose_one(self, static_ctx: dict[str, Any], dyn_state: dict[str, Any]) -> TurnDecision:
         ...
 
-    def act(self, static_ctx: dict[str, Any], dyn_state: dict[str, Any]) -> TurnDecision:
+    def act(
+        self,
+        static_ctx: dict[str, Any],
+        dyn_state: dict[str, Any],
+        *,
+        chat_messages: list[dict[str, Any]] | None = None,
+        allow_inspect_history: bool = False,
+    ) -> TurnDecision:
         decision = self.choose_one(static_ctx, dyn_state)
         if len(decision.calls) > 1:
             decision.calls = decision.calls[:1]
@@ -95,8 +140,8 @@ def load_openrouter_key(env_paths: tuple[Path, ...] | None = None) -> str:
         return key
     candidates = env_paths or (
         Path(".env"),
-        Path(__file__).resolve().parents[4] / ".env",
-        Path(__file__).resolve().parents[6] / ".env",
+        Path(__file__).resolve().parents[3] / ".env",
+        Path(__file__).resolve().parents[5] / ".env",
     )
     for p in candidates:
         if p.exists():
@@ -109,9 +154,15 @@ def load_openrouter_key(env_paths: tuple[Path, ...] | None = None) -> str:
     raise RuntimeError("OPENROUTER_API_KEY not found in environment or .env")
 
 
-def _build_system_prompt(static_ctx: dict[str, Any]) -> str:
+def _build_system_prompt(static_ctx: dict[str, Any], *, allow_inspect_history: bool = False) -> str:
+    extra = (
+        "\nYou also have an optional zero-game-time `inspect_history(turns)` tool if you ever want to review "
+        "earlier turns beyond `last_turn`; it does not advance the kitchen clock or count as a kitchen action."
+        if allow_inspect_history
+        else ""
+    )
     return (
-        f"{RULES_TEXT}\n\n"
+        f"{RULES_TEXT}{extra}\n\n"
         "Respond by calling 1 to 8 kitchen tools in sequential execution order for this turn. "
         "Queue multiple deterministic steps (e.g., collect -> chop -> cook, or collect_cooked -> plate -> serve) "
         "whenever safe to save turns and tokens; stop your batch before an uncertain event if needed.\n\n"
@@ -162,9 +213,30 @@ class OpenRouterToolAdapter(AgentAdapter):
     def name(self) -> str:
         return self.spec.key
 
-    def _build_payload(self, static_ctx: dict[str, Any], dyn_state: dict[str, Any]) -> dict[str, Any]:
-        sys_text = _build_system_prompt(static_ctx)
-        if self.spec.model_id.startswith("anthropic/"):
+    @property
+    def metadata(self) -> dict[str, Any]:
+        return {
+            "model_id": self.spec.model_id,
+            "tier": self.spec.tier,
+            "requested_effort": (self.spec.reasoning or {}).get("effort"),
+            "max_tokens": self.spec.max_tokens,
+        }
+
+    def max_turn_reserve_usd(self) -> float:
+        # Worst-case reservation for one turn: 6k prompt tokens + full max_tokens output.
+        return (6000 * self.spec.input_price_per_m + self.spec.max_tokens * self.spec.output_price_per_m) / 1e6
+
+    def _build_payload(
+        self,
+        static_ctx: dict[str, Any],
+        dyn_state: dict[str, Any],
+        *,
+        chat_messages: list[dict[str, Any]] | None = None,
+        allow_inspect_history: bool = False,
+    ) -> dict[str, Any]:
+        sys_text = _build_system_prompt(static_ctx, allow_inspect_history=allow_inspect_history)
+        is_anthropic = self.spec.model_id.startswith("anthropic/")
+        if is_anthropic:
             sys_content: Any = [
                 {"type": "text", "text": sys_text, "cache_control": {"type": "ephemeral"}}
             ]
@@ -172,14 +244,24 @@ class OpenRouterToolAdapter(AgentAdapter):
             sys_content = sys_text
 
         user_text = f"STATE_JSON:\n{json.dumps(dyn_state, separators=(',', ':'))}"
+        messages: list[dict[str, Any]] = [{"role": "system", "content": sys_content}]
+        if chat_messages:
+            last_user_idx = max((i for i, m in enumerate(chat_messages) if m.get("role") == "user"), default=-1)
+            for idx, m in enumerate(chat_messages):
+                if is_anthropic and idx == last_user_idx and isinstance(m.get("content"), str):
+                    messages.append({
+                        "role": "user",
+                        "content": [{"type": "text", "text": m["content"], "cache_control": {"type": "ephemeral"}}],
+                    })
+                else:
+                    messages.append(m)
+        messages.append({"role": "user", "content": user_text})
 
+        tools = list(TOOL_SCHEMAS) + ([INSPECT_HISTORY_TOOL] if allow_inspect_history else [])
         payload: dict[str, Any] = {
             "model": self.spec.model_id,
-            "messages": [
-                {"role": "system", "content": sys_content},
-                {"role": "user", "content": user_text},
-            ],
-            "tools": TOOL_SCHEMAS,
+            "messages": messages,
+            "tools": tools,
             "tool_choice": "auto",
             "max_tokens": self.spec.max_tokens,
             "usage": {"include": True},
@@ -196,8 +278,20 @@ class OpenRouterToolAdapter(AgentAdapter):
             }
         return payload
 
-    def act(self, static_ctx: dict[str, Any], dyn_state: dict[str, Any]) -> TurnDecision:
-        payload = self._build_payload(static_ctx, dyn_state)
+    def act(
+        self,
+        static_ctx: dict[str, Any],
+        dyn_state: dict[str, Any],
+        *,
+        chat_messages: list[dict[str, Any]] | None = None,
+        allow_inspect_history: bool = False,
+    ) -> TurnDecision:
+        payload = self._build_payload(
+            static_ctx,
+            dyn_state,
+            chat_messages=chat_messages,
+            allow_inspect_history=allow_inspect_history,
+        )
         body = json.dumps(payload).encode("utf-8")
         headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -225,9 +319,9 @@ class OpenRouterToolAdapter(AgentAdapter):
             except (urllib.error.URLError, TimeoutError, OSError) as exc:
                 if attempt < 2:
                     time.sleep(3 * (attempt + 1))
-                    last_err = ProviderError(f"Transport error: {exc}")
+                    last_err = ProviderError(f"Transport error: {exc}", uncertain_billing=True)
                     continue
-                raise ProviderError(f"Transport error after retries: {exc}") from exc
+                raise ProviderError(f"Transport error after retries: {exc}", uncertain_billing=True) from exc
         else:
             raise last_err or ProviderError("Unknown provider failure")
 
@@ -268,6 +362,9 @@ class OpenRouterToolAdapter(AgentAdapter):
             cost_source=cost_source,
             latency_s=round(latency, 3),
             finish_reason=choice.get("finish_reason"),
+            provider_route=raw.get("provider"),
+            requested_effort=(self.spec.reasoning or {}).get("effort"),
+            max_tokens=self.spec.max_tokens,
             raw_content=msg.get("content"),
             parse_errors=parse_errors,
         )

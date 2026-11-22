@@ -119,14 +119,17 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
 ]
 
 RULES_TEXT = (
-    "You are the sole chef in a turn-based kitchen. Maximize served orders cleanly while minimizing "
-    "invalid actions, food burns, and wasted calls.\n"
+    "You are the sole chef in a turn-based kitchen. Your primary goal is to CLEAR the entire kitchen "
+    "(serve every order before its deadline) cleanly while minimizing invalid actions, food burns, and wasted tokens. "
+    "Partial served orders still count toward Order Completion.\n"
     "- Inference pauses game time; only executed tool actions advance the clock.\n"
     "- All station actions automatically walk to the required station (0.15s per floor step). "
     "There is no separate move tool.\n"
     "- You may emit 1 to 8 sequential tool calls in a single turn to execute a planned sequence. "
-    "A batch stops early (discarding remaining queued calls) if an action is invalid, a new order arrives, "
+    "A batch stops early (canceling remaining queued calls) if an action is invalid, a new order arrives, "
     "food burns, or an order expires.\n"
+    "- `wait(seconds)` runs atomically for the full requested `seconds`; any event that fires during a wait "
+    "cancels subsequent queued calls after the wait, not the wait itself — calculate wait durations carefully.\n"
     "- Read this kitchen's ingredient_rules carefully! Every kitchen randomizes cook_time, burn_window, "
     "and whether each cookable ingredient must be RAW or CHOPPED before cooking.\n"
     "- You have 4 hand slots. `plate` requires holding the exact ingredients/states for that recipe with "
@@ -135,7 +138,7 @@ RULES_TEXT = (
     "(before the 1s handling time), though it can still burn during travel if cut too close.\n"
     "- Burned food automatically disappears from its burner. Invalid actions cost 3 game-seconds.\n"
     "- Future orders are hidden until arrival. Episode ends when all orders resolve, no remaining order "
-    "can mathematically meet its deadline, at 160 tool actions, or after 12 consecutive nonproductive turns."
+    "can mathematically meet its deadline, at 160 tool actions or 160 turns, or after 12 consecutive nonproductive turns."
 )
 
 
@@ -443,7 +446,17 @@ class UnifiedEngine(KitchenRushEngine):
     def step_batch(self, calls: list[ToolCall]) -> dict[str, Any]:
         """Execute 1..MAX_BATCH_CALLS sequentially, interrupting on invalid or unforeseen events."""
         if self.terminated:
-            return {**self.observe(), "ok": False, "interrupted_reason": "already_terminated"}
+            return {
+                "turn": self.turn_count,
+                "clock_gs": round(self.clock_gs, 2),
+                "calls": [],
+                "aborted_calls": [c.name for c in calls],
+                "interrupted_reason": "already_terminated",
+                "events": [],
+                "terminated": True,
+                "termination_reason": self.termination_reason,
+                "ok": False,
+            }
         self._events_since_last = []
         self.turn_count += 1
         self._turn_productive = False
@@ -580,8 +593,11 @@ def static_context(engine: UnifiedEngine) -> dict[str, Any]:
     }
 
 
-def dynamic_state(engine: UnifiedEngine, recent_turns: list[dict[str, Any]] | None = None) -> dict[str, Any]:
-    """Compact per-turn dynamic state (never leaks hidden PENDING order contents/arrivals)."""
+def dynamic_state(engine: UnifiedEngine, last_turn: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Compact Markovian per-turn dynamic state plus immediate feedback from the previous turn.
+
+    Never leaks hidden PENDING order contents or arrival times.
+    """
     obs = engine.observe()
     active_orders = []
     known_cards: dict[str, dict[str, str]] = {}
@@ -645,8 +661,8 @@ def dynamic_state(engine: UnifiedEngine, recent_turns: list[dict[str, Any]] | No
             "pending_hidden": pending_count,
         },
     }
-    if recent_turns:
-        state["recent_turns"] = recent_turns[-5:]
+    if last_turn is not None:
+        state["last_turn"] = last_turn
     return state
 
 

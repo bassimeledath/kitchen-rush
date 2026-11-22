@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Kitchen Rush v3 bank builder, offline calibrator, and OpenRouter experiment runner."""
+"""Kitchen Rush v3 bank builder, offline calibrator, OpenRouter runner, and UI replay exporter."""
 
 from __future__ import annotations
 
@@ -11,101 +11,60 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from kitchenrush.v3.adapters import ModelSpec, OpenRouterToolAdapter  # noqa: E402
+from kitchenrush.v3.adapters import DEFAULT_MAX_TOKENS, ModelSpec, OpenRouterToolAdapter  # noqa: E402
 from kitchenrush.v3.env import generate_kitchen, serialize_spec  # noqa: E402
 from kitchenrush.v3.metrics import format_markdown_table, paired_delta_bootstrap, summarize_campaign  # noqa: E402
+from kitchenrush.v3.replay import export_v3_replay  # noqa: E402
 from kitchenrush.v3.runner import load_bank, run_campaign, save_bank  # noqa: E402
 from kitchenrush.v3.solvers import run_greedy_overlap_solver, run_sequential_solver  # noqa: E402
 
 DEFAULT_BANK = ROOT / "data/v3/calibration_bank_v1.json"
-DEFAULT_RUN_DIR = ROOT / "runs/v3/calibration_v1"
+DEFAULT_RUN_DIR = ROOT / "runs/v3/calibration_v2"
+
+
+def _spec(key: str, model_id: str, tier: str, inp: float, out: float, effort: str) -> ModelSpec:
+    return ModelSpec(
+        key=key,
+        model_id=model_id,
+        tier=tier,
+        input_price_per_m=inp,
+        output_price_per_m=out,
+        max_tokens=DEFAULT_MAX_TOKENS,
+        reasoning={"effort": effort},
+        temperature=None,
+    )
+
 
 MODELS: dict[str, ModelSpec] = {
-    "gpt-6-luna-low": ModelSpec(
-        key="gpt-6-luna-low",
-        model_id="openai/gpt-6-luna",
-        tier="small",
-        input_price_per_m=0.10,
-        output_price_per_m=0.50,
-        max_tokens=2048,
-        reasoning={"effort": "low"},
-        temperature=None,
-    ),
-    "claude-haiku-5.5-low": ModelSpec(
-        key="claude-haiku-5.5-low",
-        model_id="anthropic/claude-haiku-5.5",
-        tier="small",
-        input_price_per_m=0.10,
-        output_price_per_m=0.50,
-        max_tokens=2048,
-        reasoning={"effort": "low"},
-        temperature=None,
-    ),
-    "gemini-3.8-flash-low": ModelSpec(
-        key="gemini-3.8-flash-low",
-        model_id="google/gemini-3.8-flash",
-        tier="medium",
-        input_price_per_m=0.825,
-        output_price_per_m=4.125,
-        max_tokens=2048,
-        reasoning={"effort": "low"},
-        temperature=None,
-    ),
-    "gpt-6.1-terra-low": ModelSpec(
-        key="gpt-6.1-terra-low",
-        model_id="openai/gpt-6.1-terra",
-        tier="medium",
-        input_price_per_m=1.00,
-        output_price_per_m=5.00,
-        max_tokens=2500,
-        reasoning={"effort": "low"},
-        temperature=None,
-    ),
-    "gpt-6.1-sol-low": ModelSpec(
-        key="gpt-6.1-sol-low",
-        model_id="openai/gpt-6.1-sol",
-        tier="frontier",
-        input_price_per_m=2.00,
-        output_price_per_m=10.00,
-        max_tokens=3072,
-        reasoning={"effort": "low"},
-        temperature=None,
-    ),
-    "gpt-6.1-sol-medium": ModelSpec(
-        key="gpt-6.1-sol-medium",
-        model_id="openai/gpt-6.1-sol",
-        tier="frontier",
-        input_price_per_m=2.00,
-        output_price_per_m=10.00,
-        max_tokens=4096,
-        reasoning={"effort": "medium"},
-        temperature=None,
-    ),
-    "claude-sonnet-5.5-low": ModelSpec(
-        key="claude-sonnet-5.5-low",
-        model_id="anthropic/claude-sonnet-5.5",
-        tier="frontier",
-        input_price_per_m=2.00,
-        output_price_per_m=10.00,
-        max_tokens=3072,
-        reasoning={"effort": "low"},
-        temperature=None,
-    ),
+    "gpt-6-luna-low": _spec("gpt-6-luna-low", "openai/gpt-6-luna", "small", 0.10, 0.50, "low"),
+    "claude-haiku-5.5-low": _spec("claude-haiku-5.5-low", "anthropic/claude-haiku-5.5", "small", 0.10, 0.50, "low"),
+    "gemini-3.8-flash-low": _spec("gemini-3.8-flash-low", "google/gemini-3.8-flash", "medium", 0.825, 4.125, "low"),
+    "gemini-3.8-flash-medium": _spec("gemini-3.8-flash-medium", "google/gemini-3.8-flash", "medium", 0.825, 4.125, "medium"),
+    "gpt-6.1-terra-low": _spec("gpt-6.1-terra-low", "openai/gpt-6.1-terra", "medium", 1.00, 5.00, "low"),
+    "claude-sonnet-5.5-low": _spec("claude-sonnet-5.5-low", "anthropic/claude-sonnet-5.5", "frontier", 2.00, 10.00, "low"),
+    "claude-sonnet-5.5-medium": _spec("claude-sonnet-5.5-medium", "anthropic/claude-sonnet-5.5", "frontier", 2.00, 10.00, "medium"),
+    "gpt-6.1-sol-low": _spec("gpt-6.1-sol-low", "openai/gpt-6.1-sol", "frontier", 2.00, 10.00, "low"),
+    "gpt-6.1-sol-medium": _spec("gpt-6.1-sol-medium", "openai/gpt-6.1-sol", "frontier", 2.00, 10.00, "medium"),
+    "gpt-6.2-sol-low": _spec("gpt-6.2-sol-low", "openai/gpt-6.2-sol", "frontier", 2.00, 10.00, "low"),
+    "gpt-6.2-sol-medium": _spec("gpt-6.2-sol-medium", "openai/gpt-6.2-sol", "frontier", 2.00, 10.00, "medium"),
 }
 
 
 def cmd_build_bank(args: argparse.Namespace) -> None:
+    levels = tuple(int(x) for x in args.levels.split(","))
     bank: dict[int, list[dict]] = {}
     exclusions: dict[str, list[dict]] = {}
-    print(f"Building frozen v3 bank ({args.seeds_per_level} seeds/level, D=1..5)...")
-    for level in (1, 2, 3, 4, 5):
+    print(f"Building frozen v3 bank ({args.seeds_per_level} seeds/level, levels={levels})...")
+    for level in levels:
         retained = []
         excl = []
         seed = args.start_seed
+        attempts = 0
         seq_s = seq_n = seq_c = 0
         grd_s = grd_n = grd_c = 0
         w_acts = []
-        while len(retained) < args.seeds_per_level:
+        while len(retained) < args.seeds_per_level and attempts < args.max_attempts:
+            attempts += 1
             try:
                 spec, batches = generate_kitchen(seed, level)
             except Exception as exc:
@@ -129,6 +88,10 @@ def cmd_build_bank(args: argparse.Namespace) -> None:
                 "baselines": {"sequential": r_seq, "greedy_overlap": r_grd},
             })
             seed += 1
+        if len(retained) < args.seeds_per_level:
+            raise SystemExit(
+                f"Only retained {len(retained)}/{args.seeds_per_level} kitchens at D={level} after {attempts} attempts"
+            )
         bank[level] = retained
         exclusions[f"D{level}"] = excl
         n = len(retained)
@@ -148,22 +111,10 @@ def cmd_run(args: argparse.Namespace) -> None:
     bank = load_bank(Path(args.bank))
     model_keys = [k.strip() for k in args.models.split(",") if k.strip()]
     adapters = []
-    ep_caps = {}
-    model_caps = {}
     for k in model_keys:
         if k not in MODELS:
             raise SystemExit(f"Unknown model key {k!r}; available: {sorted(MODELS)}")
-        spec = MODELS[k]
-        adapters.append(OpenRouterToolAdapter(spec))
-        if spec.tier == "small":
-            ep_caps[k] = args.small_ep_cap
-            model_caps[k] = args.small_model_cap
-        elif spec.tier == "medium":
-            ep_caps[k] = args.medium_ep_cap
-            model_caps[k] = args.medium_model_cap
-        else:
-            ep_caps[k] = args.frontier_ep_cap
-            model_caps[k] = args.frontier_model_cap
+        adapters.append(OpenRouterToolAdapter(MODELS[k]))
 
     levels = tuple(int(x) for x in args.levels.split(","))
     summary = run_campaign(
@@ -173,8 +124,7 @@ def cmd_run(args: argparse.Namespace) -> None:
         levels=levels,
         max_seeds=args.seeds,
         campaign_cap_usd=args.campaign_cap,
-        model_caps_usd=model_caps,
-        episode_caps_usd=ep_caps,
+        history_mode=args.history_mode,
         workers=args.workers,
         verbose=True,
     )
@@ -199,15 +149,40 @@ def cmd_report(args: argparse.Namespace) -> None:
                     p = paired_delta_bootstrap(ea, eb)
                     if p.get("paired_seeds", 0) > 0:
                         d_comp = p["point_delta"].get("completion")
-                        d_usd = p["point_delta"].get("usd_per_order")
+                        d_usd_c = p["point_delta"].get("usd_per_cleared_order")
                         ci_comp = p["ci95"].get("completion")
+                        comp_str = f"{100 * d_comp:+.1f}%" if d_comp is not None else "—"
+                        ci_str = f"[{100 * ci_comp[0]:+.1f}%, {100 * ci_comp[1]:+.1f}%]" if ci_comp else "—"
+                        usd_str = f"{d_usd_c:+.4f}" if d_usd_c is not None else "no clear"
                         print(
                             f"  D={level} {ma} vs {mb} (n={p['paired_seeds']}): "
-                            f"W/L/T={p['a_served_more']}/{p['b_served_more']}/{p['ties']} | "
-                            f"Δcomp={f'{100*d_comp:+.1f}%' if d_comp is not None else '—'} "
-                            f"(CI95={f'[{100*ci_comp[0]:+.1f}%, {100*ci_comp[1]:+.1f}%]' if ci_comp else '—'}) | "
-                            f"ΔUSD/ord={f'{d_usd:+.4f}' if d_usd is not None else '—'}"
+                            f"ClearW/L={p['a_cleared_more']}/{p['b_cleared_more']} "
+                            f"ServedW/L/T={p['a_served_more']}/{p['b_served_more']}/{p['ties']} | "
+                            f"Δcomp={comp_str} (CI95={ci_str}) | ΔUSD/cleared={usd_str}"
                         )
+
+
+def cmd_export_replay(args: argparse.Namespace) -> None:
+    bank = load_bank(Path(args.bank))
+    spec_by_key = {(lvl, s.seed): s for lvl, specs in bank.items() for s in specs}
+    ep_dir = Path(args.run_dir) / "episodes"
+    out_dir = Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    exported: list[tuple[str, Path]] = []
+    for ep_path in sorted(ep_dir.glob(f"D{args.level}_seed{args.seed}_*.json")):
+        ep = json.loads(ep_path.read_text(encoding="utf-8"))
+        spec = spec_by_key[(ep["level"], ep["seed"])]
+        out_path = out_dir / f"v3_D{ep['level']}_seed{ep['seed']}_{ep['model']}.json"
+        export_v3_replay(ep_path, spec, out_path)
+        exported.append((ep["model"], out_path))
+    if not exported:
+        raise SystemExit(f"No episodes found matching D{args.level}_seed{args.seed}_*.json in {ep_dir}")
+    for model, path in exported:
+        print(f"Exported {model}: {path}")
+    if len(exported) <= 4:
+        rels = ",".join(f"replays/{p.name}" for _, p in exported)
+        labels = ",".join(m for m, _ in exported)
+        print(f"\nRace Mode URL (when serving ui/ on :8000):\nhttp://localhost:8000/?replays={rels}&labels={labels}")
 
 
 def main() -> None:
@@ -216,8 +191,10 @@ def main() -> None:
 
     p_b = sub.add_parser("build-bank")
     p_b.add_argument("--bank", default=str(DEFAULT_BANK))
+    p_b.add_argument("--levels", default="1,2,3,4,5")
     p_b.add_argument("--seeds-per-level", type=int, default=10)
     p_b.add_argument("--start-seed", type=int, default=3000)
+    p_b.add_argument("--max-attempts", type=int, default=200)
     p_b.set_defaults(func=cmd_build_bank)
 
     p_r = sub.add_parser("run")
@@ -225,20 +202,23 @@ def main() -> None:
     p_r.add_argument("--out-dir", default=str(DEFAULT_RUN_DIR))
     p_r.add_argument("--models", required=True)
     p_r.add_argument("--levels", default="1,2,3,4,5")
-    p_r.add_argument("--seeds", type=int, default=4)
-    p_r.add_argument("--campaign-cap", type=float, default=16.0)
-    p_r.add_argument("--small-ep-cap", type=float, default=0.15)
-    p_r.add_argument("--small-model-cap", type=float, default=3.0)
-    p_r.add_argument("--medium-ep-cap", type=float, default=0.40)
-    p_r.add_argument("--medium-model-cap", type=float, default=6.0)
-    p_r.add_argument("--frontier-ep-cap", type=float, default=0.80)
-    p_r.add_argument("--frontier-model-cap", type=float, default=8.0)
+    p_r.add_argument("--seeds", type=int, default=6)
+    p_r.add_argument("--campaign-cap", type=float, default=12.0)
+    p_r.add_argument("--history-mode", choices=("last_turn", "on_demand", "full_chat"), default="last_turn")
     p_r.add_argument("--workers", type=int, default=4)
     p_r.set_defaults(func=cmd_run)
 
     p_rep = sub.add_parser("report")
     p_rep.add_argument("--out-dir", default=str(DEFAULT_RUN_DIR))
     p_rep.set_defaults(func=cmd_report)
+
+    p_exp = sub.add_parser("export-replay")
+    p_exp.add_argument("--bank", default=str(DEFAULT_BANK))
+    p_exp.add_argument("--run-dir", default=str(DEFAULT_RUN_DIR))
+    p_exp.add_argument("--out-dir", default=str(ROOT / "ui/replays"))
+    p_exp.add_argument("--level", type=int, required=True)
+    p_exp.add_argument("--seed", type=int, required=True)
+    p_exp.set_defaults(func=cmd_export_replay)
 
     args = parser.parse_args()
     args.func(args)

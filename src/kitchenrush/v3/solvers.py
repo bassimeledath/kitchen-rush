@@ -319,7 +319,11 @@ def run_greedy_overlap_solver(spec: UnifiedKitchen) -> dict[str, Any]:
     }
 
 
-def scheduled_witness(spec: UnifiedKitchen) -> tuple[list[list[dict[str, Any]]], dict[str, float]]:
+def scheduled_witness(
+    spec: UnifiedKitchen,
+    *,
+    allow_arrival_peek: bool = True,
+) -> tuple[list[list[dict[str, Any]]], dict[str, float]]:
     """Burner-aware parallel scheduler that overlaps active orders safely (0 invalids, 0 burns).
 
     Key scheduling strategy:
@@ -330,6 +334,8 @@ def scheduled_witness(spec: UnifiedKitchen) -> tuple[list[list[dict[str, Any]]],
     - Focuses unplated hands exclusively on the earliest-completable active order (so `plate`
       never collides with stray ingredients).
     - Emits clean batches (1 action per witness step, verified with exact serve-start times).
+    - When `allow_arrival_peek=False`, operates as a disclosed no-oracle reference scheduler
+      that never inspects hidden PENDING order arrival times.
     """
     engine = UnifiedEngine(spec, record_trace=False, early_stop=False)
     batches: list[list[dict[str, Any]]] = []
@@ -339,8 +345,10 @@ def scheduled_witness(spec: UnifiedKitchen) -> tuple[list[list[dict[str, Any]]],
     # Track which order currently "owns" unplated hand slots
     hand_owner: str | None = None
 
-    def do(call: ToolCall) -> None:
+    def do(call: ToolCall) -> set[int]:
         nonlocal hand_owner
+        if engine.terminated or engine._action_count >= MAX_DECISIONS:
+            raise RuntimeError(f"witness terminated before executing {call} (reason={engine.termination_reason})")
         if call.name == "serve":
             oid = call.arguments["order_id"]
             # Record serve start time (approximate arrival + current clock; engine checks clock <= deadline before serve)
@@ -348,7 +356,7 @@ def scheduled_witness(spec: UnifiedKitchen) -> tuple[list[list[dict[str, Any]]],
         before_burners = {i for i, b in enumerate(engine.burners) if b.job is not None}
         res = engine.step_batch([call])
         batches.append([{"name": call.name, "arguments": dict(call.arguments)}])
-        if not res["calls"] or not res["calls"][0]["ok"]:
+        if not res.get("calls") or not res["calls"][0]["ok"]:
             raise RuntimeError(f"witness invalid action {call}: {res}")
         if engine.counters["burns"] > 0:
             raise RuntimeError(f"witness burned food after {call} at t={engine.clock_gs}")
@@ -493,10 +501,15 @@ def scheduled_witness(spec: UnifiedKitchen) -> tuple[list[list[dict[str, Any]]],
 
         actives = _active_orders(engine)
         if not actives:
-            nxt = _next_pending_arrival(engine)
-            if nxt is None:
-                break
-            do(_wait_step(max(1.0, nxt - engine.clock_gs)))
+            if allow_arrival_peek:
+                nxt = _next_pending_arrival(engine)
+                if nxt is None:
+                    break
+                do(_wait_step(max(1.0, nxt - engine.clock_gs)))
+            else:
+                if not any(o.status == "PENDING" for o in engine._order_list):
+                    break
+                do(ToolCall("wait", {"seconds": 1}))
             continue
 
         # 2. Choose focus order: if hands already belong to an active order, stay on it!
@@ -597,9 +610,10 @@ def scheduled_witness(spec: UnifiedKitchen) -> tuple[list[list[dict[str, Any]]],
                             target_t = min(target_t, lt)
                             break
                 # Also wake up if a hidden order arrives before focus finishes cooking!
-                nxt_arr = _next_pending_arrival(engine)
-                if nxt_arr is not None and engine.clock_gs + 0.5 < nxt_arr < target_t - 1.0:
-                    target_t = min(target_t, nxt_arr)
+                if allow_arrival_peek:
+                    nxt_arr = _next_pending_arrival(engine)
+                    if nxt_arr is not None and engine.clock_gs + 0.5 < nxt_arr < target_t - 1.0:
+                        target_t = min(target_t, nxt_arr)
             # Cap wait so we don't accidentally burn ANY existing burner job!
             earliest_any_burn = min(
                 (b.job.burn_gs for b in engine.burners if b.job is not None),

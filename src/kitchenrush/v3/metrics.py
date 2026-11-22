@@ -1,10 +1,15 @@
-"""Four aligned metrics and kitchen-level bootstrap confidence intervals for Kitchen Rush v3.
+"""Aligned metrics and kitchen-level bootstrap confidence intervals for Kitchen Rush v3.
 
-Four primary metrics per (model, level) cell over scored episodes:
-1. Order Completion:         sum(S) / sum(N)           (higher is better; Full-Clear % shown alongside)
-2. Output Tokens / Order:    sum(T_out) / sum(S)       (lower is better; Total Tokens also tracked)
-3. Actual USD / Order:       sum(USD) / sum(S)         (lower is better; finite Orders/$1 also shown)
-4. Action Failure Rate:      sum(I + B) / sum(A)       (lower is better; invalid + food burns)
+Primary metrics per (model, level) cell over scored episodes:
+1. Full Clears & Order Completion:
+   - Full Clear Rate:            clears / scored             (primary pass/fail)
+   - Order Completion:           sum(S) / sum(N)             (partial credit)
+2. Output Tokens / Cleared Ord:  sum(T_out all scored) / sum(N in cleared kitchens)  ("no clear" if clears == 0)
+3. Actual USD / Cleared Ord:     sum(USD all scored)   / sum(N in cleared kitchens)  ("no clear" if clears == 0)
+   (Secondary per-individually-served-order ratios are preserved alongside.)
+4. Reliability:
+   - Inv+Burn / 100 Acts:        100 * sum(I + B) / sum(A)
+   - Empty Turns & Truncated Turns reported explicitly.
 """
 
 from __future__ import annotations
@@ -15,10 +20,23 @@ from collections import defaultdict
 from typing import Any
 
 
+def _episode_empty_turns(ep: dict[str, Any]) -> int:
+    if "empty_turns" in ep:
+        return int(ep["empty_turns"])
+    return sum(1 for t in ep.get("turn_logs", []) if not t.get("calls"))
+
+
+def _episode_truncated_turns(ep: dict[str, Any]) -> int:
+    if "truncated_turns" in ep:
+        return int(ep["truncated_turns"])
+    return sum(1 for t in ep.get("turn_logs", []) if t.get("finish_reason") == "length")
+
+
 def cell_ratios(episodes: list[dict[str, Any]]) -> dict[str, float | None]:
     served = sum(e["served"] for e in episodes)
     requested = sum(e["requested"] for e in episodes)
     clears = sum(1 for e in episodes if e["clear"])
+    cleared_orders = sum(e["requested"] for e in episodes if e["clear"])
     out_tok = sum(e["output_tokens"] for e in episodes)
     in_tok = sum(e["input_tokens"] for e in episodes)
     cached_tok = sum(e["cached_tokens"] for e in episodes)
@@ -27,10 +45,15 @@ def cell_ratios(episodes: list[dict[str, Any]]) -> dict[str, float | None]:
     burns = sum(e["burns"] for e in episodes)
     actions = sum(e["actions"] for e in episodes)
     turns = sum(e["turns"] for e in episodes)
+    empty_turns = sum(_episode_empty_turns(e) for e in episodes)
+    trunc_turns = sum(_episode_truncated_turns(e) for e in episodes)
 
     return {
         "completion": served / requested if requested else None,
         "full_clear_rate": clears / len(episodes) if episodes else None,
+        "out_tok_per_cleared_order": out_tok / cleared_orders if cleared_orders else None,
+        "usd_per_cleared_order": usd / cleared_orders if cleared_orders else None,
+        "cleared_orders_per_dollar": cleared_orders / usd if (usd > 0 and cleared_orders > 0) else 0.0 if usd > 0 else None,
         "out_tok_per_order": out_tok / served if served else None,
         "total_tok_per_order": (in_tok + out_tok) / served if served else None,
         "usd_per_order": usd / served if served else None,
@@ -38,6 +61,8 @@ def cell_ratios(episodes: list[dict[str, Any]]) -> dict[str, float | None]:
         "failure_rate": (invalid + burns) / actions if actions else None,
         "invalid_rate": invalid / actions if actions else None,
         "burn_rate": burns / actions if actions else None,
+        "empty_turn_rate": empty_turns / turns if turns else 0.0,
+        "truncated_turn_rate": trunc_turns / turns if turns else 0.0,
         "avg_batch_size": actions / turns if turns else None,
         "cache_hit_rate": cached_tok / in_tok if in_tok else 0.0,
     }
@@ -55,7 +80,15 @@ def bootstrap_cell(episodes: list[dict[str, Any]], reps: int = 4000, seed: int =
     if len(episodes) < 2:
         return {}
     rng = random.Random(seed)
-    keys = ("completion", "out_tok_per_order", "usd_per_order", "orders_per_dollar", "failure_rate")
+    keys = (
+        "full_clear_rate",
+        "completion",
+        "out_tok_per_cleared_order",
+        "usd_per_cleared_order",
+        "out_tok_per_order",
+        "usd_per_order",
+        "failure_rate",
+    )
     draws: dict[str, list[float]] = {k: [] for k in keys}
     n = len(episodes)
     for _ in range(reps):
@@ -94,7 +127,7 @@ def paired_delta_bootstrap(
         r1 = cell_ratios([p[0] for p in pair_list])
         r2 = cell_ratios([p[1] for p in pair_list])
         res = {}
-        for k in ("completion", "usd_per_order", "out_tok_per_order", "orders_per_dollar"):
+        for k in ("full_clear_rate", "completion", "usd_per_cleared_order", "out_tok_per_cleared_order", "usd_per_order"):
             if r1[k] is not None and r2[k] is not None:
                 res[k] = r1[k] - r2[k]
             else:
@@ -117,6 +150,8 @@ def paired_delta_bootstrap(
 
     return {
         "paired_seeds": len(shared),
+        "a_cleared_more": sum(int(a["clear"]) > int(b["clear"]) for a, b in pairs),
+        "b_cleared_more": sum(int(b["clear"]) > int(a["clear"]) for a, b in pairs),
         "a_served_more": sum(a["served"] > b["served"] for a, b in pairs),
         "b_served_more": sum(b["served"] > a["served"] for a, b in pairs),
         "ties": sum(a["served"] == b["served"] for a, b in pairs),
@@ -144,17 +179,35 @@ def summarize_campaign(episodes: list[dict[str, Any]]) -> dict[str, Any]:
             "scored": len(scored),
             "unscored": unscored,
             "clears": sum(1 for e in scored if e["clear"]),
+            "cleared_orders": sum(e["requested"] for e in scored if e["clear"]),
             "served": sum(e["served"] for e in scored),
             "requested": sum(e["requested"] for e in scored),
+            "invalid": sum(e["invalid"] for e in scored),
+            "burns": sum(e["burns"] for e in scored),
+            "empty_turns": sum(_episode_empty_turns(e) for e in scored),
+            "truncated_turns": sum(_episode_truncated_turns(e) for e in scored),
+            "history_lookups": sum(int(e.get("history_lookups", 0)) for e in scored),
+            "turns": sum(e["turns"] for e in scored),
             "total_usd": round(sum(e["cost_usd"] for e in group), 6),
             "ratios": r,
             "ci95": ci,
         })
+
+    cap_diag = {
+        "truncated_turns": sum(_episode_truncated_turns(e) for e in episodes),
+        "empty_turns": sum(_episode_empty_turns(e) for e in episodes),
+        "max_decisions_eps": sum(1 for e in episodes if e.get("termination_reason") == "max_decisions"),
+        "max_turns_eps": sum(1 for e in episodes if e.get("termination_reason") == "max_turns"),
+        "stalled_eps": sum(1 for e in episodes if e.get("termination_reason") == "stalled"),
+        "stopped_cap_eps": sum(1 for e in episodes if e.get("status") == "stopped_cap"),
+        "provider_error_eps": sum(1 for e in episodes if e.get("status") == "provider_error"),
+    }
     return {
         "rows": rows,
         "total_episodes": len(episodes),
         "total_scored": sum(1 for e in episodes if e.get("scored")),
         "total_usd": round(sum(e["cost_usd"] for e in episodes), 6),
+        "cap_diagnostics": cap_diag,
     }
 
 
@@ -162,34 +215,42 @@ def format_markdown_table(summary: dict[str, Any]) -> str:
     def pct(v: float | None) -> str:
         return f"{100 * v:.1f}%" if v is not None else "—"
 
-    def tok(v: float | None) -> str:
-        return f"{v:,.0f}" if v is not None else "—"
+    def tok(v: float | None, empty: str = "no clear") -> str:
+        return f"{v:,.0f}" if v is not None else empty
 
-    def usd(v: float | None) -> str:
-        return f"${v:.4f}" if v is not None else "—"
-
-    def opd(v: float | None) -> str:
-        return f"{v:,.1f}" if v is not None else "—"
+    def usd(v: float | None, empty: str = "no clear") -> str:
+        return f"${v:.4f}" if v is not None else empty
 
     lines = [
-        "| D | Model | Scored | Clears | Order Completion | Out Tok / Order | Actual USD / Order | Orders / $1 | Fail Rate (Inv+Burn) | Avg Batch | Cache % | Cell Spend |",
+        "| D | Model | Clears | Order Completion | Out Tok / Cleared Ord | USD / Cleared Ord | USD / Served Ord | Inv+Burn / 100 Acts | Empty / Trunc Turns | Avg Batch | Cache % | Spend |",
         "| :-: | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for row in summary["rows"]:
         r = row["ratios"]
         batch_str = f"{r['avg_batch_size']:.2f}" if r["avg_batch_size"] is not None else "—"
+        ib100 = f"{100 * r['failure_rate']:.1f}" if r["failure_rate"] is not None else "—"
         lines.append(
-            f"| D={row['level']} | {row['model']} | {row['scored']}/{row['scored'] + row['unscored']} | "
+            f"| D={row['level']} | {row['model']} | "
             f"{row['clears']}/{row['scored']} | "
             f"{row['served']}/{row['requested']} ({pct(r['completion'])}) | "
-            f"{tok(r['out_tok_per_order'])} | "
-            f"{usd(r['usd_per_order'])} | "
-            f"{opd(r['orders_per_dollar'])} | "
-            f"{pct(r['failure_rate'])} | "
+            f"{tok(r['out_tok_per_cleared_order'])} | "
+            f"{usd(r['usd_per_cleared_order'])} | "
+            f"{usd(r['usd_per_order'], '—')} | "
+            f"{ib100} ({row['invalid']}i+{row['burns']}b) | "
+            f"{row['empty_turns']}/{row['truncated_turns']} | "
             f"{batch_str} | "
             f"{pct(r['cache_hit_rate'])} | "
             f"${row['total_usd']:.4f} |"
         )
     lines.append("")
-    lines.append(f"**Total campaign spend:** `${summary['total_usd']:.4f}` across `{summary['total_episodes']}` episodes (`{summary['total_scored']}` scored).")
+    lines.append(
+        f"**Total scored episodes:** `{summary['total_scored']}/{summary['total_episodes']}` | "
+        f"**Episode spend:** `${summary['total_usd']:.4f}`"
+    )
+    cd = summary.get("cap_diagnostics") or {}
+    hits = [f"{k}={v}" for k, v in cd.items() if v]
+    if hits:
+        lines.append(f"**Cap & Reliability Alerts:** `{', '.join(hits)}`")
+    else:
+        lines.append("**Cap & Reliability Alerts:** `NONE (0 truncations, 0 empty turns, 0 action/turn/spend cap hits)`")
     return "\n".join(lines)

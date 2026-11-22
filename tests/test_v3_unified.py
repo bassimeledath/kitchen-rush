@@ -13,9 +13,10 @@ from kitchenrush.v3.env import (
     static_context,
     verify_replay,
 )
-from kitchenrush.v3.metrics import summarize_campaign
+from kitchenrush.v3.metrics import cell_ratios, summarize_campaign
+from kitchenrush.v3.replay import build_v3_replay
 from kitchenrush.v3.runner import SpendLedger, run_episode
-from kitchenrush.v3.solvers import run_greedy_overlap_solver, run_sequential_solver
+from kitchenrush.v3.solvers import scheduled_witness
 
 
 def test_generate_and_replay_all_levels():
@@ -123,3 +124,126 @@ def test_no_hidden_orders_leaked_in_dynamic_state():
     assert pending_dishes.isdisjoint(set(d_st["recipe_cards"].keys()))
     assert d_st["progress"]["pending_hidden"] == len(pending_ids)
     assert "orders" not in s_ctx
+    assert "recent_turns" not in d_st
+    assert "last_turn" not in d_st
+
+
+def test_atomic_spend_reservation_prevents_overspend(tmp_path: Path):
+    ledger = SpendLedger(tmp_path / "spend.jsonl", campaign_cap_usd=1.00)
+    ok0, r0, _ = ledger.reserve(0.95)
+    assert ok0 and r0 is not None
+    ledger.settle(r0, {"model": "m", "cost_usd": 0.95})
+    # With $0.95 spent against a $1.00 cap, at most zero $0.10 calls can reserve concurrently.
+    ok1, r1, _ = ledger.reserve(0.10)
+    assert ok1 is False and r1 is None
+    # Two $0.03 reservations: first succeeds ($0.98), second must be rejected ($1.01 > $1.00).
+    ok2, r2, _ = ledger.reserve(0.03)
+    ok3, r3, _ = ledger.reserve(0.03)
+    assert ok2 is True and r2 is not None
+    assert ok3 is False and r3 is None
+    ledger.release(r2)
+    # After release, reservation is freed.
+    ok4, r4, _ = ledger.reserve(0.03)
+    assert ok4 is True and r4 is not None
+
+
+def test_full_clear_gated_efficiency_metrics():
+    ep_clear = {
+        "model": "m", "level": 3, "seed": 1, "scored": True, "clear": True,
+        "served": 4, "requested": 4, "output_tokens": 1000, "input_tokens": 2000,
+        "cached_tokens": 1000, "cost_usd": 0.04, "invalid": 0, "burns": 0,
+        "empty_turns": 0, "truncated_turns": 0, "actions": 20, "turns": 5,
+    }
+    ep_partial = {
+        "model": "m", "level": 3, "seed": 2, "scored": True, "clear": False,
+        "served": 2, "requested": 4, "output_tokens": 1000, "input_tokens": 2000,
+        "cached_tokens": 1000, "cost_usd": 0.04, "invalid": 1, "burns": 0,
+        "empty_turns": 1, "truncated_turns": 1, "actions": 20, "turns": 5,
+    }
+    # Zero clears -> cleared-order efficiency is None ("no clear"), per-served-order still finite.
+    r_none = cell_ratios([ep_partial])
+    assert r_none["usd_per_cleared_order"] is None
+    assert r_none["out_tok_per_cleared_order"] is None
+    assert r_none["usd_per_order"] == 0.02
+
+    # One clear + one partial -> numerator pools BOTH episodes ($0.08), denominator = 4 cleared orders -> $0.02/cleared ord.
+    r_mix = cell_ratios([ep_clear, ep_partial])
+    assert abs((r_mix["usd_per_cleared_order"] or 0.0) - 0.02) < 1e-9
+    assert abs((r_mix["out_tok_per_cleared_order"] or 0.0) - 500.0) < 1e-9
+
+
+def test_no_oracle_witness_and_replay_export():
+    spec, batches = generate_kitchen(2000, 3)
+    b_no_oracle, _ = scheduled_witness(spec, allow_arrival_peek=False)
+    res = verify_replay(spec, b_no_oracle, expected_served=len(spec.orders), expected_invalid=0, expected_burns=0)
+    assert res["verified"] is True
+
+    fake_ep = {
+        "model": "witness", "level": 3, "seed": 2000,
+        "served": len(spec.orders), "requested": len(spec.orders), "clear": True,
+        "output_tokens": 0, "cost_usd": 0.0, "turns": len(batches), "actions": sum(len(b) for b in batches),
+        "batches": batches,
+    }
+    doc = build_v3_replay(fake_ep, spec)
+    assert doc["meta"]["protocol"] == "kitchen-rush-v3"
+    assert len(doc["frames"]) >= len(batches) + 2
+    assert doc["frames"][0]["kind"] == "start"
+    assert doc["frames"][-1]["kind"] == "end"
+    # Procedural ingredient rules must be reflected in the exported replay catalog.
+    for ing, prof in spec.ingredient_rules.items():
+        assert doc["catalog"]["ingredients"][ing]["cook_time"] == prof["cook_time"]
+        assert doc["catalog"]["ingredients"][ing]["cookable_from"] == prof["cookable_from"]
+
+
+def test_history_modes_on_demand_and_full_chat(tmp_path: Path):
+    from kitchenrush.v3.adapters import AgentAdapter
+
+    spec, _ = generate_kitchen(2000, 1)
+
+    # 1. on_demand: inspect_history returns requested turns at zero game-time without breaking replay.
+    seen_requested: list[list[dict]] = []
+
+    class OnDemandDummy(AgentAdapter):
+        def __init__(self):
+            self.step = 0
+
+        @property
+        def name(self) -> str:
+            return "on-demand-dummy"
+
+        def act(self, static_ctx, dyn_state, *, chat_messages=None, allow_inspect_history=False) -> TurnDecision:
+            assert allow_inspect_history is True
+            if "requested_history" in dyn_state:
+                seen_requested.append(dyn_state["requested_history"])
+            self.step += 1
+            if self.step == 1:
+                return TurnDecision(calls=[ToolCall("wait", {"seconds": 10})])
+            if self.step == 2:
+                return TurnDecision(calls=[ToolCall("inspect_history", {"turns": 2})])
+            return TurnDecision(calls=[ToolCall("wait", {"seconds": 60})])
+
+    ledger1 = SpendLedger(tmp_path / "spend1.jsonl", campaign_cap_usd=1.0)
+    ep1 = run_episode(spec, OnDemandDummy(), ledger1, history_mode="on_demand", max_turns=10)
+    assert ep1["scored"] is True and ep1["replay_verified"] is True
+    assert ep1["history_lookups"] == 1
+    assert ep1["history_lookup_depths"] == [2]
+    assert len(seen_requested) == 1 and len(seen_requested[0]) == 1
+
+    # 2. full_chat: grows append-only assistant/tool message history and replays cleanly.
+    observed_msg_counts: list[int] = []
+
+    class FullChatDummy(AgentAdapter):
+        @property
+        def name(self) -> str:
+            return "full-chat-dummy"
+
+        def act(self, static_ctx, dyn_state, *, chat_messages=None, allow_inspect_history=False) -> TurnDecision:
+            observed_msg_counts.append(len(chat_messages or []))
+            assert "last_turn" not in dyn_state
+            return TurnDecision(calls=[ToolCall("wait", {"seconds": 30}, id=f"tc_{len(observed_msg_counts)}")])
+
+    ledger2 = SpendLedger(tmp_path / "spend2.jsonl", campaign_cap_usd=1.0)
+    ep2 = run_episode(spec, FullChatDummy(), ledger2, history_mode="full_chat", max_turns=10)
+    assert ep2["scored"] is True and ep2["replay_verified"] is True
+    assert observed_msg_counts[0] == 0
+    assert observed_msg_counts[-1] >= 3
