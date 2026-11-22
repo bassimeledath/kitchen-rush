@@ -202,10 +202,19 @@ For each `(model, level)` cell over scored episodes $e = 1, \dots, K$, let:
 * **D=5 (same 4 seeds `3000–3003`):** Tied `3/4` (`95.8%`) clears — `gpt-6.2-sol-low` (**\$0.0493**/cleared ord) vs. `gemini-4-neon-low` (**\$0.0736**/cleared ord, `5.16` avg batch, `59.4%` cache).
 * That `75%` clear rate at `low` reasoning on bank v1 directly motivated our **full-burner witness upgrade (`bank v2`)**, which compressed `D=4..5` makespans by ~20% and unlocked `D=6`.
 
-### C. Pre-Leaderboard Checklist
-1. **Live-verify tightened `bank v2` (`D=4..6`)** under `full_chat` + `tool_choice="required"` (running next!).
-2. **Generate fresh private held-out seeds** (e.g., 10–20 seeds/level kept outside Git; keep `calibration_bank_v2.json` as the public dev set).
-3. **Run all models under the single locked protocol:** `history_mode="full_chat"`, `tool_choice="required"`, `max_tokens=16384`, `max_actions = max_turns = max(160, 24 × N)`, Full-Clear Gated metrics + loud Cap & Reliability Alerts.
+### C. Live Verification of Tightened `Bank v2` (`full_chat`, `tool_choice="required"`, `D=4..6`, 4 matched fresh seeds, 0 empty/truncated turns)
+
+| Level | `gemini-4-neon-low` | `gpt-6.2-sol-low` |
+| :-: | :--- | :--- |
+| **D=4** | 2/4 clears (90.0%, \$0.0828/cleared ord, 5.71 batch, 48% cache) | **4/4 clears** (100.0%, **\$0.0332**/cleared ord, 1.00 batch, 96% cache) |
+| **D=5** | 0/4 clears (66.7%, `no clear`, 5.19 batch, 54% cache) | **2/4 clears** (87.5%, **\$0.0691**/cleared ord, 1.00 batch, 97% cache) |
+| **D=6** | 0/4 clears (75.0%, `no clear`, 4.52 batch, 65% cache) | **1/3 clears** (81.0%, **\$0.1198**/cleared ord, 1.00 batch, 97% cache) |
+
+*(Every single episode had `0` empty turns and `0` length truncations; 1 `D=6` Sol episode stopped cleanly at the `\$6.00` verification cap.)*
+
+**What this proves:**
+* **No saturation:** `gpt-6.2-sol-low` steps cleanly down **`100% → 50% → 33%` clears** across `D=4 → D=5 → D=6`, while `gemini-4-neon-low` drops **`50% → 0% → 0%`** — cleanly separating two top frontier models that had previously tied on the old throttled bank!
+* **Clean pre-leaderboard checklist:** Generate a fresh private held-out seed bank (outside Git) and run all target models under this single locked protocol (`full_chat`, `tool_choice="required"`, `max_tokens=16384`, `max_actions = max_turns = max(160, 24 × N)`, Full-Clear Gated metrics).
 
 ---
 
