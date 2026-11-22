@@ -1,4 +1,4 @@
-"""Resumable, spend-reserved, seed-interleaved runner with deterministic replay verification."""
+"""Resumable, manifest-validated, crash-safe spend-reserved runner with deterministic replay verification."""
 
 from __future__ import annotations
 
@@ -6,17 +6,19 @@ import concurrent.futures
 import json
 import threading
 import time
+import uuid
 from pathlib import Path
 from typing import Any
 
-from .adapters import AgentAdapter, ProviderError
+from .adapters import AgentAdapter, CapExceededError, OpenRouterToolAdapter, ProviderError
 from .env import (
-    MAX_DECISIONS,
+    PROTOCOL,
     UnifiedEngine,
     UnifiedKitchen,
     deserialize_spec,
     digest,
     dynamic_state,
+    serialize_spec,
     static_context,
     verify_replay,
 )
@@ -26,9 +28,11 @@ VALID_HISTORY_MODES = ("full_chat", "last_turn")
 
 
 class SpendLedger:
-    """Thread-safe append-only JSONL spend ledger with atomic worst-case reservations.
+    """Thread-safe crash-safe append-only JSONL spend ledger with persistent per-attempt reservations.
 
-    Enforces a single campaign-level safety ceiling without silent per-episode cutoffs.
+    Every HTTP attempt writes a durable `reserve` record before submission and a matching `turn` or
+    `release` record afterward. Any `reserve` left unsettled across a process crash remains counted
+    as conservative liability on reload.
     """
 
     def __init__(self, path: Path, campaign_cap_usd: float):
@@ -38,21 +42,39 @@ class SpendLedger:
         self._lock = threading.Lock()
         self.total_usd = 0.0
         self.reserved_usd = 0.0
-        self._reservations: dict[int, float] = {}
-        self._next_res_id = 1
+        self._reservations: dict[str, float] = {}
         self.by_model_usd: dict[str, float] = {}
+        self.unreconciled_crash_usd = 0.0
+
         if self.path.exists():
+            pending_from_disk: dict[str, float] = {}
             for line in self.path.read_text(encoding="utf-8").splitlines():
                 if not line.strip():
                     continue
                 rec = json.loads(line)
-                c = float(rec.get("cost_usd", 0.0))
-                m = rec.get("model", "")
-                self.total_usd += c
-                self.by_model_usd[m] = self.by_model_usd.get(m, 0.0) + c
+                kind = rec.get("kind", "turn")
+                rid = rec.get("res_id")
+                if kind == "reserve" and rid:
+                    pending_from_disk[str(rid)] = float(rec.get("amount_usd", 0.0))
+                else:
+                    if rid:
+                        pending_from_disk.pop(str(rid), None)
+                    c = float(rec.get("cost_usd", 0.0))
+                    m = rec.get("model", "")
+                    self.total_usd += c
+                    if m:
+                        self.by_model_usd[m] = self.by_model_usd.get(m, 0.0) + c
+            # Any reservation that never settled or released before a prior crash counts conservatively.
+            if pending_from_disk:
+                self.unreconciled_crash_usd = sum(pending_from_disk.values())
+                self.total_usd += self.unreconciled_crash_usd
 
-    def reserve(self, amount_usd: float) -> tuple[bool, int | None, str]:
-        """Atomically reserve worst-case spend for an upcoming API call."""
+    def _append(self, rec: dict[str, Any]) -> None:
+        with self.path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, separators=(",", ":")) + "\n")
+
+    def reserve(self, amount_usd: float, meta: dict[str, Any] | None = None) -> tuple[bool, str | None, str]:
+        """Atomically reserve worst-case spend and persist the reservation before an HTTP attempt."""
         amt = max(0.0, float(amount_usd))
         with self._lock:
             projected = self.total_usd + self.reserved_usd + amt
@@ -63,13 +85,20 @@ class SpendLedger:
                     f"campaign cap reached (spent=${self.total_usd:.4f} + reserved=${self.reserved_usd:.4f} "
                     f"+ req=${amt:.4f} > cap=${self.campaign_cap_usd:.4f})",
                 )
-            res_id = self._next_res_id
-            self._next_res_id += 1
+            res_id = uuid.uuid4().hex[:16]
             self._reservations[res_id] = amt
             self.reserved_usd += amt
+            if amt > 0:
+                self._append({
+                    "ts": round(time.time(), 2),
+                    "kind": "reserve",
+                    "res_id": res_id,
+                    "amount_usd": round(amt, 6),
+                    **(meta or {}),
+                })
             return True, res_id, "ok"
 
-    def settle(self, res_id: int | None, entry: dict[str, Any]) -> None:
+    def settle(self, res_id: str | None, entry: dict[str, Any]) -> None:
         """Release reservation and record settled actual cost atomically."""
         with self._lock:
             if res_id is not None and res_id in self._reservations:
@@ -77,33 +106,42 @@ class SpendLedger:
             c = float(entry.get("cost_usd", 0.0))
             m = entry.get("model", "")
             self.total_usd += c
-            self.by_model_usd[m] = self.by_model_usd.get(m, 0.0) + c
-            with self.path.open("a", encoding="utf-8") as f:
-                f.write(json.dumps(entry, separators=(",", ":")) + "\n")
+            if m:
+                self.by_model_usd[m] = self.by_model_usd.get(m, 0.0) + c
+            rec = {**entry, "kind": entry.get("kind", "turn")}
+            if res_id is not None:
+                rec["res_id"] = res_id
+            self._append(rec)
 
     def release(
         self,
-        res_id: int | None,
+        res_id: str | None,
         *,
         retain_liability: bool = False,
         note_entry: dict[str, Any] | None = None,
     ) -> None:
-        """Release a reservation after a failed call (or retain worst-case liability if billing is uncertain)."""
+        """Release a reservation after a failed attempt (retaining worst-case liability if billing is uncertain)."""
         with self._lock:
             held = 0.0
             if res_id is not None and res_id in self._reservations:
                 held = self._reservations.pop(res_id)
                 self.reserved_usd = max(0.0, self.reserved_usd - held)
-            if retain_liability and held > 0:
-                self.total_usd += held
-                if note_entry is not None:
-                    rec = {**note_entry, "cost_usd": held, "cost_source": "uncertain_liability"}
-                    with self.path.open("a", encoding="utf-8") as f:
-                        f.write(json.dumps(rec, separators=(",", ":")) + "\n")
-            elif note_entry is not None:
-                rec = {**note_entry, "cost_usd": 0.0, "cost_source": "unbilled_error"}
-                with self.path.open("a", encoding="utf-8") as f:
-                    f.write(json.dumps(rec, separators=(",", ":")) + "\n")
+            cost_recorded = held if retain_liability else 0.0
+            if cost_recorded > 0:
+                self.total_usd += cost_recorded
+                m = (note_entry or {}).get("model", "")
+                if m:
+                    self.by_model_usd[m] = self.by_model_usd.get(m, 0.0) + cost_recorded
+            if res_id is not None or note_entry is not None:
+                rec = {
+                    "ts": round(time.time(), 2),
+                    **(note_entry or {}),
+                    "kind": "release",
+                    "res_id": res_id,
+                    "cost_usd": round(cost_recorded, 6),
+                    "cost_source": "uncertain_liability" if retain_liability and held > 0 else "unbilled_error",
+                }
+                self._append(rec)
 
     def can_spend(self, buffer_usd: float = 0.0) -> tuple[bool, str]:
         with self._lock:
@@ -171,13 +209,14 @@ def run_episode(
     max_turns: int | None = None,
     history_mode: str = "full_chat",
 ) -> dict[str, Any]:
-    """Run one complete episode with batched tool calls, atomic spend reservation, and replay verification."""
+    """Run one complete episode with batched tool calls, per-attempt spend reservation, and replay verification."""
     if history_mode not in VALID_HISTORY_MODES:
         raise ValueError(f"Unknown history_mode={history_mode!r}; expected one of {VALID_HISTORY_MODES}")
 
     engine = UnifiedEngine(spec, record_trace=True, early_stop=True)
     effective_max_turns = max_turns if max_turns is not None else engine.max_actions
     s_ctx = static_context(engine)
+    spec_sha256 = digest(serialize_spec(spec))
     last_turn: dict[str, Any] | None = None
     chat_messages: list[dict[str, Any]] = []
     batches: list[list[dict[str, Any]]] = []
@@ -190,48 +229,100 @@ def run_episode(
     cached_tok = 0
     empty_turns = 0
     truncated_turns = 0
+    provider_cost_turns = 0
+    estimated_cost_turns = 0
     api_turns = 0
     routes_seen: set[str] = set()
     status = "complete"
     error_note: str | None = None
     t_start = time.monotonic()
-    reserve_amt = adapter.max_turn_reserve_usd()
+    uses_http_hooks = isinstance(adapter, OpenRouterToolAdapter)
 
     while not engine.terminated and api_turns < effective_max_turns and engine._action_count < engine.max_actions:
-        ok_cap, res_id, cap_msg = ledger.reserve(reserve_amt)
-        if not ok_cap:
-            status = "stopped_cap"
-            error_note = cap_msg
-            break
-
         dyn = dynamic_state(engine, None if history_mode == "full_chat" else last_turn)
         user_text = f"STATE_JSON:\n{json.dumps(dyn, separators=(',', ':'))}"
-        try:
-            decision = adapter.act(
-                s_ctx,
-                dyn,
-                chat_messages=chat_messages if history_mode == "full_chat" else None,
+        next_turn_num = api_turns + 1
+
+        res_id: str | None = None
+        if uses_http_hooks:
+            def _reserve_attempt(amt: float, attempt_num: int) -> tuple[bool, str | None, str]:
+                return ledger.reserve(
+                    amt,
+                    meta={
+                        "model": adapter.name,
+                        "level": spec.difficulty,
+                        "seed": spec.seed,
+                        "turn": next_turn_num,
+                        "attempt": attempt_num,
+                    },
+                )
+
+            def _release_attempt(rid: str | None, uncertain: bool, err_msg: str) -> None:
+                ledger.release(
+                    rid,
+                    retain_liability=uncertain,
+                    note_entry={
+                        "model": adapter.name,
+                        "level": spec.difficulty,
+                        "seed": spec.seed,
+                        "turn": next_turn_num,
+                        "error": err_msg[:200],
+                    },
+                )
+
+            try:
+                decision = adapter.act(
+                    s_ctx,
+                    dyn,
+                    chat_messages=chat_messages if history_mode == "full_chat" else None,
+                    reserve_attempt=_reserve_attempt,
+                    release_attempt=_release_attempt,
+                )
+                res_id = decision.reservation_id
+            except CapExceededError as exc:
+                status = "stopped_cap"
+                error_note = str(exc)
+                break
+            except ProviderError as exc:
+                status = "provider_error"
+                error_note = str(exc)
+                break
+        else:
+            reserve_amt = adapter.estimate_turn_reserve_usd(
+                s_ctx, dyn, chat_messages=chat_messages if history_mode == "full_chat" else None
             )
-        except ProviderError as exc:
-            ledger.release(
-                res_id,
-                retain_liability=exc.uncertain_billing,
-                note_entry={
-                    "ts": round(time.time(), 2),
-                    "kind": "provider_error",
-                    "model": adapter.name,
-                    "level": spec.difficulty,
-                    "seed": spec.seed,
-                    "turn": api_turns + 1,
-                    "error": str(exc)[:200],
-                },
+            ok_cap, res_id, cap_msg = ledger.reserve(
+                reserve_amt,
+                meta={"model": adapter.name, "level": spec.difficulty, "seed": spec.seed, "turn": next_turn_num},
             )
-            status = "provider_error"
-            error_note = str(exc)
-            break
-        except Exception:
-            ledger.release(res_id)
-            raise
+            if not ok_cap:
+                status = "stopped_cap"
+                error_note = cap_msg
+                break
+            try:
+                decision = adapter.act(
+                    s_ctx,
+                    dyn,
+                    chat_messages=chat_messages if history_mode == "full_chat" else None,
+                )
+            except ProviderError as exc:
+                ledger.release(
+                    res_id,
+                    retain_liability=exc.uncertain_billing,
+                    note_entry={
+                        "model": adapter.name,
+                        "level": spec.difficulty,
+                        "seed": spec.seed,
+                        "turn": next_turn_num,
+                        "error": str(exc)[:200],
+                    },
+                )
+                status = "provider_error"
+                error_note = str(exc)
+                break
+            except Exception:
+                ledger.release(res_id)
+                raise
 
         api_turns += 1
         ep_usd += decision.cost_usd
@@ -243,6 +334,10 @@ def run_episode(
             empty_turns += 1
         if decision.finish_reason == "length":
             truncated_turns += 1
+        if decision.cost_source == "provider":
+            provider_cost_turns += 1
+        else:
+            estimated_cost_turns += 1
         if decision.provider_route:
             routes_seen.add(decision.provider_route)
 
@@ -331,6 +426,9 @@ def run_episode(
 
     meta = adapter.metadata
     return {
+        "protocol": PROTOCOL,
+        "spec_sha256": spec_sha256,
+        "tool_choice": "required" if uses_http_hooks else "adapter",
         "model": adapter.name,
         "model_id": meta.get("model_id"),
         "requested_effort": meta.get("requested_effort"),
@@ -353,6 +451,8 @@ def run_episode(
         "expired": engine.counters["orders_expired"],
         "empty_turns": empty_turns,
         "truncated_turns": truncated_turns,
+        "provider_cost_turns": provider_cost_turns,
+        "estimated_cost_turns": estimated_cost_turns,
         "actions": engine._action_count,
         "turns": api_turns,
         "chained_turns": engine.counters["chained_turns"],
@@ -384,6 +484,71 @@ def load_bank(path: Path) -> dict[int, list[UnifiedKitchen]]:
     return out
 
 
+def _episode_matches_plan(ep: dict[str, Any], plan_entry: dict[str, Any], model_meta: dict[str, Any]) -> bool:
+    """Strictly validate that a cached episode matches the planned spec, protocol, history, and model config."""
+    return (
+        ep.get("spec_sha256") == plan_entry["spec_sha256"]
+        and ep.get("protocol") == plan_entry["protocol"]
+        and ep.get("history_mode") == plan_entry["history_mode"]
+        and ep.get("tool_choice") == plan_entry["tool_choice"]
+        and ep.get("model_id") == model_meta.get("model_id")
+        and ep.get("requested_effort") == model_meta.get("requested_effort")
+        and ep.get("max_tokens") == model_meta.get("max_tokens")
+    )
+
+
+def _load_or_create_manifest(
+    manifest_path: Path,
+    *,
+    history_mode: str,
+    planned_entries: list[dict[str, Any]],
+    models_meta: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    """Create or strictly validate the immutable campaign manifest before running or resuming."""
+    if manifest_path.exists():
+        existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if existing.get("protocol") != PROTOCOL or existing.get("history_mode") != history_mode:
+            raise ValueError(
+                f"Manifest mismatch in {manifest_path}: existing protocol/history="
+                f"({existing.get('protocol')}, {existing.get('history_mode')}) vs requested ({PROTOCOL}, {history_mode}). "
+                "Use a new --out-dir for a different protocol/history configuration."
+            )
+        existing_by_file = {e["filename"]: e for e in existing.get("planned_episodes", [])}
+        existing_models = dict(existing.get("models", {}))
+        for mkey, mmeta in models_meta.items():
+            if mkey in existing_models and existing_models[mkey] != mmeta:
+                raise ValueError(
+                    f"Manifest model config mismatch for {mkey!r} in {manifest_path}: "
+                    f"existing={existing_models[mkey]} vs requested={mmeta}. Use a new --out-dir."
+                )
+            existing_models[mkey] = mmeta
+        for entry in planned_entries:
+            fn = entry["filename"]
+            if fn in existing_by_file and existing_by_file[fn] != entry:
+                raise ValueError(
+                    f"Manifest episode spec mismatch for {fn} in {manifest_path}: "
+                    "bank spec or tool_choice changed. Use a new --out-dir."
+                )
+            existing_by_file[fn] = entry
+        merged = {
+            "protocol": PROTOCOL,
+            "history_mode": history_mode,
+            "models": existing_models,
+            "planned_episodes": list(existing_by_file.values()),
+        }
+        manifest_path.write_text(json.dumps(merged, indent=2), encoding="utf-8")
+        return merged
+
+    manifest = {
+        "protocol": PROTOCOL,
+        "history_mode": history_mode,
+        "models": models_meta,
+        "planned_episodes": planned_entries,
+    }
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    return manifest
+
+
 def run_campaign(
     out_dir: Path,
     bank: dict[int, list[UnifiedKitchen]],
@@ -396,7 +561,7 @@ def run_campaign(
     workers: int = 1,
     verbose: bool = True,
 ) -> dict[str, Any]:
-    """Run seed-wave interleaved evaluation across levels and adapters with resumable disk state."""
+    """Run manifest-validated, seed-interleaved evaluation across levels and adapters."""
     out_dir.mkdir(parents=True, exist_ok=True)
     ep_dir = out_dir / "episodes"
     ep_dir.mkdir(exist_ok=True)
@@ -408,27 +573,60 @@ def run_campaign(
         n_seeds = min(n_seeds, max_seeds)
 
     suffix = "" if history_mode == "full_chat" else f"__{history_mode}"
-    jobs: list[tuple[int, UnifiedKitchen, AgentAdapter, Path]] = []
+    models_meta = {f"{a.name}{suffix}": dict(a.metadata) for a in adapters}
+    planned_entries: list[dict[str, Any]] = []
+    jobs: list[tuple[int, UnifiedKitchen, AgentAdapter, Path, dict[str, Any]]] = []
     for seed_idx in range(n_seeds):
         for level in levels:
             spec = bank[level][seed_idx]
+            spec_hash = digest(serialize_spec(spec))
             for adapter in adapters:
-                ep_path = ep_dir / f"D{level}_seed{spec.seed}_{adapter.name}{suffix}.json"
-                jobs.append((level, spec, adapter, ep_path))
+                model_label = f"{adapter.name}{suffix}"
+                filename = f"D{level}_seed{spec.seed}_{model_label}.json"
+                plan_entry = {
+                    "filename": filename,
+                    "level": level,
+                    "seed": spec.seed,
+                    "model": model_label,
+                    "spec_sha256": spec_hash,
+                    "protocol": PROTOCOL,
+                    "history_mode": history_mode,
+                    "tool_choice": "required" if isinstance(adapter, OpenRouterToolAdapter) else "adapter",
+                }
+                planned_entries.append(plan_entry)
+                jobs.append((level, spec, adapter, ep_dir / filename, plan_entry))
 
-    def execute_one(job: tuple[int, UnifiedKitchen, AgentAdapter, Path]) -> dict[str, Any] | None:
-        level, spec, adapter, ep_path = job
+    manifest = _load_or_create_manifest(
+        out_dir / "manifest.json",
+        history_mode=history_mode,
+        planned_entries=planned_entries,
+        models_meta=models_meta,
+    )
+
+    def execute_one(job: tuple[int, UnifiedKitchen, AgentAdapter, Path, dict[str, Any]]) -> dict[str, Any] | None:
+        level, spec, adapter, ep_path, plan_entry = job
+        model_label = plan_entry["model"]
         if ep_path.exists():
-            return json.loads(ep_path.read_text(encoding="utf-8"))
+            cached = json.loads(ep_path.read_text(encoding="utf-8"))
+            if not _episode_matches_plan(cached, plan_entry, models_meta[model_label]):
+                raise ValueError(
+                    f"Refusing to reuse stale/mismatched episode file {ep_path}: "
+                    f"cached (spec={cached.get('spec_sha256')}, history={cached.get('history_mode')}, "
+                    f"tool_choice={cached.get('tool_choice')}) != planned "
+                    f"(spec={plan_entry['spec_sha256']}, history={plan_entry['history_mode']}, "
+                    f"tool_choice={plan_entry['tool_choice']}). Use a fresh --out-dir."
+                )
+            return cached
+
         ok_cap, cap_msg = ledger.can_spend(adapter.max_turn_reserve_usd())
         if not ok_cap:
             if verbose:
                 with print_lock:
-                    print(f"[CAP_HIT SKIP] D={level} seed={spec.seed} {adapter.name}: {cap_msg}", flush=True)
+                    print(f"[CAP_HIT SKIP] D={level} seed={spec.seed} {model_label}: {cap_msg}", flush=True)
             return None
         res = run_episode(spec, adapter, ledger, history_mode=history_mode)
         if suffix:
-            res["model"] = f"{adapter.name}{suffix}"
+            res["model"] = model_label
         ep_path.write_text(json.dumps(res, indent=2), encoding="utf-8")
         if verbose:
             cap_banner = f" [CAP_HIT: {', '.join(res['cap_hits'])}]" if res["cap_hits"] else ""
@@ -453,8 +651,17 @@ def run_campaign(
             for f in concurrent.futures.as_completed(futs):
                 f.result()
 
-    all_episodes = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(ep_dir.glob("*.json"))]
-    summary = summarize_campaign(all_episodes)
+    # Aggregate STRICTLY the episodes declared in this campaign's manifest (never stray files).
+    planned_by_cell: dict[tuple[str, int], int] = {}
+    manifest_episodes: list[dict[str, Any]] = []
+    for entry in manifest["planned_episodes"]:
+        key = (entry["model"], int(entry["level"]))
+        planned_by_cell[key] = planned_by_cell.get(key, 0) + 1
+        p = ep_dir / entry["filename"]
+        if p.exists():
+            manifest_episodes.append(json.loads(p.read_text(encoding="utf-8")))
+
+    summary = summarize_campaign(manifest_episodes, planned_by_cell=planned_by_cell)
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     md = format_markdown_table(summary)
     (out_dir / "REPORT.md").write_text(md + "\n", encoding="utf-8")

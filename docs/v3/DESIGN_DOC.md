@@ -58,7 +58,8 @@ A sharp question anyone should ask: *If a deterministic Python solver can beat e
   * **One generous output token ceiling (`max_tokens=16384`)** across every model so `reasoning_effort`—never silent truncation—governs thinking length. *(Our independent audit caught that an earlier `2048` cap silently truncated Haiku on 47 empty turns!)*
   * **Scaled action & turn limits (`max_actions = max_turns = max(160, 24 × N)`):** Keeps `160` for `D=1..5` and scales smoothly with order count `N = D + 1` for `D=6+`, removing any artificial ceiling while ensuring 1-call/turn models are never cut off early.
   * **Mandatory tool calling (`tool_choice="required"`):** Prevents models from wasting turns emitting plain-text chatter instead of kitchen actions.
-  * **One atomic campaign spend cap** (reserving worst-case cost before each call and settling actual cost afterward) instead of scattered per-episode/per-model cutoffs.
+  * **Immutable campaign manifest (`manifest.json`):** Stores bank/spec SHA-256 hashes, protocol, history mode, `tool_choice`, and exact planned episodes — refusing to silently reuse stale files on resume and aggregating strictly manifest members (reporting `planned / scored / missing` explicitly).
+  * **Crash-safe dynamic per-attempt spend reservations:** Before every HTTP attempt, reserves conservatively against the actual serialized request byte size (with 1.25× input tariff buffer for cache writes) plus `max_tokens` output, persists the reservation to `spend.jsonl`, retains uncertain liability on transport timeouts, and distinguishes provider-billed turns from estimated fallbacks.
   * **Full audit logging & Cap Alerts:** Every turn records `finish_reason`, `provider_route`, `requested_effort`, `max_tokens`, `empty_turns`, and `truncated_turns`, printing loud `[CAP_HIT]` diagnostics if any limit ever triggers.
 
 ### B. Batched Execution with Event-Driven Interrupts
@@ -82,12 +83,12 @@ Every turn keeps the static system prompt byte-identical and grows an append-onl
 2. **Native Multi-Turn Transcript (`full_chat`, default for LLMs):** Standard OpenAI/Anthropic/Google `user(STATE_JSON) → assistant(tool_calls) → tool(tool_result) → user(next STATE_JSON)` loop, with explicit `cache_control: ephemeral` breakpoints for both Anthropic and Google (yielding **50–59% cache hits on Google Gemini**, **70–81% on Anthropic**, and **97–98% on OpenAI**).
 3. **Stateless `last_turn` mode (for 1-step decision models):** Retained cleanly as `history_mode="last_turn"` for stateless 1-step policies (`DecisionModelAdapter` / TypeSafe Jev) that cannot hold a multi-turn chat transcript.
 
-**Why `full_chat` won decisively (controlled 3-way A/B/C across both tiers):**
+**Why `full_chat` won as the LLM default (controlled 3-way A/B/C on bank v1, pre-`tool_choice="required"`):**
 We dropped the arbitrary 5-turn window and tested three non-arbitrary policies head-to-head on matched seeds (`last_turn`, an optional zero-game-time `inspect_history(turns)` tool, and native `full_chat`):
 * **Models ignored `inspect_history`:** Haiku called it **1 time in 18 episodes**; `gpt-6.2-sol-low` called it **0 times in 12 episodes**.
-* **`full_chat` dominated on EVERY axis for BOTH small and frontier models:**
-  * **Haiku 5.5 (`low`, `D=3`):** Clears jumped `0/6 → 2/6` (`79.2%`), output tokens dropped **~2×** (`144k` vs `283k` across D3–D5), and total USD spend dropped **20%** (`\$0.138` vs `\$0.173`).
-  * **`gpt-6.2-sol-low` (`D=4, D=5`):** D=4 hit **6/6 full clears (100%, 0 invalids, 0 burns)** vs `5/6` (`last_turn`); D=5 clears quadrupled from **1/6 → 4/6 (94.4%)**; D=5 output tokens per cleared order fell **4×** (`1,765 → 435`); D=5 USD per cleared order fell **2.3×** (`\$0.1208 → \$0.0535`) with **97.3–98.1% prompt caching**.
+* **`full_chat` delivered dramatic gains where planning horizon mattered most, with transparent trade-offs:**
+  * **Haiku 5.5 (`low`, `D=3..5`):** D=3 clears rose `0/6 → 2/6` (`79.2%`), total output tokens dropped **~2×** (`144k` vs `283k`), and total spend dropped **20%** (`\$0.138` vs `\$0.173`); at D=4 partial completion was lower (`16/30` vs `22/30`) due in part to 6 empty turns prior to enabling `tool_choice="required"`.
+  * **`gpt-6.2-sol-low` (`D=4, D=5`):** D=4 reached **6/6 full clears (100%, 0 invalids, 0 burns)** vs `5/6` (`last_turn`) at slightly higher USD/cleared order (`\$0.0323` vs `\$0.0246`); at D=5 clears quadrupled from **1/6 → 4/6 (94.4%)**, output tokens per cleared order fell **4×** (`1,765 → 435`), and USD per cleared order fell **2.3×** (`\$0.1208 → \$0.0535`) with **97.3–98.1% prompt caching**.
 
 ---
 
@@ -104,14 +105,14 @@ One unified parametric generator `generate_kitchen(seed, level=D)` controls all 
 | **D=3** | 4 | 3 | 160 | 1–2 | 22–36s | 10–14s | 3 | 1 hidden (+14–22s) | **Shuffled** | **+14%** (min 7s) |
 | **D=4** | 5 | 4 | 160 | 2 | 26–44s | 9–12s | 3 | 2 hidden (+16–26s) | **Shuffled** | **+9%** (min 5s) |
 | **D=5** | 6 | 4 | 160 | 2 | 32–54s | 8–11s | 4 | 2 hidden (+16–24s) | **Shuffled** | **+4%** (min 3s) |
-| **D=6** | 7 | 5 | 168 | 2 | 36–60s | 7–10s | 5 | 2 hidden (+14–22s) | **Shuffled** | **+3%** (min 2s) |
+| **D=6** | 7 | 5 | 168 | 2 | 36–60s | 8–11s | 4 | 3 hidden (+16–26s) | **Shuffled** | **+3%** (min 2.5s) |
 
-*(At **every** level, all 5 cookable ingredients independently randomize `cookable_from ∈ {RAW, CHOPPED}`, `cook_time`, and `burn_window`. Because `max_actions = max(160, 24 × N)`, the dial scales smoothly to `D=7, 8+` with no artificial ceiling.)*
+*(At **every** level, all 5 cookable ingredients independently randomize `cookable_from ∈ {RAW, CHOPPED}`, `cook_time`, and `burn_window`. Validated claims cover the tested `D=1..6` range; `max_actions = max(160, 24 × N)` removes the fixed-160 ceiling for higher levels.)*
 
 ### Why We Upgraded the Witness to Full-Burner Pipelining (`best_parallel_witness`)
-In our first `full_chat` tests, both `gpt-6.2-sol-low` (`4/6`) and `gemini-4-neon-low` (`3/4`) cleared ~70–75% of `D=5` kitchens — because **frontier models were out-scheduling our old 2-order-throttled witness by 80–95 seconds!** (On `D=5 seed=3000`, the old witness took `357.5s` by leaving 3/4 burners idle while holding a cooked item, whereas `gpt-6.2-sol-medium` finished in `262.3s`.)
+In our first `full_chat` tests on bank v1, both `gpt-6.2-sol-low` (`4/6`) and `gemini-4-neon-low` (`3/4`) cleared ~70–75% of `D=5` kitchens — because **frontier models were out-scheduling our old 2-order-throttled witness by 80–95 seconds!** (On `D=5 seed=3000`, the old witness took `357.5s` by leaving 3/4 burners idle while holding a cooked item, whereas `gpt-6.2-sol-medium` finished in `262.3s`.)
 
-Upgrading to **`best_parallel_witness`** (an un-throttled $N$-burner pipelining scheduler that lifts ready items into hand while continuing to load idle burners for subsequent orders) tightened deadlines cleanly **purely from physics**, compressing `D=3..5` makespans by **~17–20%** with zero artificial hacks:
+Upgrading to **`best_parallel_witness`** (an un-throttled $N$-burner pipelining selector that lifts ready items into hand while continuing to load idle burners, and always includes the baseline `scheduled_witness` in its candidate pool so it is never slower) tightened deadlines cleanly **purely from physics**, reducing mean finish times across fresh accepted seeds by **13.2% at D=3, 11.7% at D=4, and 18.4% at D=5** (driving the old no-oracle scheduler down to `3/10` clears at D=5, and a single fixed-parameter online policy `clear_pad=20s` to `5/10` at D=5 and `3/10` at D=6):
 
 | Bank v2 (`D=1..6`, 10 fresh seeds/level) | Witness Actions | Sequential Baseline | GreedyOverlap Baseline |
 | :-: | :-: | :---: | :---: |
@@ -131,7 +132,7 @@ Upgrading to **`best_parallel_witness`** (an un-throttled $N$-burner pipelining 
 
 ### Exact Deadline Calibration Math
 1. Build the draft kitchen with unconstrained deadlines (`3000s`).
-2. Run `scheduled_witness` on the draft kitchen and record the game-second $t_i^*$ when the witness initiates `serve` for each order $O_i$.
+2. Run `best_parallel_witness` on the draft kitchen and record the game-second $t_i^*$ when the witness initiates `serve` for each order $O_i$.
 3. Compute active elapsed time since arrival $a_i$:
    $$\Delta_i = \max(10.0,\; t_i^* - a_i)$$
 4. Set order $O_i$'s deadline with level slack $\sigma(D)$ and minimum pad $p_{\min}(D)$:
@@ -172,6 +173,7 @@ For each `(model, level)` cell over scored episodes $e = 1, \dots, K$, let:
 * **Out Tok / Cleared Ord:** `(1200 + 1600) / 4 = 700` tok/cleared-order.
 * **USD / Cleared Ord:** `($0.04 + $0.06) / 4 = $0.0250` / cleared-order *(secondary USD / Served Ord = `\$0.10 / 7 = \$0.0143`)*.
 * **Reliability:** `100 × (1 + 1) / (36 + 44) = 2.5` inv+burns per 100 actions (`0` empty turns, `0` truncated turns).
+* **Uncertainty:** Single-model Clear Rate uses a **two-sided 95% Wilson score interval** (valid even at `0/6 → [0%, 39%]` and `6/6 → [61%, 100%]`); model-vs-model differences use **4,000-draw paired-seed bootstrap CIs** on shared kitchens.
 
 ---
 
@@ -187,7 +189,7 @@ For each `(model, level)` cell over scored episodes $e = 1, \dots, K$, let:
 | **D=4** | 0/6 (`no clear`) | **5/6 (\$0.0246)** | 5/6 (\$0.0359) | Frontier `low` (`6.2-sol-low`, 4× fewer out tok) |
 | **D=5** | 0/6 (`no clear`) | 1/6 (\$0.1208) | **2/6 (\$0.1025)** | **Frontier `medium` flips cheaper than `low`!** |
 
-*(Across all 30 episodes of `gpt-6.2-sol-medium`, it made **0 invalid actions** and hit **0 empty/truncated turns**. Earlier v1 pilot on the same 6 seeds also showed `gemini-3.8-flash-low` winning `D=3` at \$0.0190 vs `gpt-6.1-sol-low` \$0.0274 before `gpt-6.1-sol-low` flipped ahead at `D=4` at \$0.0490 vs \$0.0651.)*
+*(Protocol note: Section 6A reflects the earlier `bank v1` + `last_turn` + `tool_choice="auto"` pilot; across all 30 episodes of `gpt-6.2-sol-medium`, it made **0 invalid actions** and **0 empty/truncated turns**. Note that the `2/6` vs `1/6` D=5 crossover rests on 6 seeds and is sensitive to seed 3000 — confirmatory low vs. medium comparisons belong on a larger held-out private bank under the locked `full_chat` + `tool_choice="required"` protocol.)*
 
 ### B. 3-Way History Mode Comparison (`D=4..5` on `gpt-6.2-sol-low`, 6 matched seeds, 0 cap hits)
 

@@ -18,8 +18,8 @@ from kitchenrush.v3.replay import export_v3_replay  # noqa: E402
 from kitchenrush.v3.runner import load_bank, run_campaign, save_bank  # noqa: E402
 from kitchenrush.v3.solvers import run_greedy_overlap_solver, run_sequential_solver  # noqa: E402
 
-DEFAULT_BANK = ROOT / "data/v3/calibration_bank_v1.json"
-DEFAULT_RUN_DIR = ROOT / "runs/v3/calibration_v2"
+DEFAULT_BANK = ROOT / "data/v3/calibration_bank_v2.json"
+DEFAULT_RUN_DIR = ROOT / "runs/v3/bank_v2_run"
 
 
 def _spec(key: str, model_id: str, tier: str, inp: float, out: float, effort: str) -> ModelSpec:
@@ -53,6 +53,9 @@ MODELS: dict[str, ModelSpec] = {
 
 
 def cmd_build_bank(args: argparse.Namespace) -> None:
+    out = Path(args.bank)
+    if out.exists() and not args.force:
+        raise SystemExit(f"Refusing to overwrite existing bank {out}; pass --force or specify a new --bank path.")
     levels = tuple(int(x) for x in args.levels.split(","))
     bank: dict[int, list[dict]] = {}
     exclusions: dict[str, list[dict]] = {}
@@ -135,9 +138,23 @@ def cmd_run(args: argparse.Namespace) -> None:
 
 
 def cmd_report(args: argparse.Namespace) -> None:
-    ep_dir = Path(args.out_dir) / "episodes"
-    episodes = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(ep_dir.glob("*.json"))]
-    summary = summarize_campaign(episodes)
+    out_dir = Path(args.out_dir)
+    ep_dir = out_dir / "episodes"
+    manifest_path = out_dir / "manifest.json"
+    planned_by_cell: dict[tuple[str, int], int] | None = None
+    if manifest_path.exists():
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        planned_by_cell = {}
+        episodes = []
+        for entry in manifest.get("planned_episodes", []):
+            key = (entry["model"], int(entry["level"]))
+            planned_by_cell[key] = planned_by_cell.get(key, 0) + 1
+            p = ep_dir / entry["filename"]
+            if p.exists():
+                episodes.append(json.loads(p.read_text(encoding="utf-8")))
+    else:
+        episodes = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(ep_dir.glob("*.json"))]
+    summary = summarize_campaign(episodes, planned_by_cell=planned_by_cell)
     print(format_markdown_table(summary))
     models = sorted({e["model"] for e in episodes})
     if len(models) >= 2:
@@ -193,10 +210,11 @@ def main() -> None:
 
     p_b = sub.add_parser("build-bank")
     p_b.add_argument("--bank", default=str(DEFAULT_BANK))
-    p_b.add_argument("--levels", default="1,2,3,4,5")
+    p_b.add_argument("--levels", default="1,2,3,4,5,6")
     p_b.add_argument("--seeds-per-level", type=int, default=10)
-    p_b.add_argument("--start-seed", type=int, default=3000)
-    p_b.add_argument("--max-attempts", type=int, default=200)
+    p_b.add_argument("--start-seed", type=int, default=6000)
+    p_b.add_argument("--max-attempts", type=int, default=250)
+    p_b.add_argument("--force", action="store_true", help="Allow overwriting an existing bank file.")
     p_b.set_defaults(func=cmd_build_bank)
 
     p_r = sub.add_parser("run")

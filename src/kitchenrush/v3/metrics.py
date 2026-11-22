@@ -76,12 +76,30 @@ def _percentile(values: list[float], q: float) -> float:
     return s[lo] + (s[hi] - s[lo]) * (pos - lo)
 
 
+def wilson_ci95(k: int, n: int, z: float = 1.959963984540054) -> list[float] | None:
+    """Two-sided 95% Wilson score interval for a binomial proportion k/n (valid at k=0 and k=n)."""
+    if n <= 0:
+        return None
+    p = k / n
+    z2 = z * z
+    denom = 1.0 + z2 / n
+    center = (p + z2 / (2.0 * n)) / denom
+    half = (z / denom) * math.sqrt((p * (1.0 - p) + z2 / (4.0 * n)) / n)
+    return [max(0.0, center - half), min(1.0, center + half)]
+
+
 def bootstrap_cell(episodes: list[dict[str, Any]], reps: int = 4000, seed: int = 20261122) -> dict[str, list[float] | None]:
-    if len(episodes) < 2:
+    if not episodes:
         return {}
+    n = len(episodes)
+    clears = sum(1 for e in episodes if e["clear"])
+    out: dict[str, list[float] | None] = {
+        "full_clear_rate": wilson_ci95(clears, n),
+    }
+    if n < 2:
+        return out
     rng = random.Random(seed)
     keys = (
-        "full_clear_rate",
         "completion",
         "out_tok_per_cleared_order",
         "usd_per_cleared_order",
@@ -90,7 +108,6 @@ def bootstrap_cell(episodes: list[dict[str, Any]], reps: int = 4000, seed: int =
         "failure_rate",
     )
     draws: dict[str, list[float]] = {k: [] for k in keys}
-    n = len(episodes)
     for _ in range(reps):
         sample = rng.choices(episodes, k=n)
         r = cell_ratios(sample)
@@ -98,7 +115,6 @@ def bootstrap_cell(episodes: list[dict[str, Any]], reps: int = 4000, seed: int =
             val = r[k]
             if val is not None and math.isfinite(val):
                 draws[k].append(val)
-    out: dict[str, list[float] | None] = {}
     for k, vals in draws.items():
         if len(vals) >= 0.95 * reps:
             out[k] = [_percentile(vals, 0.025), _percentile(vals, 0.975)]
@@ -162,22 +178,41 @@ def paired_delta_bootstrap(
     }
 
 
-def summarize_campaign(episodes: list[dict[str, Any]]) -> dict[str, Any]:
+def _episode_cost_sources(ep: dict[str, Any]) -> tuple[int, int]:
+    if "provider_cost_turns" in ep and "estimated_cost_turns" in ep:
+        return int(ep["provider_cost_turns"]), int(ep["estimated_cost_turns"])
+    prov = sum(1 for t in ep.get("turn_logs", []) if t.get("cost_source", "provider") == "provider")
+    est = sum(1 for t in ep.get("turn_logs", []) if t.get("cost_source") == "estimated")
+    return prov, est
+
+
+def summarize_campaign(
+    episodes: list[dict[str, Any]],
+    *,
+    planned_by_cell: dict[tuple[str, int], int] | None = None,
+) -> dict[str, Any]:
     by_cell: dict[tuple[str, int], list[dict[str, Any]]] = defaultdict(list)
     for ep in episodes:
         by_cell[(ep["model"], ep["level"])].append(ep)
+    if planned_by_cell:
+        for cell_key in planned_by_cell:
+            by_cell.setdefault(cell_key, [])
 
     rows = []
     for (model, level), group in sorted(by_cell.items(), key=lambda x: (x[0][1], x[0][0])):
         scored = [e for e in group if e.get("scored")]
         unscored = len(group) - len(scored)
+        planned = planned_by_cell.get((model, level), len(group)) if planned_by_cell else len(group)
+        missing = max(0, planned - len(group))
         r = cell_ratios(scored)
         ci = bootstrap_cell(scored) if scored else {}
         rows.append({
             "model": model,
             "level": level,
+            "planned": planned,
             "scored": len(scored),
             "unscored": unscored,
+            "missing": missing,
             "clears": sum(1 for e in scored if e["clear"]),
             "cleared_orders": sum(e["requested"] for e in scored if e["clear"]),
             "served": sum(e["served"] for e in scored),
@@ -186,26 +221,35 @@ def summarize_campaign(episodes: list[dict[str, Any]]) -> dict[str, Any]:
             "burns": sum(e["burns"] for e in scored),
             "empty_turns": sum(_episode_empty_turns(e) for e in scored),
             "truncated_turns": sum(_episode_truncated_turns(e) for e in scored),
-            "history_lookups": sum(int(e.get("history_lookups", 0)) for e in scored),
             "turns": sum(e["turns"] for e in scored),
             "total_usd": round(sum(e["cost_usd"] for e in group), 6),
             "ratios": r,
             "ci95": ci,
         })
 
+    prov_turns = sum(_episode_cost_sources(e)[0] for e in episodes)
+    est_turns = sum(_episode_cost_sources(e)[1] for e in episodes)
+    total_planned = sum(planned_by_cell.values()) if planned_by_cell else len(episodes)
+    total_missing = max(0, total_planned - len(episodes))
     cap_diag = {
         "truncated_turns": sum(_episode_truncated_turns(e) for e in episodes),
         "empty_turns": sum(_episode_empty_turns(e) for e in episodes),
+        "estimated_cost_turns": est_turns,
         "max_decisions_eps": sum(1 for e in episodes if e.get("termination_reason") == "max_decisions"),
         "max_turns_eps": sum(1 for e in episodes if e.get("termination_reason") == "max_turns"),
         "stalled_eps": sum(1 for e in episodes if e.get("termination_reason") == "stalled"),
         "stopped_cap_eps": sum(1 for e in episodes if e.get("status") == "stopped_cap"),
         "provider_error_eps": sum(1 for e in episodes if e.get("status") == "provider_error"),
+        "missing_planned_eps": total_missing,
     }
     return {
         "rows": rows,
+        "total_planned": total_planned,
         "total_episodes": len(episodes),
         "total_scored": sum(1 for e in episodes if e.get("scored")),
+        "total_missing": total_missing,
+        "provider_cost_turns": prov_turns,
+        "estimated_cost_turns": est_turns,
         "total_usd": round(sum(e["cost_usd"] for e in episodes), 6),
         "cap_diagnostics": cap_diag,
     }
@@ -243,9 +287,13 @@ def format_markdown_table(summary: dict[str, Any]) -> str:
             f"${row['total_usd']:.4f} |"
         )
     lines.append("")
+    planned_tot = summary.get("total_planned", summary["total_episodes"])
+    missing_tot = summary.get("total_missing", 0)
+    prov_t = summary.get("provider_cost_turns", 0)
+    est_t = summary.get("estimated_cost_turns", 0)
     lines.append(
-        f"**Total scored episodes:** `{summary['total_scored']}/{summary['total_episodes']}` | "
-        f"**Episode spend:** `${summary['total_usd']:.4f}`"
+        f"**Episodes:** `{summary['total_scored']}` scored / `{planned_tot}` planned (`{missing_tot}` missing) | "
+        f"**Episode spend:** `${summary['total_usd']:.4f}` (provider-billed turns: `{prov_t}`, estimated fallback: `{est_t}`)"
     )
     cd = summary.get("cap_diagnostics") or {}
     hits = [f"{k}={v}" for k, v in cd.items() if v]

@@ -33,6 +33,10 @@ class ProviderError(RuntimeError):
         self.uncertain_billing = uncertain_billing
 
 
+class CapExceededError(RuntimeError):
+    """Raised when a per-attempt spend reservation cannot be granted under the campaign cap."""
+
+
 @dataclass(frozen=True)
 class ModelSpec:
     key: str
@@ -60,6 +64,7 @@ class TurnDecision:
     provider_route: str | None = None
     requested_effort: str | None = None
     max_tokens: int | None = None
+    reservation_id: str | None = None
     raw_content: str | None = None
     parse_errors: list[str] = field(default_factory=list)
 
@@ -79,6 +84,15 @@ class AgentAdapter(ABC):
     def max_turn_reserve_usd(self) -> float:
         return 0.0
 
+    def estimate_turn_reserve_usd(
+        self,
+        static_ctx: dict[str, Any],
+        dyn_state: dict[str, Any],
+        *,
+        chat_messages: list[dict[str, Any]] | None = None,
+    ) -> float:
+        return self.max_turn_reserve_usd()
+
     @abstractmethod
     def act(
         self,
@@ -86,6 +100,8 @@ class AgentAdapter(ABC):
         dyn_state: dict[str, Any],
         *,
         chat_messages: list[dict[str, Any]] | None = None,
+        reserve_attempt: Any | None = None,
+        release_attempt: Any | None = None,
     ) -> TurnDecision:
         ...
 
@@ -108,6 +124,8 @@ class DecisionModelAdapter(AgentAdapter, ABC):
         dyn_state: dict[str, Any],
         *,
         chat_messages: list[dict[str, Any]] | None = None,
+        reserve_attempt: Any | None = None,
+        release_attempt: Any | None = None,
     ) -> TurnDecision:
         decision = self.choose_one(static_ctx, dyn_state)
         if len(decision.calls) > 1:
@@ -198,8 +216,25 @@ class OpenRouterToolAdapter(AgentAdapter):
         }
 
     def max_turn_reserve_usd(self) -> float:
-        # Worst-case reservation for one turn: 6k prompt tokens + full max_tokens output.
-        return (6000 * self.spec.input_price_per_m + self.spec.max_tokens * self.spec.output_price_per_m) / 1e6
+        # Baseline reservation for initial admission check; actual per-attempt reservation uses serialized body bytes.
+        return self._reserve_for_bytes(18000)
+
+    def _reserve_for_bytes(self, n_bytes: int) -> float:
+        # Conservative worst-case: 1 token per 3 UTF-8 bytes, 1.25x input tariff (covers cache-write surcharge),
+        # plus full max_tokens output at completion tariff.
+        est_prompt_tok = max(6000, n_bytes // 3)
+        input_tariff = self.spec.input_price_per_m * 1.25
+        return (est_prompt_tok * input_tariff + self.spec.max_tokens * self.spec.output_price_per_m) / 1e6
+
+    def estimate_turn_reserve_usd(
+        self,
+        static_ctx: dict[str, Any],
+        dyn_state: dict[str, Any],
+        *,
+        chat_messages: list[dict[str, Any]] | None = None,
+    ) -> float:
+        body = json.dumps(self._build_payload(static_ctx, dyn_state, chat_messages=chat_messages)).encode("utf-8")
+        return self._reserve_for_bytes(len(body))
 
     def _build_payload(
         self,
@@ -257,9 +292,12 @@ class OpenRouterToolAdapter(AgentAdapter):
         dyn_state: dict[str, Any],
         *,
         chat_messages: list[dict[str, Any]] | None = None,
+        reserve_attempt: Any | None = None,
+        release_attempt: Any | None = None,
     ) -> TurnDecision:
         payload = self._build_payload(static_ctx, dyn_state, chat_messages=chat_messages)
         body = json.dumps(payload).encode("utf-8")
+        attempt_reserve_usd = self._reserve_for_bytes(len(body))
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
@@ -268,22 +306,34 @@ class OpenRouterToolAdapter(AgentAdapter):
         }
 
         last_err: Exception | None = None
+        winning_res_id: str | None = None
         for attempt in range(3):
+            res_id: str | None = None
+            if reserve_attempt is not None:
+                ok_res, res_id, cap_msg = reserve_attempt(attempt_reserve_usd, attempt + 1)
+                if not ok_res:
+                    raise CapExceededError(cap_msg)
             t0 = time.monotonic()
             req = urllib.request.Request(self.ENDPOINT, data=body, headers=headers, method="POST")
             try:
                 with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                     raw = json.loads(resp.read().decode("utf-8"))
                 latency = time.monotonic() - t0
+                winning_res_id = res_id
                 break
             except urllib.error.HTTPError as exc:
                 err_body = exc.read().decode("utf-8", errors="replace")[:400]
+                if release_attempt is not None:
+                    release_attempt(res_id, False, f"HTTP {exc.code}: {err_body}")
                 if exc.code in (429, 502, 503, 504) and attempt < 2:
                     time.sleep(3 * (attempt + 1))
                     last_err = ProviderError(f"HTTP {exc.code}: {err_body}", exc.code)
                     continue
                 raise ProviderError(f"HTTP {exc.code}: {err_body}", exc.code) from exc
             except (urllib.error.URLError, TimeoutError, OSError) as exc:
+                # Transport timeout after send may still have been billed upstream: retain worst-case liability!
+                if release_attempt is not None:
+                    release_attempt(res_id, True, f"Transport error: {exc}")
                 if attempt < 2:
                     time.sleep(3 * (attempt + 1))
                     last_err = ProviderError(f"Transport error: {exc}", uncertain_billing=True)
@@ -294,11 +344,15 @@ class OpenRouterToolAdapter(AgentAdapter):
 
         if "error" in raw:
             err = raw["error"]
+            if release_attempt is not None:
+                release_attempt(winning_res_id, False, f"Provider JSON error: {err}")
             raise ProviderError(f"Provider JSON error: {err}", err.get("code") if isinstance(err, dict) else None)
 
         choices = raw.get("choices") or []
         if not choices:
-            raise ProviderError(f"Empty choices in response: {str(raw)[:300]}")
+            if release_attempt is not None:
+                release_attempt(winning_res_id, True, f"Empty choices: {str(raw)[:200]}")
+            raise ProviderError(f"Empty choices in response: {str(raw)[:300]}", uncertain_billing=True)
         choice = choices[0]
         msg = choice.get("message") or {}
         calls, parse_errors = _parse_tool_calls(msg)
@@ -332,6 +386,7 @@ class OpenRouterToolAdapter(AgentAdapter):
             provider_route=raw.get("provider"),
             requested_effort=(self.spec.reasoning or {}).get("effort"),
             max_tokens=self.spec.max_tokens,
+            reservation_id=winning_res_id,
             raw_content=msg.get("content"),
             parse_errors=parse_errors,
         )

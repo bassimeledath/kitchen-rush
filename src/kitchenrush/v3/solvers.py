@@ -15,7 +15,7 @@ from typing import Any
 
 from .. import config
 from ..tools import ToolCall
-from .env import MAX_DECISIONS, MAX_WAIT_GS, UnifiedEngine, UnifiedKitchen
+from .env import MAX_WAIT_GS, UnifiedEngine, UnifiedKitchen
 
 
 def _active_orders(engine: UnifiedEngine) -> list[Any]:
@@ -122,7 +122,7 @@ def _do_non_cooked_step(engine: UnifiedEngine, ing: str, req_state: str) -> Tool
 def run_sequential_solver(spec: UnifiedKitchen) -> dict[str, Any]:
     """Strict 1-order-at-a-time EDF baseline (never starts a second order's cooking early)."""
     engine = UnifiedEngine(spec, record_trace=False, early_stop=True)
-    while not engine.terminated and engine._action_count < MAX_DECISIONS:
+    while not engine.terminated and engine._action_count < engine.max_actions:
         plate_o = _held_plate_order(engine)
         if plate_o is not None:
             engine.step_batch([ToolCall("serve", {"order_id": plate_o.order_id})])
@@ -222,7 +222,7 @@ def run_greedy_overlap_solver(spec: UnifiedKitchen) -> dict[str, Any]:
     """Myopic overlap solver: fills all free burners across active orders greedily without
     checking burn-window conflicts or plating collisions."""
     engine = UnifiedEngine(spec, record_trace=False, early_stop=True)
-    while not engine.terminated and engine._action_count < MAX_DECISIONS:
+    while not engine.terminated and engine._action_count < engine.max_actions:
         plate_o = _held_plate_order(engine)
         if plate_o is not None:
             engine.step_batch([ToolCall("serve", {"order_id": plate_o.order_id})])
@@ -347,7 +347,7 @@ def scheduled_witness(
 
     def do(call: ToolCall) -> set[int]:
         nonlocal hand_owner
-        if engine.terminated or engine._action_count >= MAX_DECISIONS:
+        if engine.terminated or engine._action_count >= engine.max_actions:
             raise RuntimeError(f"witness terminated before executing {call} (reason={engine.termination_reason})")
         if call.name == "serve":
             oid = call.arguments["order_id"]
@@ -492,7 +492,7 @@ def scheduled_witness(
             raise RuntimeError("expected exactly 1 newly occupied burner")
         burner_owner[added.pop()] = order.order_id
 
-    while not engine.terminated and engine._action_count < MAX_DECISIONS:
+    while not engine.terminated and engine._action_count < engine.max_actions:
         # 1. Always serve any held plate immediately!
         plate_o = _held_plate_order(engine)
         if plate_o is not None:
@@ -913,7 +913,7 @@ def best_parallel_witness(
     *,
     allow_arrival_peek: bool = True,
 ) -> tuple[list[list[dict[str, Any]]], dict[str, float]]:
-    """Run the un-throttled full-burner witness across candidate stagger pads and return the shortest valid schedule."""
+    """Run the un-throttled full-burner witness across candidate stagger pads (plus baseline) and return the shortest valid schedule."""
     best: tuple[list[list[dict[str, Any]]], dict[str, float]] | None = None
     for cp in (10.0, 12.0, 14.0, 16.5, 20.0):
         try:
@@ -922,6 +922,12 @@ def best_parallel_witness(
                 best = (b, s)
         except Exception:
             continue
+    try:
+        b0, s0 = scheduled_witness(spec, allow_arrival_peek=allow_arrival_peek)
+        if len(s0) == len(spec.orders) and (best is None or max(s0.values()) < max(best[1].values())):
+            best = (b0, s0)
+    except Exception:
+        pass
     if best is None:
-        return scheduled_witness(spec, allow_arrival_peek=allow_arrival_peek)
+        raise RuntimeError("no valid witness schedule found")
     return best

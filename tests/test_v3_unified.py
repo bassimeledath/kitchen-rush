@@ -257,3 +257,79 @@ def test_scaled_action_budget_and_d6_full_burner_witness():
     assert eng.max_actions == 168
     res = verify_replay(spec, batches, expected_served=len(spec.orders), expected_invalid=0, expected_burns=0)
     assert res["verified"] is True
+
+
+def test_manifest_blocks_stale_episode_reuse_and_stray_files(tmp_path: Path):
+    import dataclasses
+    import json
+    import pytest
+    from kitchenrush.v3.adapters import AgentAdapter
+    from kitchenrush.v3.runner import run_campaign
+
+    spec, _ = generate_kitchen(2000, 1)
+
+    class WaitAdapter(AgentAdapter):
+        @property
+        def name(self) -> str:
+            return "wait-adapter"
+
+        def act(self, static_ctx, dyn_state, *, chat_messages=None, reserve_attempt=None, release_attempt=None) -> TurnDecision:
+            return TurnDecision(calls=[ToolCall("wait", {"seconds": 60})])
+
+    out_dir = tmp_path / "camp"
+    s1 = run_campaign(out_dir, {1: [spec]}, [WaitAdapter()], levels=(1,), max_seeds=1, history_mode="full_chat", verbose=False)
+    assert s1["total_planned"] == 1 and s1["total_scored"] == 1
+
+    # Drop a stray episode JSON outside the manifest — resume must NOT aggregate it!
+    (out_dir / "episodes" / "D1_seed9999_stray.json").write_text(
+        json.dumps({"model": "stray", "level": 1, "seed": 9999, "scored": True, "clear": False, "served": 0, "requested": 2,
+                    "output_tokens": 0, "input_tokens": 0, "cached_tokens": 0, "cost_usd": 0.0, "invalid": 0, "burns": 0,
+                    "actions": 1, "turns": 1}),
+        encoding="utf-8",
+    )
+    s2 = run_campaign(out_dir, {1: [spec]}, [WaitAdapter()], levels=(1,), max_seeds=1, history_mode="full_chat", verbose=False)
+    assert len(s2["rows"]) == 1 and s2["rows"][0]["model"] == "wait-adapter"
+
+    # Mutate first order deadline -> spec_sha256 changes -> runner MUST refuse to reuse cached episode!
+    mutated = dataclasses.replace(
+        spec,
+        orders=[dataclasses.replace(spec.orders[0], deadline_gs=1.0)] + list(spec.orders[1:]),
+    )
+    with pytest.raises(ValueError, match="Manifest episode spec mismatch"):
+        run_campaign(out_dir, {1: [mutated]}, [WaitAdapter()], levels=(1,), max_seeds=1, history_mode="full_chat", verbose=False)
+
+
+def test_persistent_reservation_survives_crash_and_scales_with_payload(tmp_path: Path):
+    from kitchenrush.v3.adapters import ModelSpec, OpenRouterToolAdapter
+
+    # 1. Unsettled reservation survives process restart as conservative liability.
+    p = tmp_path / "spend.jsonl"
+    l1 = SpendLedger(p, campaign_cap_usd=1.00)
+    ok, rid, _ = l1.reserve(0.60, meta={"model": "m"})
+    assert ok and rid is not None
+    # Simulate process crash (no settle / no release) and reload from disk:
+    l2 = SpendLedger(p, campaign_cap_usd=1.00)
+    assert abs(l2.unreconciled_crash_usd - 0.60) < 1e-6
+    ok2, _, _ = l2.reserve(0.50)
+    assert ok2 is False
+
+    # 2. Large full-chat serialized body reserves more than baseline 6k-token estimate.
+    spec = ModelSpec(key="sol", model_id="openai/gpt-6.2-sol", tier="frontier", input_price_per_m=2.0, output_price_per_m=10.0)
+    adapter = OpenRouterToolAdapter(spec, api_key="test-key")
+    small_res = adapter._reserve_for_bytes(18_000)
+    large_res = adapter._reserve_for_bytes(150_000)
+    assert large_res > small_res + 0.08
+
+
+def test_wilson_ci_nonzero_width_at_zero_and_full_clears():
+    from kitchenrush.v3.metrics import bootstrap_cell
+
+    base = {
+        "model": "m", "level": 5, "scored": True, "served": 3, "requested": 6,
+        "output_tokens": 500, "input_tokens": 1000, "cached_tokens": 500,
+        "cost_usd": 0.05, "invalid": 0, "burns": 0, "actions": 20, "turns": 5,
+    }
+    ci_zero = bootstrap_cell([{**base, "seed": i, "clear": False} for i in range(6)])["full_clear_rate"]
+    ci_full = bootstrap_cell([{**base, "seed": i, "clear": True, "served": 6} for i in range(6)])["full_clear_rate"]
+    assert ci_zero is not None and ci_zero[0] == 0.0 and 0.35 < ci_zero[1] < 0.45
+    assert ci_full is not None and 0.55 < ci_full[0] < 0.65 and ci_full[1] == 1.0
