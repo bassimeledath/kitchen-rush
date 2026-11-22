@@ -10,13 +10,14 @@ from kitchenrush.v3.env import (
     UnifiedEngine,
     dynamic_state,
     generate_kitchen,
+    max_actions_for_level,
     static_context,
     verify_replay,
 )
 from kitchenrush.v3.metrics import cell_ratios, summarize_campaign
 from kitchenrush.v3.replay import build_v3_replay
 from kitchenrush.v3.runner import SpendLedger, run_episode
-from kitchenrush.v3.solvers import scheduled_witness
+from kitchenrush.v3.solvers import best_parallel_witness
 
 
 def test_generate_and_replay_all_levels():
@@ -174,7 +175,7 @@ def test_full_clear_gated_efficiency_metrics():
 
 def test_no_oracle_witness_and_replay_export():
     spec, batches = generate_kitchen(2000, 3)
-    b_no_oracle, _ = scheduled_witness(spec, allow_arrival_peek=False)
+    b_no_oracle, _ = best_parallel_witness(spec, allow_arrival_peek=False)
     res = verify_replay(spec, b_no_oracle, expected_served=len(spec.orders), expected_invalid=0, expected_burns=0)
     assert res["verified"] is True
 
@@ -237,3 +238,22 @@ def test_history_modes_full_chat_and_last_turn(tmp_path: Path):
     assert ep2["scored"] is True and ep2["replay_verified"] is True
     assert seen_last_turns[0] is False
     assert any(seen_last_turns[1:])
+
+
+def test_scaled_action_budget_and_d6_full_burner_witness():
+    assert max_actions_for_level(5) == 160
+    assert max_actions_for_level(6) == 168
+    assert max_actions_for_level(10) == 264
+    spec = None
+    batches = None
+    for seed in range(6000, 6030):
+        try:
+            spec, batches = generate_kitchen(seed, 6)
+            break
+        except RuntimeError:
+            continue
+    assert spec is not None and batches is not None
+    eng = UnifiedEngine(spec)
+    assert eng.max_actions == 168
+    res = verify_replay(spec, batches, expected_served=len(spec.orders), expected_invalid=0, expected_burns=0)
+    assert res["verified"] is True

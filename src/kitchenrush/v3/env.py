@@ -39,6 +39,11 @@ MAX_DECISIONS = 160
 MAX_WAIT_GS = 120
 INTERRUPT_EVENTS = frozenset({"order_arrived", "burned", "order_expired"})
 
+
+def max_actions_for_level(level: int) -> int:
+    """Scale action/turn budget cleanly with order count (D+1) so higher D has no artificial ceiling."""
+    return max(MAX_DECISIONS, 24 * (max(1, int(level)) + 1))
+
 COOKABLE_INGREDIENTS = tuple(
     name for name, item in sorted(config.INGREDIENTS.items()) if item.cookable_from is not None
 )
@@ -138,7 +143,8 @@ RULES_TEXT = (
     "(before the 1s handling time), though it can still burn during travel if cut too close.\n"
     "- Burned food automatically disappears from its burner. Invalid actions cost 3 game-seconds.\n"
     "- Future orders are hidden until arrival. Episode ends when all orders resolve, no remaining order "
-    "can mathematically meet its deadline, at 160 tool actions or 160 turns, or after 12 consecutive nonproductive turns."
+    "can mathematically meet its deadline, at `max_actions` tool actions or `max_turns` turns (see KITCHEN_SPEC_JSON), "
+    "or after 12 consecutive nonproductive turns."
 )
 
 
@@ -273,6 +279,7 @@ class UnifiedEngine(KitchenRushEngine):
                     raise ValueError(f"non-finite timers for {name}")
                 self.ingredient_rules[name] = item
         self.active_ingredients = {s.ingredient for s in spec.stations if s.type == config.ING}
+        self.max_actions = max_actions_for_level(spec.difficulty)
         self._action_count = 0
 
     def _exec(self, call: ToolCall) -> dict[str, Any]:
@@ -433,7 +440,7 @@ class UnifiedEngine(KitchenRushEngine):
             self.terminated = True
             self.termination_reason = "orders_exhausted"
             self._record("terminated", {"reason": "orders_exhausted"})
-        elif self._action_count >= MAX_DECISIONS:
+        elif self._action_count >= self.max_actions:
             self.terminated = True
             self.termination_reason = "max_decisions"
             self._record("terminated", {"reason": "max_decisions"})
@@ -577,6 +584,8 @@ def static_context(engine: UnifiedEngine) -> dict[str, Any]:
         "grid_n": engine.spec.grid_n,
         "hand_slots": config.HAND_SLOTS,
         "burner_count": len(engine.burners),
+        "max_actions": engine.max_actions,
+        "max_turns": engine.max_actions,
         "action_seconds": {
             "collect": config.COLLECT_GS,
             "chop": config.CHOP_GS,
@@ -646,7 +655,7 @@ def dynamic_state(engine: UnifiedEngine, last_turn: dict[str, Any] | None = None
     state: dict[str, Any] = {
         "turn": engine.turn_count,
         "actions_used": engine._action_count,
-        "actions_remaining": MAX_DECISIONS - engine._action_count,
+        "actions_remaining": engine.max_actions - engine._action_count,
         "clock_gs": round(engine.clock_gs, 2),
         "chef_pos": list(engine.chef_pos),
         "hands": obs["hands"],
@@ -743,8 +752,8 @@ def generate_kitchen(
     Returns (spec, witness_batches) where witness_batches replays cleanly with 100% orders served.
     """
     if witness_fn is None:
-        from .solvers import scheduled_witness
-        witness_fn = scheduled_witness
+        from .solvers import best_parallel_witness
+        witness_fn = best_parallel_witness
 
     prof = difficulty_profile(level)
     rng = random.Random(f"kr-v3:D{level}:seed{seed}")

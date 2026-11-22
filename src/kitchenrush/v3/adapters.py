@@ -235,7 +235,7 @@ class OpenRouterToolAdapter(AgentAdapter):
             "model": self.spec.model_id,
             "messages": messages,
             "tools": TOOL_SCHEMAS,
-            "tool_choice": "auto",
+            "tool_choice": "required",
             "max_tokens": self.spec.max_tokens,
             "usage": {"include": True},
         }

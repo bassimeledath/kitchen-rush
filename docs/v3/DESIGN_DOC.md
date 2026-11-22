@@ -56,9 +56,10 @@ A sharp question anyone should ask: *If a deterministic Python solver can beat e
 * **Invalid action penalty:** Illegal calls cost **3 game-seconds**, increment `invalid`, and interrupt the rest of that batch.
 * **No hidden harness traps:**
   * **One generous output token ceiling (`max_tokens=16384`)** across every model so `reasoning_effort`—never silent truncation—governs thinking length. *(Our independent audit caught that an earlier `2048` cap silently truncated Haiku on 47 empty turns!)*
-  * **Turn limit matches action limit (`max_turns = max_actions = 160`)**, so 1-call/turn models (like GPT-Sol or future 1-step `DecisionModelAdapter` models) are never secretly cut off at half budget.
+  * **Scaled action & turn limits (`max_actions = max_turns = max(160, 24 × N)`):** Keeps `160` for `D=1..5` and scales smoothly with order count `N = D + 1` for `D=6+`, removing any artificial ceiling while ensuring 1-call/turn models are never cut off early.
+  * **Mandatory tool calling (`tool_choice="required"`):** Prevents models from wasting turns emitting plain-text chatter instead of kitchen actions.
   * **One atomic campaign spend cap** (reserving worst-case cost before each call and settling actual cost afterward) instead of scattered per-episode/per-model cutoffs.
-  * **Full audit logging:** Every turn records `finish_reason`, `provider_route`, `requested_effort`, `max_tokens`, `empty_turns`, and `truncated_turns`.
+  * **Full audit logging & Cap Alerts:** Every turn records `finish_reason`, `provider_route`, `requested_effort`, `max_tokens`, `empty_turns`, and `truncated_turns`, printing loud `[CAP_HIT]` diagnostics if any limit ever triggers.
 
 ### B. Batched Execution with Event-Driven Interrupts
 
@@ -78,7 +79,7 @@ flowchart LR
 ### C. Context & Turn History Policy (Locked on Native `full_chat`)
 Every turn keeps the static system prompt byte-identical and grows an append-only native multi-turn conversation (`history_mode="full_chat"`):
 1. **Static System Prefix (cached across all turns):** Rules (prioritizing full kitchen clears, with partial credit tracked) + action durations + per-kitchen `ingredient_rules` + station coordinates (~1,350 tokens).
-2. **Native Multi-Turn Transcript (`full_chat`, default for LLMs):** Standard OpenAI/Anthropic `user(STATE_JSON) → assistant(tool_calls) → tool(tool_result) → user(next STATE_JSON)` loop, with Anthropic ephemeral cache checkpoints on the growing prefix (yielding **80% cache hit rates on Anthropic** and **97–98% on OpenAI**).
+2. **Native Multi-Turn Transcript (`full_chat`, default for LLMs):** Standard OpenAI/Anthropic/Google `user(STATE_JSON) → assistant(tool_calls) → tool(tool_result) → user(next STATE_JSON)` loop, with explicit `cache_control: ephemeral` breakpoints for both Anthropic and Google (yielding **50–59% cache hits on Google Gemini**, **70–81% on Anthropic**, and **97–98% on OpenAI**).
 3. **Stateless `last_turn` mode (for 1-step decision models):** Retained cleanly as `history_mode="last_turn"` for stateless 1-step policies (`DecisionModelAdapter` / TypeSafe Jev) that cannot hold a multi-turn chat transcript.
 
 **Why `full_chat` won decisively (controlled 3-way A/B/C across both tiers):**
@@ -94,20 +95,32 @@ We dropped the arbitrary 5-turn window and tested three non-arbitrary policies h
 
 One unified parametric generator `generate_kitchen(seed, level=D)` controls all difficulty levels.
 
-### Supported Range (`D = 1..5`) and Why There Is a Mathematical Ceiling
+### Supported Range (`D = 1..6`, Extensible to `D = 7+`)
 
-| Dial $D$ | Orders ($N$) | Burners ($B$) | Components / Order | Cooked / Order | Cook Time Range | Burn Window | Initial Active | Hidden Staggered Arrivals | Station Layout | Deadline Slack $\sigma(D)$ (min pad) |
+| Dial $D$ | Orders ($N$) | Burners ($B$) | Action/Turn Cap | Cooked / Order | Cook Time Range | Burn Window | Initial Active | Hidden Arrivals | Station Layout | Deadline Slack $\sigma(D)$ (min pad) |
 | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :--- | :-: | :-: |
-| **D=1** | 2 | 2 | 2–3 | 1 | 8–14s | 14–18s | 2 | None (0 hidden) | Fixed | **+70%** (min 18s) |
-| **D=2** | 3 | 3 | 3 | 1–2 | 18–28s | 12–16s | 3 | None (0 hidden) | Fixed | **+22%** (min 9s) |
-| **D=3** | 4 | 3 | 3 | 1–2 | 22–36s | 10–14s | 3 | 1 hidden (+14–22s) | **Shuffled** | **+14%** (min 7s) |
-| **D=4** | 5 | 4 | 3–4 | 2 | 26–44s | 9–12s | 3 | 2 hidden (+16–26s each) | **Shuffled** | **+9%** (min 5s) |
-| **D=5** | 6 | 4 | 3–4 | 2 | 32–54s | 8–11s | 4 | 2 hidden (+16–24s each) | **Shuffled** | **+4%** (min 3s) |
+| **D=1** | 2 | 2 | 160 | 1 | 8–14s | 14–18s | 2 | None | Fixed | **+70%** (min 18s) |
+| **D=2** | 3 | 3 | 160 | 1–2 | 18–28s | 12–16s | 3 | None | Fixed | **+22%** (min 9s) |
+| **D=3** | 4 | 3 | 160 | 1–2 | 22–36s | 10–14s | 3 | 1 hidden (+14–22s) | **Shuffled** | **+14%** (min 7s) |
+| **D=4** | 5 | 4 | 160 | 2 | 26–44s | 9–12s | 3 | 2 hidden (+16–26s) | **Shuffled** | **+9%** (min 5s) |
+| **D=5** | 6 | 4 | 160 | 2 | 32–54s | 8–11s | 4 | 2 hidden (+16–24s) | **Shuffled** | **+4%** (min 3s) |
+| **D=6** | 7 | 5 | 168 | 2 | 36–60s | 7–10s | 5 | 2 hidden (+14–22s) | **Shuffled** | **+3%** (min 2s) |
 
-*(At **every** level, all 5 cookable ingredients independently randomize `cookable_from ∈ {RAW, CHOPPED}`, `cook_time`, and `burn_window`.)*
+*(At **every** level, all 5 cookable ingredients independently randomize `cookable_from ∈ {RAW, CHOPPED}`, `cook_time`, and `burn_window`. Because `max_actions = max(160, 24 × N)`, the dial scales smoothly to `D=7, 8+` with no artificial ceiling.)*
 
-* **About `D=6+` and the hard ceiling:** At `D >= 4`, every order requires at least 2 cooked components (6 actions) + 1 other component (≥1 action) + `plate` + `serve` = **at least 9 actions per order**. Under a fixed **160-action cap**, `18 orders × 9 = 162 > 160`, so `D=17` is provably impossible (and witness acceptance already drops to 0 by `D=14`, while `D=6` retains ~60% of seeds).
-* **Policy:** **`D=1..5` is the official supported v3 suite.** We only extend to `D=6+` (and scale `max_actions` proportionally to `N`) if medium/high-effort frontier models actually saturate `D=5`.
+### Why We Upgraded the Witness to Full-Burner Pipelining (`best_parallel_witness`)
+In our first `full_chat` tests, both `gpt-6.2-sol-low` (`4/6`) and `gemini-4-neon-low` (`3/4`) cleared ~70–75% of `D=5` kitchens — because **frontier models were out-scheduling our old 2-order-throttled witness by 80–95 seconds!** (On `D=5 seed=3000`, the old witness took `357.5s` by leaving 3/4 burners idle while holding a cooked item, whereas `gpt-6.2-sol-medium` finished in `262.3s`.)
+
+Upgrading to **`best_parallel_witness`** (an un-throttled $N$-burner pipelining scheduler that lifts ready items into hand while continuing to load idle burners for subsequent orders) tightened deadlines cleanly **purely from physics**, compressing `D=3..5` makespans by **~17–20%** with zero artificial hacks:
+
+| Bank v2 (`D=1..6`, 10 fresh seeds/level) | Witness Actions | Sequential Baseline | GreedyOverlap Baseline |
+| :-: | :-: | :---: | :---: |
+| **D=1** | 15.0 | 100.0% (`10/10` clears) | 100.0% (`10/10` clears) |
+| **D=2** | 28.4 | 53.3% (`0/10` clears) | 76.7% (`5/10` clears) |
+| **D=3** | 39.8 | 37.5% (`0/10` clears) | 57.5% (`3/10` clears) |
+| **D=4** | 59.3 | 34.0% (`0/10` clears) | 44.0% (`0/10` clears) |
+| **D=5** | 71.8 | 33.3% (`0/10` clears) | 16.7% (`0/10` clears) |
+| **D=6** | 85.8 | 24.3% (`0/10` clears) | 21.4% (`1/10` clears) |
 
 ### Plain-English Analogies: What Each Step $D \to D+1$ Feels Like
 * **$D = 1$ ("Sunday dinner for two"):** 2 orders, 1 cooked item each, short cooks (8–14s), +70% slack. Doing orders one-at-a-time clears 100% of kitchens. *Tests basic native tool calling and reading randomized `cookable_from` rules.*
@@ -184,12 +197,15 @@ For each `(model, level)` cell over scored episodes $e = 1, \dots, K$, let:
 | `on_demand` *(`inspect_history`)* | 3/6 (90.0%) | 1/6 (83.3%) | 2,056 | \$0.1320 | 71.6% |
 | **`full_chat` *(locked default)*** | **6/6 (100.0%)** | **4/6 (94.4%)** | **435** | **\$0.0535** | **98.1%** |
 
-**Headroom note for future official runs:** Under `full_chat`, `gpt-6.2-sol-low` already reaches `4/6` clears at `D=5`. Before publishing an official leaderboard with `medium`/`high` reasoning models under `full_chat`, we should check whether `D=5` saturates and—if so—include `D=6` (scaling `max_actions` proportionally with `N`).
+**Head-to-head frontier check (`full_chat`, `google/gemini-4-neon (low)` vs. `openai/gpt-6.2-sol (low)` on old bank v1):**
+* **D=4 (6 seeds):** Tied `6/6` (`100%`) clears — `gpt-6.2-sol-low` (**\$0.0323**/cleared ord, `1.00` avg batch, `97.3%` cache) vs. `gemini-4-neon-low` (**\$0.0366**/cleared ord, **`6.71` avg batch**, `50.4%` cache).
+* **D=5 (same 4 seeds `3000–3003`):** Tied `3/4` (`95.8%`) clears — `gpt-6.2-sol-low` (**\$0.0493**/cleared ord) vs. `gemini-4-neon-low` (**\$0.0736**/cleared ord, `5.16` avg batch, `59.4%` cache).
+* That `75%` clear rate at `low` reasoning on bank v1 directly motivated our **full-burner witness upgrade (`bank v2`)**, which compressed `D=4..5` makespans by ~20% and unlocked `D=6`.
 
 ### C. Pre-Leaderboard Checklist
-1. **Generate fresh private held-out seeds** (e.g., 10–20 seeds/level kept outside Git; keep `calibration_bank_v1.json` as the public dev set).
-2. **Verify Google/Gemini prompt caching on OpenRouter** (earlier Flash showed `0%` cache hits vs `70–98%` on Anthropic/OpenAI).
-3. **Run all models under the single locked protocol:** `history_mode="full_chat"`, `max_tokens=16384`, `max_turns=160`, Full-Clear Gated metrics + loud Cap & Reliability Alerts.
+1. **Live-verify tightened `bank v2` (`D=4..6`)** under `full_chat` + `tool_choice="required"` (running next!).
+2. **Generate fresh private held-out seeds** (e.g., 10–20 seeds/level kept outside Git; keep `calibration_bank_v2.json` as the public dev set).
+3. **Run all models under the single locked protocol:** `history_mode="full_chat"`, `tool_choice="required"`, `max_tokens=16384`, `max_actions = max_turns = max(160, 24 × N)`, Full-Clear Gated metrics + loud Cap & Reliability Alerts.
 
 ---
 

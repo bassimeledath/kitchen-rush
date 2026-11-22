@@ -644,3 +644,284 @@ def scheduled_witness(
             do(ToolCall("wait", {"seconds": 1}))
 
     return batches, serve_start_times
+
+
+def full_burner_witness(
+    spec: UnifiedKitchen,
+    *,
+    clear_pad: float = 13.5,
+    burn_safety: float = 3.5,
+    allow_arrival_peek: bool = True,
+) -> tuple[list[list[dict[str, Any]]], dict[str, float]]:
+    """Un-throttled N-burner pipelining witness (0 invalids, 0 burns).
+
+    Packs all available burners across active orders in serve-order sequence:
+    - No artificial 2-order concurrency cap.
+    - Cooked items lifted into hand never burn, so idle burners can continue loading
+      subsequent orders while earlier dishes finish their second cooked component.
+    """
+    engine = UnifiedEngine(spec, record_trace=False, early_stop=False)
+    batches: list[list[dict[str, Any]]] = []
+    serve_start_times: dict[str, float] = {}
+    burner_owner: dict[int, str] = {}
+    hand_owner: str | None = None
+
+    def do(call: ToolCall) -> None:
+        nonlocal hand_owner
+        if engine.terminated or engine._action_count >= engine.max_actions:
+            raise RuntimeError(f"witness hit limit before {call} (reason={engine.termination_reason})")
+        if call.name == "serve":
+            serve_start_times[call.arguments["order_id"]] = engine.clock_gs
+        res = engine.step_batch([call])
+        batches.append([{"name": call.name, "arguments": dict(call.arguments)}])
+        if not res.get("calls") or not res["calls"][0]["ok"]:
+            raise RuntimeError(f"witness invalid {call}: {res}")
+        if engine.counters["burns"] > 0:
+            raise RuntimeError(f"witness burned after {call} at t={engine.clock_gs:.1f}")
+        for i, b in enumerate(engine.burners):
+            if b.job is None:
+                burner_owner.pop(i, None)
+        if _unplated_count(engine) == 0:
+            hand_owner = None
+
+    def order_cooked_needed(order: Any) -> list[str]:
+        card = spec.recipe_cards[order.dish]
+        needed = [ing for ing, st in sorted(card.items()) if st == config.COOKED]
+        if hand_owner == order.order_id:
+            held = _count_hands(engine)
+            rem = []
+            for ing in needed:
+                if held.get((ing, config.COOKED), 0) > 0:
+                    held[(ing, config.COOKED)] -= 1
+                else:
+                    rem.append(ing)
+            needed = rem
+        owned = [
+            engine.burners[i].job.ingredient
+            for i, oid in burner_owner.items()
+            if oid == order.order_id and engine.burners[i].job is not None
+        ]
+        rem2 = []
+        for ing in needed:
+            if ing in owned:
+                owned.remove(ing)
+            else:
+                rem2.append(ing)
+        rem2.sort(key=lambda ing: -engine.ingredient_rules[ing].cook_time)
+        return rem2
+
+    def prep_cost_of(ing: str) -> float:
+        rule = engine.ingredient_rules[ing]
+        return (
+            config.COLLECT_GS
+            + (config.CHOP_GS if rule.cookable_from == config.CHOPPED else 0.0)
+            + config.COOK_START_GS
+            + 2.2
+        )
+
+    def estimate_order_finish(order: Any, t_after_prev: float) -> float:
+        jobs = [
+            engine.burners[i].job
+            for i, oid in burner_owner.items()
+            if oid == order.order_id and engine.burners[i].job is not None
+        ]
+        unstarted = order_cooked_needed(order)
+        t_ready = max([engine.clock_gs] + [j.ready_gs for j in jobs])
+        for ing in unstarted:
+            t_ready = max(t_ready, engine.clock_gs + prep_cost_of(ing) + engine.ingredient_rules[ing].cook_time)
+        card = spec.recipe_cards[order.dish]
+        nc = sum(
+            (config.COLLECT_GS + config.CHOP_GS + 2.0) if st == config.CHOPPED else (config.COLLECT_GS + 1.5)
+            for _, st in card.items()
+            if st != config.COOKED
+        )
+        start_clear = max(t_after_prev, t_ready)
+        return start_clear + clear_pad + (0.0 if hand_owner == order.order_id else nc * 0.5)
+
+    def can_start_cook(cand: Any, ing: str, ordered: list[Any]) -> tuple[bool, float]:
+        if len(engine.hands) >= config.HAND_SLOTS:
+            return False, math.inf
+        pc = prep_cost_of(ing)
+        rule = engine.ingredient_rules[ing]
+
+        for b in engine.burners:
+            if b.job is not None and engine.clock_gs + pc + burn_safety >= b.job.burn_gs:
+                return False, math.inf
+
+        t_prev_done = engine.clock_gs
+        for o in ordered:
+            if o.order_id == cand.order_id:
+                break
+            if order_cooked_needed(o):
+                return False, math.inf
+            t_prev_done = estimate_order_finish(o, t_prev_done)
+            o_jobs = [
+                engine.burners[i].job
+                for i, oid in burner_owner.items()
+                if oid == o.order_id and engine.burners[i].job is not None
+            ]
+            if o_jobs and engine.clock_gs + pc + burn_safety >= min(j.burn_gs for j in o_jobs):
+                return False, math.inf
+
+        cand_jobs = [
+            engine.burners[i].job
+            for i, oid in burner_owner.items()
+            if oid == cand.order_id and engine.burners[i].job is not None
+        ]
+        target_burn_min = 0.0 if cand.order_id == ordered[0].order_id else t_prev_done + burn_safety + 3.0
+        for j in cand_jobs:
+            if cand.order_id != ordered[0].order_id:
+                target_burn_min = max(target_burn_min, j.ready_gs + 2.0)
+
+        new_burn = engine.clock_gs + pc + rule.cook_time + rule.burn_window
+        if new_burn >= target_burn_min:
+            return True, engine.clock_gs
+        earliest_launch = target_burn_min - (pc + rule.cook_time + rule.burn_window)
+        return False, max(engine.clock_gs + 1.0, earliest_launch)
+
+    def start_cook(order: Any, ing: str) -> None:
+        rule = engine.ingredient_rules[ing]
+        do(ToolCall("collect", {"ingredient": ing}))
+        if rule.cookable_from == config.CHOPPED:
+            do(ToolCall("chop", {"ingredient": ing}))
+        before = {i for i, b in enumerate(engine.burners) if b.job is not None}
+        do(ToolCall("cook", {"ingredient": ing}))
+        after = {i for i, b in enumerate(engine.burners) if b.job is not None}
+        added = after - before
+        if len(added) != 1:
+            raise RuntimeError("expected 1 new burner")
+        burner_owner[added.pop()] = order.order_id
+
+    while not engine.terminated and engine._action_count < engine.max_actions:
+        plate_o = _held_plate_order(engine)
+        if plate_o is not None:
+            do(ToolCall("serve", {"order_id": plate_o.order_id}))
+            continue
+
+        actives = _active_orders(engine)
+        if not actives:
+            if allow_arrival_peek:
+                nxt = _next_pending_arrival(engine)
+                if nxt is None:
+                    break
+                do(_wait_step(max(1.0, nxt - engine.clock_gs)))
+            else:
+                if not any(o.status == "PENDING" for o in engine._order_list):
+                    break
+                do(ToolCall("wait", {"seconds": 1}))
+            continue
+
+        def prio(o: Any) -> tuple[int, int, float, str]:
+            is_h = 0 if o.order_id == hand_owner else 1
+            o_jobs = [
+                engine.burners[i].job
+                for i, oid in burner_owner.items()
+                if oid == o.order_id and engine.burners[i].job is not None
+            ]
+            has_j = 0 if o_jobs else 1
+            key_t = min(j.burn_gs for j in o_jobs) if o_jobs else o.arrival_gs
+            return (is_h, has_j, key_t, o.order_id)
+
+        ordered = sorted(actives, key=prio)
+        focus = ordered[0]
+
+        if hand_owner == focus.order_id and _exact_plate_ready(engine, focus):
+            do(ToolCall("plate", {"recipe": focus.dish}))
+            continue
+
+        ready_focus = [
+            (i, engine.burners[i].job)
+            for i, oid in burner_owner.items()
+            if oid == focus.order_id
+            and engine.burners[i].job is not None
+            and engine.burners[i].job.status(engine.clock_gs) == "READY"
+        ]
+        ready_focus.sort(key=lambda x: x[1].burn_gs)
+        if ready_focus and len(engine.hands) < config.HAND_SLOTS:
+            idx, job = ready_focus[0]
+            hand_owner = focus.order_id
+            do(ToolCall("collect_cooked", {"ingredient": job.ingredient, "burner_index": idx}))
+            continue
+
+        started = False
+        next_launch_t = math.inf
+        if _free_burners(engine) > 0 and len(engine.hands) < config.HAND_SLOTS:
+            for cand in ordered:
+                needed = order_cooked_needed(cand)
+                if not needed:
+                    continue
+                ok, lt = can_start_cook(cand, needed[0], ordered)
+                if ok:
+                    start_cook(cand, needed[0])
+                    started = True
+                    break
+                if lt < next_launch_t:
+                    next_launch_t = lt
+                break
+        if started:
+            continue
+
+        missing_focus = _missing_components(engine, focus)
+        non_cooked = [(ing, st) for ing, st in missing_focus if st != config.COOKED]
+        if non_cooked and len(engine.hands) < config.HAND_SLOTS:
+            ing, st = non_cooked[0]
+            step_cost = (config.CHOP_GS if st == config.CHOPPED else config.COLLECT_GS) + 3.0
+            earliest_b = min((b.job.burn_gs for b in engine.burners if b.job is not None), default=math.inf)
+            if engine.clock_gs + step_cost + 2.5 < earliest_b:
+                act = _do_non_cooked_step(engine, ing, st)
+                if act is not None:
+                    hand_owner = focus.order_id
+                    do(act)
+                    continue
+
+        cands_t = [
+            engine.burners[i].job.ready_gs
+            for i, oid in burner_owner.items()
+            if oid == focus.order_id
+            and engine.burners[i].job is not None
+            and engine.burners[i].job.status(engine.clock_gs) == "COOKING"
+        ]
+        if math.isfinite(next_launch_t) and next_launch_t > engine.clock_gs + 0.5:
+            cands_t.append(next_launch_t)
+        if _free_burners(engine) > 0 and allow_arrival_peek:
+            nxt_arr = _next_pending_arrival(engine)
+            if nxt_arr is not None and nxt_arr > engine.clock_gs + 0.5:
+                cands_t.append(nxt_arr)
+        if not cands_t:
+            cands_t = [
+                b.job.ready_gs
+                for b in engine.burners
+                if b.job is not None and b.job.status(engine.clock_gs) == "COOKING"
+            ]
+
+        earliest_burn = min((b.job.burn_gs for b in engine.burners if b.job is not None), default=math.inf)
+        if cands_t:
+            dt = max(1.0, min(cands_t) - engine.clock_gs)
+            if engine.clock_gs + dt >= earliest_burn - 2.0:
+                dt = max(1.0, math.floor(earliest_burn - engine.clock_gs - 2.0))
+            do(_wait_step(dt))
+        else:
+            do(ToolCall("wait", {"seconds": 1}))
+
+    if len(serve_start_times) < len(spec.orders):
+        raise RuntimeError(f"incomplete full_burner_witness: {len(serve_start_times)}/{len(spec.orders)}")
+    return batches, serve_start_times
+
+
+def best_parallel_witness(
+    spec: UnifiedKitchen,
+    *,
+    allow_arrival_peek: bool = True,
+) -> tuple[list[list[dict[str, Any]]], dict[str, float]]:
+    """Run the un-throttled full-burner witness across candidate stagger pads and return the shortest valid schedule."""
+    best: tuple[list[list[dict[str, Any]]], dict[str, float]] | None = None
+    for cp in (10.0, 12.0, 14.0, 16.5, 20.0):
+        try:
+            b, s = full_burner_witness(spec, clear_pad=cp, allow_arrival_peek=allow_arrival_peek)
+            if best is None or max(s.values()) < max(best[1].values()):
+                best = (b, s)
+        except Exception:
+            continue
+    if best is None:
+        return scheduled_witness(spec, allow_arrival_peek=allow_arrival_peek)
+    return best

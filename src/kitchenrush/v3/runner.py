@@ -168,7 +168,7 @@ def run_episode(
     adapter: AgentAdapter,
     ledger: SpendLedger,
     *,
-    max_turns: int = MAX_DECISIONS,
+    max_turns: int | None = None,
     history_mode: str = "full_chat",
 ) -> dict[str, Any]:
     """Run one complete episode with batched tool calls, atomic spend reservation, and replay verification."""
@@ -176,6 +176,7 @@ def run_episode(
         raise ValueError(f"Unknown history_mode={history_mode!r}; expected one of {VALID_HISTORY_MODES}")
 
     engine = UnifiedEngine(spec, record_trace=True, early_stop=True)
+    effective_max_turns = max_turns if max_turns is not None else engine.max_actions
     s_ctx = static_context(engine)
     last_turn: dict[str, Any] | None = None
     chat_messages: list[dict[str, Any]] = []
@@ -196,7 +197,7 @@ def run_episode(
     t_start = time.monotonic()
     reserve_amt = adapter.max_turn_reserve_usd()
 
-    while not engine.terminated and api_turns < max_turns and engine._action_count < MAX_DECISIONS:
+    while not engine.terminated and api_turns < effective_max_turns and engine._action_count < engine.max_actions:
         ok_cap, res_id, cap_msg = ledger.reserve(reserve_amt)
         if not ok_cap:
             status = "stopped_cap"
@@ -301,7 +302,7 @@ def run_episode(
             "parse_errors": decision.parse_errors,
         })
 
-    if status == "complete" and not engine.terminated and api_turns >= max_turns:
+    if status == "complete" and not engine.terminated and api_turns >= effective_max_turns:
         engine.termination_reason = "max_turns"
 
     trace_hash = digest(engine.trace)
