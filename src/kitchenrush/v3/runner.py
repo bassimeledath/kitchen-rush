@@ -462,7 +462,7 @@ def run_episode(
     return {
         "protocol": PROTOCOL,
         "spec_sha256": spec_sha256,
-        "tool_choice": "required" if uses_http_hooks else "adapter",
+        "tool_choice": getattr(adapter, "tool_choice", "required") if uses_http_hooks else "adapter",
         "model": adapter.name,
         "model_id": meta.get("model_id"),
         "requested_effort": meta.get("requested_effort"),
@@ -635,7 +635,7 @@ def run_campaign(
                     "spec_sha256": spec_hash,
                     "protocol": PROTOCOL,
                     "history_mode": history_mode,
-                    "tool_choice": "required" if isinstance(adapter, OpenRouterToolAdapter) else "adapter",
+                    "tool_choice": adapter.tool_choice if isinstance(adapter, OpenRouterToolAdapter) else "adapter",
                 }
                 planned_entries.append(plan_entry)
                 jobs.append((level, spec, adapter, ep_dir / filename, plan_entry))

@@ -489,5 +489,11 @@ def test_campaign_resume_retries_incomplete_and_skips_complete(tmp_path: Path):
     assert len(mod.ROSTER_OFFICIAL_15) == 15
     for k in mod.ROSTER_OFFICIAL_15:
         assert k in mod.MODELS
+    # Verify Anthropic reasoning models select tool_choice="auto" (Anthropic forbids "any"/"required" with thinking).
+    from kitchenrush.v3.adapters import OpenRouterToolAdapter
+    a_opus = OpenRouterToolAdapter(mod.MODELS["claude-opus-5.5-medium"], api_key="test-key")
+    a_sol = OpenRouterToolAdapter(mod.MODELS["gpt-6.2-sol-medium"], api_key="test-key")
+    assert a_opus.tool_choice == "auto"
+    assert a_sol.tool_choice == "required"
 
 

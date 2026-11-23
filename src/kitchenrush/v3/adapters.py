@@ -212,12 +212,20 @@ class OpenRouterToolAdapter(AgentAdapter):
         return self.spec.key
 
     @property
+    def tool_choice(self) -> str:
+        # Anthropic rejects tool_choice="any"/"required" when extended thinking (reasoning) is enabled.
+        if self.spec.model_id.startswith("anthropic/") and self.spec.reasoning is not None:
+            return "auto"
+        return "required"
+
+    @property
     def metadata(self) -> dict[str, Any]:
         return {
             "model_id": self.spec.model_id,
             "tier": self.spec.tier,
             "requested_effort": (self.spec.reasoning or {}).get("effort"),
             "max_tokens": self.spec.max_tokens,
+            "tool_choice": self.tool_choice,
         }
 
     def max_turn_reserve_usd(self) -> float:
@@ -275,7 +283,7 @@ class OpenRouterToolAdapter(AgentAdapter):
             "model": self.spec.model_id,
             "messages": messages,
             "tools": TOOL_SCHEMAS,
-            "tool_choice": "required",
+            "tool_choice": self.tool_choice,
             "max_tokens": self.spec.max_tokens,
             "usage": {"include": True},
         }
