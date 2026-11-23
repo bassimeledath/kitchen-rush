@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import random
 import socket
 import time
 import urllib.error
@@ -311,7 +312,20 @@ class OpenRouterToolAdapter(AgentAdapter):
 
         last_err: Exception | None = None
         winning_res_id: str | None = None
-        for attempt in range(3):
+        max_attempts = 5
+        retryable_codes = (429, 502, 503, 504, 529)
+
+        def _backoff_s(attempt_idx: int, retry_after_hdr: str | None = None) -> float:
+            if retry_after_hdr:
+                try:
+                    val = float(retry_after_hdr)
+                    if 0.0 < val <= 120.0:
+                        return val + random.uniform(0.2, 1.0)
+                except ValueError:
+                    pass
+            return min(60.0, 4.0 * (2 ** attempt_idx)) + random.uniform(0.2, 1.5)
+
+        for attempt in range(max_attempts):
             res_id: str | None = None
             if reserve_attempt is not None:
                 ok_res, res_id, cap_msg = reserve_attempt(attempt_reserve_usd, attempt + 1)
@@ -323,14 +337,25 @@ class OpenRouterToolAdapter(AgentAdapter):
                 with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                     raw = json.loads(resp.read().decode("utf-8"))
                 latency = time.monotonic() - t0
+                if isinstance(raw, dict) and "error" in raw:
+                    err = raw["error"]
+                    err_code = err.get("code") if isinstance(err, dict) else None
+                    if release_attempt is not None:
+                        release_attempt(res_id, False, f"Provider JSON error: {err}")
+                    if err_code in retryable_codes and attempt < max_attempts - 1:
+                        time.sleep(_backoff_s(attempt))
+                        last_err = ProviderError(f"Provider JSON error: {err}", err_code)
+                        continue
+                    raise ProviderError(f"Provider JSON error: {err}", err_code)
                 winning_res_id = res_id
                 break
             except urllib.error.HTTPError as exc:
                 err_body = exc.read().decode("utf-8", errors="replace")[:400]
+                retry_after = exc.headers.get("Retry-After") if exc.headers else None
                 if release_attempt is not None:
                     release_attempt(res_id, False, f"HTTP {exc.code}: {err_body}")
-                if exc.code in (429, 502, 503, 504) and attempt < 2:
-                    time.sleep(3 * (attempt + 1))
+                if exc.code in retryable_codes and attempt < max_attempts - 1:
+                    time.sleep(_backoff_s(attempt, retry_after))
                     last_err = ProviderError(f"HTTP {exc.code}: {err_body}", exc.code)
                     continue
                 raise ProviderError(f"HTTP {exc.code}: {err_body}", exc.code) from exc
@@ -342,19 +367,13 @@ class OpenRouterToolAdapter(AgentAdapter):
                 uncertain = not pre_send
                 if release_attempt is not None:
                     release_attempt(res_id, uncertain, f"Transport error: {exc}")
-                if attempt < 2:
-                    time.sleep(3 * (attempt + 1))
+                if attempt < max_attempts - 1:
+                    time.sleep(_backoff_s(attempt))
                     last_err = ProviderError(f"Transport error: {exc}", uncertain_billing=uncertain)
                     continue
                 raise ProviderError(f"Transport error after retries: {exc}", uncertain_billing=uncertain) from exc
         else:
             raise last_err or ProviderError("Unknown provider failure")
-
-        if "error" in raw:
-            err = raw["error"]
-            if release_attempt is not None:
-                release_attempt(winning_res_id, False, f"Provider JSON error: {err}")
-            raise ProviderError(f"Provider JSON error: {err}", err.get("code") if isinstance(err, dict) else None)
 
         choices = raw.get("choices") or []
         if not choices:

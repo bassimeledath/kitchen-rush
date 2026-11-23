@@ -24,8 +24,8 @@ from kitchenrush.v3.replay import export_v3_replay  # noqa: E402
 from kitchenrush.v3.runner import load_bank, run_campaign, save_bank  # noqa: E402
 from kitchenrush.v3.solvers import run_greedy_overlap_solver, run_sequential_solver  # noqa: E402
 
-DEFAULT_BANK = ROOT / "data/v3/calibration_bank_v2.json"
-DEFAULT_RUN_DIR = ROOT / "runs/v3/bank_v2_run"
+DEFAULT_BANK = ROOT / "data/v3/calibration_bank_v3.json"
+DEFAULT_RUN_DIR = ROOT / "runs/v3/bank_v3_run"
 
 
 def _spec(key: str, model_id: str, tier: str, inp: float, out: float, effort: str) -> ModelSpec:
@@ -42,23 +42,66 @@ def _spec(key: str, model_id: str, tier: str, inp: float, out: float, effort: st
 
 
 MODELS: dict[str, ModelSpec] = {
+    # --- Budget / Small ---
     "gpt-6-luna-low": _spec("gpt-6-luna-low", "openai/gpt-6-luna", "small", 0.10, 0.50, "low"),
     "claude-haiku-5.5-low": _spec("claude-haiku-5.5-low", "anthropic/claude-haiku-5.5", "small", 0.10, 0.50, "low"),
-    "gemini-3.8-flash-low": _spec("gemini-3.8-flash-low", "google/gemini-3.8-flash", "medium", 0.825, 4.125, "low"),
+    "gemini-3.5-flash-lite-low": _spec("gemini-3.5-flash-lite-low", "google/gemini-3.5-flash-lite", "small", 0.30, 2.50, "low"),
+    "gemini-3.8-flash-low": _spec("gemini-3.8-flash-low", "google/gemini-3.8-flash", "small", 0.825, 4.125, "low"),
     "gemini-3.8-flash-medium": _spec("gemini-3.8-flash-medium", "google/gemini-3.8-flash", "medium", 0.825, 4.125, "medium"),
+    "deepseek-v4.1-flash-low": _spec("deepseek-v4.1-flash-low", "deepseek/deepseek-v4.1-flash", "small", 0.05, 0.20, "low"),
+    "nemotron-3.5-super-vl-low": _spec("nemotron-3.5-super-vl-low", "nvidia/nemotron-3.5-super-vl", "small", 0.15, 0.47, "low"),
+    # --- Mid / Workhorse ---
     "gpt-6.1-terra-low": _spec("gpt-6.1-terra-low", "openai/gpt-6.1-terra", "medium", 1.00, 5.00, "low"),
-    "claude-sonnet-5.5-low": _spec("claude-sonnet-5.5-low", "anthropic/claude-sonnet-5.5", "frontier", 2.00, 10.00, "low"),
-    "claude-sonnet-5.5-medium": _spec("claude-sonnet-5.5-medium", "anthropic/claude-sonnet-5.5", "frontier", 2.00, 10.00, "medium"),
-    "claude-sonnet-5.5-high": _spec("claude-sonnet-5.5-high", "anthropic/claude-sonnet-5.5", "frontier", 2.00, 10.00, "high"),
+    "gpt-6.1-terra-medium": _spec("gpt-6.1-terra-medium", "openai/gpt-6.1-terra", "medium", 1.00, 5.00, "medium"),
+    "claude-sonnet-5.5-low": _spec("claude-sonnet-5.5-low", "anthropic/claude-sonnet-5.5", "medium", 2.00, 10.00, "low"),
+    "claude-sonnet-5.5-medium": _spec("claude-sonnet-5.5-medium", "anthropic/claude-sonnet-5.5", "medium", 2.00, 10.00, "medium"),
+    "claude-sonnet-5.5-high": _spec("claude-sonnet-5.5-high", "anthropic/claude-sonnet-5.5", "medium", 2.00, 10.00, "high"),
+    "gemini-4-hydrogen-low": _spec("gemini-4-hydrogen-low", "google/gemini-4-hydrogen", "medium", 1.50, 7.50, "low"),
+    "gemini-4-hydrogen-medium": _spec("gemini-4-hydrogen-medium", "google/gemini-4-hydrogen", "medium", 1.50, 7.50, "medium"),
+    "deepseek-v4-pro-medium": _spec("deepseek-v4-pro-medium", "deepseek/deepseek-v4-pro-0813", "medium", 1.32, 3.96, "medium"),
+    "qwen4-max-medium": _spec("qwen4-max-medium", "qwen/qwen4-max", "medium", 1.425, 4.275, "medium"),
+    # --- Frontier ---
     "gpt-6.1-sol-low": _spec("gpt-6.1-sol-low", "openai/gpt-6.1-sol", "frontier", 2.00, 10.00, "low"),
     "gpt-6.1-sol-medium": _spec("gpt-6.1-sol-medium", "openai/gpt-6.1-sol", "frontier", 2.00, 10.00, "medium"),
     "gpt-6.1-sol-high": _spec("gpt-6.1-sol-high", "openai/gpt-6.1-sol", "frontier", 2.00, 10.00, "high"),
     "gpt-6.2-sol-low": _spec("gpt-6.2-sol-low", "openai/gpt-6.2-sol", "frontier", 2.00, 10.00, "low"),
     "gpt-6.2-sol-medium": _spec("gpt-6.2-sol-medium", "openai/gpt-6.2-sol", "frontier", 2.00, 10.00, "medium"),
     "gpt-6.2-sol-high": _spec("gpt-6.2-sol-high", "openai/gpt-6.2-sol", "frontier", 2.00, 10.00, "high"),
+    "claude-opus-5.5-low": _spec("claude-opus-5.5-low", "anthropic/claude-opus-5.5", "frontier", 4.00, 20.00, "low"),
+    "claude-opus-5.5-medium": _spec("claude-opus-5.5-medium", "anthropic/claude-opus-5.5", "frontier", 4.00, 20.00, "medium"),
+    "claude-opus-5.5-high": _spec("claude-opus-5.5-high", "anthropic/claude-opus-5.5", "frontier", 4.00, 20.00, "high"),
+    "gemini-4-carbon-low": _spec("gemini-4-carbon-low", "google/gemini-4-carbon", "frontier", 2.00, 10.00, "low"),
+    "gemini-4-carbon-medium": _spec("gemini-4-carbon-medium", "google/gemini-4-carbon", "frontier", 2.00, 10.00, "medium"),
     "gemini-4-neon-low": _spec("gemini-4-neon-low", "google/gemini-4-neon", "frontier", 3.00, 15.00, "low"),
     "gemini-4-neon-medium": _spec("gemini-4-neon-medium", "google/gemini-4-neon", "frontier", 3.00, 15.00, "medium"),
     "gemini-4-neon-high": _spec("gemini-4-neon-high", "google/gemini-4-neon", "frontier", 3.00, 15.00, "high"),
+    "grok-4.7-low": _spec("grok-4.7-low", "x-ai/grok-4.7", "frontier", 2.00, 6.00, "low"),
+    "grok-4.7-medium": _spec("grok-4.7-medium", "x-ai/grok-4.7", "frontier", 2.00, 6.00, "medium"),
+}
+
+ROSTER_OFFICIAL_15: tuple[str, ...] = (
+    # Budget (5)
+    "gpt-6-luna-low",
+    "claude-haiku-5.5-low",
+    "gemini-3.8-flash-low",
+    "deepseek-v4.1-flash-low",
+    "nemotron-3.5-super-vl-low",
+    # Mid / Workhorse (5)
+    "gpt-6.1-terra-medium",
+    "claude-sonnet-5.5-medium",
+    "gemini-4-hydrogen-medium",
+    "deepseek-v4-pro-medium",
+    "qwen4-max-medium",
+    # Frontier (5)
+    "gpt-6.2-sol-medium",
+    "claude-opus-5.5-medium",
+    "gemini-4-carbon-medium",
+    "gemini-4-neon-medium",
+    "grok-4.7-medium",
+)
+
+ROSTER_ALIASES: dict[str, tuple[str, ...]] = {
+    "official-15": ROSTER_OFFICIAL_15,
 }
 
 
@@ -124,13 +167,19 @@ def cmd_build_bank(args: argparse.Namespace) -> None:
 
 def cmd_run(args: argparse.Namespace) -> None:
     bank = load_bank(Path(args.bank))
-    model_keys = [k.strip() for k in args.models.split(",") if k.strip()]
+    raw_keys = [k.strip() for k in args.models.split(",") if k.strip()]
+    model_keys: list[str] = []
+    for k in raw_keys:
+        if k in ROSTER_ALIASES:
+            model_keys.extend(ROSTER_ALIASES[k])
+        else:
+            model_keys.append(k)
     adapters = []
     if args.max_tokens <= 0:
         raise SystemExit("--max-tokens must be a positive integer")
     for k in model_keys:
         if k not in MODELS:
-            raise SystemExit(f"Unknown model key {k!r}; available: {sorted(MODELS)}")
+            raise SystemExit(f"Unknown model key {k!r}; available: {sorted(MODELS)} (or aliases: {sorted(ROSTER_ALIASES)})")
         spec = replace(MODELS[k], max_tokens=args.max_tokens)
         adapters.append(OpenRouterToolAdapter(spec, timeout=args.timeout))
 
@@ -144,6 +193,7 @@ def cmd_run(args: argparse.Namespace) -> None:
         campaign_cap_usd=args.campaign_cap,
         history_mode=args.history_mode,
         workers=args.workers,
+        retry_incomplete=not args.no_retry_incomplete,
         verbose=True,
     )
     print("\n=== SUMMARY ===\n")
@@ -241,6 +291,7 @@ def main() -> None:
     p_r.add_argument("--timeout", type=int, default=DEFAULT_REQUEST_TIMEOUT_S, help="HTTP request timeout in seconds per turn.")
     p_r.add_argument("--history-mode", choices=("full_chat", "last_turn"), default="full_chat")
     p_r.add_argument("--workers", type=int, default=4)
+    p_r.add_argument("--no-retry-incomplete", action="store_true", help="Do not re-run prior stopped_cap/error episodes on resume.")
     p_r.set_defaults(func=cmd_run)
 
     p_rep = sub.add_parser("report")

@@ -435,3 +435,59 @@ def test_difficulty_ladder_monotonicity():
         assert a["util_lb"] < b["util_lb"], f"stove util_lb dropped: {a} vs {b}"
         assert a["gr"] > b["gr"], f"greedy baseline did not decrease: {a} vs {b}"
 
+
+def test_campaign_resume_retries_incomplete_and_skips_complete(tmp_path: Path):
+    import importlib.util
+    import json
+    from kitchenrush.v3.adapters import AgentAdapter, ProviderError
+    from kitchenrush.v3.runner import run_campaign
+
+    spec1, _ = generate_kitchen(2000, 1)
+    spec2, _ = generate_kitchen(2001, 1)
+    bank = {1: [spec1, spec2]}
+
+    key1 = json.dumps(static_context(UnifiedEngine(spec1))["ingredient_rules"], sort_keys=True)
+    key2 = json.dumps(static_context(UnifiedEngine(spec2))["ingredient_rules"], sort_keys=True)
+    assert key1 != key2
+    calls_seen: dict[str, int] = {}
+
+    class FlakyAdapter(AgentAdapter):
+        def __init__(self, fail_second: bool):
+            self.fail_second = fail_second
+
+        @property
+        def name(self) -> str:
+            return "flaky-model"
+
+        def act(self, static_ctx, dyn_state, *, chat_messages=None) -> TurnDecision:
+            k = json.dumps(static_ctx["ingredient_rules"], sort_keys=True)
+            calls_seen[k] = calls_seen.get(k, 0) + 1
+            if self.fail_second and k == key2:
+                raise ProviderError("HTTP 429 rate limited", 429)
+            return TurnDecision(calls=[ToolCall("wait", {"seconds": 60})])
+
+    out_dir = tmp_path / "campaign"
+    # Phase 1: seed 2000 completes, seed 2001 fails with ProviderError (incomplete).
+    s1 = run_campaign(out_dir, bank, [FlakyAdapter(fail_second=True)], levels=(1,), max_seeds=2, verbose=False)
+    assert s1["total_scored"] == 1
+    assert calls_seen[key1] >= 1
+    calls_1_before = calls_seen[key1]
+
+    # Phase 2 resume: seed 2000 must NOT be re-run; seed 2001 must be archived & retried to completion.
+    s2 = run_campaign(out_dir, bank, [FlakyAdapter(fail_second=False)], levels=(1,), max_seeds=2, verbose=False)
+    assert s2["total_scored"] == 2
+    assert calls_seen[key1] == calls_1_before
+    archived = list((out_dir / "episodes_incomplete").glob("D1_seed2001_flaky-model.*.json"))
+    assert len(archived) == 1
+
+    # Verify official-15 roster keys all resolve in CLI registry.
+    cli_path = Path(__file__).resolve().parents[1] / "scripts" / "run_v3_calibration.py"
+    mod_spec = importlib.util.spec_from_file_location("run_v3_calibration_roster", cli_path)
+    assert mod_spec and mod_spec.loader
+    mod = importlib.util.module_from_spec(mod_spec)
+    mod_spec.loader.exec_module(mod)
+    assert len(mod.ROSTER_OFFICIAL_15) == 15
+    for k in mod.ROSTER_OFFICIAL_15:
+        assert k in mod.MODELS
+
+

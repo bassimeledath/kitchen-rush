@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import concurrent.futures
 import json
+import os
 import threading
 import time
 import uuid
@@ -530,6 +531,14 @@ def _episode_matches_plan(ep: dict[str, Any], plan_entry: dict[str, Any], model_
     )
 
 
+def _atomic_write_text(path: Path, content: str) -> None:
+    """Write text atomically via same-directory temp file + os.replace so crashes never corrupt JSON."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f".{path.name}.{uuid.uuid4().hex[:8]}.tmp")
+    tmp.write_text(content, encoding="utf-8")
+    os.replace(tmp, path)
+
+
 def _load_or_create_manifest(
     manifest_path: Path,
     *,
@@ -569,7 +578,7 @@ def _load_or_create_manifest(
             "models": existing_models,
             "planned_episodes": list(existing_by_file.values()),
         }
-        manifest_path.write_text(json.dumps(merged, indent=2), encoding="utf-8")
+        _atomic_write_text(manifest_path, json.dumps(merged, indent=2))
         return merged
 
     manifest = {
@@ -578,7 +587,7 @@ def _load_or_create_manifest(
         "models": models_meta,
         "planned_episodes": planned_entries,
     }
-    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    _atomic_write_text(manifest_path, json.dumps(manifest, indent=2))
     return manifest
 
 
@@ -592,12 +601,14 @@ def run_campaign(
     campaign_cap_usd: float = 12.0,
     history_mode: str = "full_chat",
     workers: int = 1,
+    retry_incomplete: bool = True,
     verbose: bool = True,
 ) -> dict[str, Any]:
     """Run manifest-validated, seed-interleaved evaluation across levels and adapters."""
     out_dir.mkdir(parents=True, exist_ok=True)
     ep_dir = out_dir / "episodes"
     ep_dir.mkdir(exist_ok=True)
+    incomplete_dir = out_dir / "episodes_incomplete"
     ledger = SpendLedger(out_dir / "spend.jsonl", campaign_cap_usd)
     print_lock = threading.Lock()
 
@@ -649,7 +660,26 @@ def run_campaign(
                     f"(spec={plan_entry['spec_sha256']}, history={plan_entry['history_mode']}, "
                     f"tool_choice={plan_entry['tool_choice']}). Use a fresh --out-dir."
                 )
-            return cached
+            if cached.get("status") == "complete" and cached.get("scored") is True:
+                return cached
+            if not retry_incomplete:
+                return cached
+            ok_cap_retry, cap_msg_retry = ledger.can_spend(adapter.max_turn_reserve_usd())
+            if not ok_cap_retry:
+                if verbose:
+                    with print_lock:
+                        print(f"[CAP_HIT SKIP RETRY] D={level} seed={spec.seed} {model_label}: {cap_msg_retry}", flush=True)
+                return cached
+            incomplete_dir.mkdir(exist_ok=True)
+            archived = incomplete_dir / f"{ep_path.stem}.{int(time.time())}_{uuid.uuid4().hex[:6]}.json"
+            os.replace(ep_path, archived)
+            if verbose:
+                with print_lock:
+                    print(
+                        f"[RETRY INCOMPLETE] D={level} seed={spec.seed} {model_label}: "
+                        f"prior status={cached.get('status')} archived to {archived.name}",
+                        flush=True,
+                    )
 
         ok_cap, cap_msg = ledger.can_spend(adapter.max_turn_reserve_usd())
         if not ok_cap:
@@ -660,7 +690,7 @@ def run_campaign(
         res = run_episode(spec, adapter, ledger, history_mode=history_mode)
         if suffix:
             res["model"] = model_label
-        ep_path.write_text(json.dumps(res, indent=2), encoding="utf-8")
+        _atomic_write_text(ep_path, json.dumps(res, indent=2))
         if verbose:
             cap_banner = f" [CAP_HIT: {', '.join(res['cap_hits'])}]" if res["cap_hits"] else ""
             with print_lock:
@@ -695,7 +725,7 @@ def run_campaign(
             manifest_episodes.append(json.loads(p.read_text(encoding="utf-8")))
 
     summary = summarize_campaign(manifest_episodes, planned_by_cell=planned_by_cell)
-    (out_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    _atomic_write_text(out_dir / "summary.json", json.dumps(summary, indent=2))
     md = format_markdown_table(summary)
-    (out_dir / "REPORT.md").write_text(md + "\n", encoding="utf-8")
+    _atomic_write_text(out_dir / "REPORT.md", md + "\n")
     return summary
