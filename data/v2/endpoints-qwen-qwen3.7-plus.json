@@ -1,0 +1,81 @@
+{
+  "data": {
+    "id": "qwen/qwen3.7-plus",
+    "name": "Qwen: Qwen3.7 Plus",
+    "created": 1780491783,
+    "description": "Qwen3.7-Plus is a cost-effective model in Alibaba's Qwen3.7 series. It supports text and image input with text output, building on the series' text capabilities with a comprehensive upgrade to its...",
+    "architecture": {
+      "tokenizer": "Qwen",
+      "instruct_type": null,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "output_modalities": [
+        "text"
+      ]
+    },
+    "endpoints": [
+      {
+        "name": "Alibaba | qwen/qwen3.7-plus-20260602",
+        "model_id": "qwen/qwen3.7-plus",
+        "model_name": "Qwen: Qwen3.7 Plus",
+        "context_length": 1000000,
+        "pricing": {
+          "prompt": "0.00000032",
+          "completion": "0.00000128",
+          "input_cache_read": "0.000000064",
+          "input_cache_write": "0.0000004",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 256000,
+              "prompt": "0.00000096",
+              "completion": "0.00000384",
+              "input_cache_read": "0.000000192",
+              "input_cache_write": "0.0000012"
+            }
+          ]
+        },
+        "provider_name": "Alibaba",
+        "tag": "alibaba",
+        "quantization": "unknown",
+        "max_completion_tokens": 131072,
+        "max_prompt_tokens": 983616,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "presence_penalty",
+          "response_format",
+          "logprobs",
+          "top_logprobs",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "top_k",
+          "frequency_penalty",
+          "stop"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.9965087455923,
+        "uptime_last_5m": 99.9781826115414,
+        "uptime_last_1d": 99.98276208327755,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      }
+    ]
+  }
+}

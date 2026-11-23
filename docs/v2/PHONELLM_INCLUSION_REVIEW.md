@@ -1,0 +1,21 @@
+# PhoneLLM inclusion review
+
+**Verdict:** retain PhoneLLM in the roster. Dedicated hosting can share a dollar–quality comparison, but its current artifacts do not support the common dollar-allowance ranking. This is an accounting blocker, not model incompatibility.
+
+**Current proof.** The original checkout's `scripts/modal_phonellm_sglang.py` pins PhoneLLM/SGLang on B200, with warmup, concurrency four and a 30-minute *startup* timeout. It specifies no total session lifetime, maximum container count, or CPU/RAM limits. `data/phonellm_sglang_off_required.json` and `data/phonellm_sglang_conformance_s1000_medium_b1_off_required.json` record response time and token usage, not hosting charges. Those traces prove neither v2 compatibility nor dollar accounting.
+
+**Minimal cost contract.** Label the row “PhoneLLM / Modal / pinned hardware and concurrency.” Run one isolated container with sequential episodes and no unrelated traffic. Record every billable lifecycle interval; include startup, warmup, unsuccessful work, between-request idle time, shutdown, CPU/RAM, region premiums, storage and egress. Freeze an allocation rule before running: episode-owned intervals plus equal shares of shared overhead across the predeclared attempted episodes; disclose aborted sessions separately. Reconcile allocated totals against the provider report. Do not invent a per-token tariff or use HTTP duration × GPU price as the whole bill. [Modal billing report](https://modal.com/docs/sdk/py/latest/billing), [resource billing](https://modal.com/docs/guide/resources).
+
+**Safety changes before launch.** Reserve a dedicated session envelope in the experiment ledger. Use one provider-limited container, bounded lifetime, explicit CPU/RAM limits, and bounded ancillary resources. A [Sandbox](https://modal.com/docs/sdk/py/latest/Sandbox) exposes lifetime and resource limits; converting the existing server requires validation. Compute the reservation from maximum lifetime × maximum resource rates, plus all ancillary charges; include setup outside that lifetime. Sandbox CPU/RAM prices differ from function prices. Verify the account's remaining [workspace usage cap](https://modal.com/docs/guide/budgets); environment caps omit some charges. Dashboard inspection on September 17 found an auto-raising provider usage limit and no manual spend limit; no settings changed. The [prepared bounded probe](PHONELLM_PROBE.md) instead uses one existing image and explicit resource/lifetime limits, with a reviewed $5 operational reservation. [Prices](https://modal.com/pricing).
+
+**Admission gate.** Provider billing reports do not establish synchronous per-response charges. Until a validated meter assigns cumulative deployment cost before each action, shared overhead cannot silently disappear from allowance admission. Publish reconciled quality-versus-total-cost observations first, explicitly unranked for allowance/B80. A fixed, fully reserved resource configuration with measured lifecycle boundaries could enable the common contract; reconcile its meter, test timeout/failed-start accounting, then rerun. Retrospectively allocating an invoice does not prove the live budget gate was correct.
+
+A bounded Sandbox probe confirms three valid typed action selections and successful termination.
+A separate full-task diagnostic initially stopped on a host-side log parsing error after one
+replay-verified kitchen. A verified filesystem transfer recovered the two unfinished kitchens,
+preserving the first result and all prior costs and usage. All three scored 0; independent
+review confirmed repeated invalid choices in the recovered runs, with normal response finishes.
+These diagnostic results remain unranked and use different kitchens from the shared canary.
+See the [recovery evidence](PHONELLM_DURABLE_RECOVERY.md). Hosting bills remain unreconciled and no
+live hosting-cost admission meter has been validated. See the [probe evidence summary](PHONELLM_PROBE.md)
+and [full-task diagnostic](PHONELLM_EPISODE_DIAGNOSTIC.md).

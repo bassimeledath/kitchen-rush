@@ -1,0 +1,86 @@
+{
+  "status": "passed",
+  "stage": "canary",
+  "episodes": 3,
+  "requests_verified": 105,
+  "protocol_hash": "5cd3e0925a16aad4cf0ab9ee9608732d85a2974cd2669f77e0be7ea5734518ba",
+  "ledger": {
+    "cap_usd": 50.0,
+    "accounted_usd": 0.709813188,
+    "settled_usd": 0.691099938,
+    "unresolved_reserve_usd": 0.01871325,
+    "requests": 185,
+    "unresolved_requests": 0,
+    "retained_failed_requests": 1,
+    "overruns": 0,
+    "stages": {
+      "canary": 0.709813188,
+      "smoke": 0.0,
+      "pilot": 0.0
+    }
+  },
+  "summary": {
+    "rows": [
+      {
+        "model": "jev",
+        "budget_kind": "USD",
+        "budget": 0.4,
+        "quality": 0,
+        "ci95": null,
+        "seeds": 1,
+        "episodes": 1,
+        "mean_cost_usd": 0.006802614,
+        "mean_completion": 0.3333333333333333,
+        "mean_invalid": 19,
+        "mean_output_tokens": 63474,
+        "dollar_censored": 0
+      },
+      {
+        "model": "mini",
+        "budget_kind": "USD",
+        "budget": 0.4,
+        "quality": 100.0,
+        "ci95": null,
+        "seeds": 1,
+        "episodes": 1,
+        "mean_cost_usd": 0.10726725,
+        "mean_completion": 1.0,
+        "mean_invalid": 0,
+        "mean_output_tokens": 6540,
+        "dollar_censored": 0
+      },
+      {
+        "model": "sonnet",
+        "budget_kind": "USD",
+        "budget": 0.4,
+        "quality": 53.333333333333336,
+        "ci95": null,
+        "seeds": 1,
+        "episodes": 1,
+        "mean_cost_usd": 0.355821,
+        "mean_completion": 0.6666666666666666,
+        "mean_invalid": 4,
+        "mean_output_tokens": 427,
+        "dollar_censored": 0
+      }
+    ],
+    "B80": {
+      "mini": {
+        "status": "not tested / ineligible",
+        "mean": null,
+        "conservative": null
+      },
+      "jev": {
+        "status": "not tested / ineligible",
+        "mean": null,
+        "conservative": null
+      },
+      "sonnet": {
+        "status": "not tested / ineligible",
+        "mean": null,
+        "conservative": null
+      }
+    },
+    "uncertainty": "95% seed-cluster percentile bootstrap, 4000 draws. Pilot intervals are exploratory; no stable full-roster rank is claimed."
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "configuration_hash": "7d3d605d7c128a8c42cda541aff2693b2e81b3d1c4ed419d75e04eadf07a4193",
+  "opening_balance": 16.175129022,
+  "orchestration": {
+    "archive": "data/v2/release-r2/source-be2e6206c2f7eed34fb7073f7ef16de2fa453436196034d6da85c3ae63bc5fd3.zip",
+    "scripts": {
+      "scripts/audit_release_v2.py": "6ea9a7a811465ce35f20f4a1f583acc4b951d5b9b5274eb9c068f4951bd0603d",
+      "scripts/audit_roster_v2.py": "efff6886fccf0c3e9b5509ca460ba6021fcdb59b321f8cd381da5cfb6f1bbcb6",
+      "scripts/release_v2.py": "625af5aac6cd07ec716f40f79f28fe9cbcf357993ab037e4dbdbecb7f5c985b6"
+    },
+    "version": 1
+  },
+  "protocol_hash": "c45cb8c99119cd7f9bdda8b4d917daaae93c7458f45e8a3cb02dd50eb194e31b",
+  "roster_sha256": "78deef542dce7f5f8471a9993caace262dbec9e74595badb7b074a19ea489172"
+}

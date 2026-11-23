@@ -1,0 +1,46 @@
+{
+  "last_block": [
+    {
+      "completed": 1,
+      "cost_usd": 0.006802614,
+      "id": "canary-r2-jev-42000-0-d0.4-tNone",
+      "invalid": 19,
+      "quality": 0,
+      "reason": "game_terminal",
+      "status": "complete"
+    },
+    {
+      "completed": 2,
+      "cost_usd": 0.355821,
+      "id": "canary-r2-sonnet-42000-0-d0.4-tNone",
+      "invalid": 4,
+      "quality": 53.333333333333336,
+      "reason": "cannot_reserve_next_request",
+      "status": "complete"
+    },
+    {
+      "completed": 3,
+      "cost_usd": 0.10726725,
+      "id": "canary-r2-mini-42000-0-d0.4-tNone",
+      "invalid": 0,
+      "quality": 100.0,
+      "reason": "game_terminal",
+      "status": "complete"
+    }
+  ],
+  "ledger": {
+    "accounted_usd": 0.709813188,
+    "cap_usd": 50.0,
+    "overruns": 0,
+    "requests": 185,
+    "retained_failed_requests": 1,
+    "settled_usd": 0.691099938,
+    "stages": {
+      "canary": 0.709813188,
+      "pilot": 0.0,
+      "smoke": 0.0
+    },
+    "unresolved_requests": 0,
+    "unresolved_reserve_usd": 0.01871325
+  }
+}

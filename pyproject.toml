@@ -1,7 +1,7 @@
 [project]
 name = "kitchenrush"
 version = "0.1.0"
-description = "A benchmark for accurate AND fast native tool calling (latency costs points by construction)."
+description = "A benchmark for useful model actions under resource budgets in unfamiliar kitchens."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
@@ -11,8 +11,9 @@ keywords = [
     "tool-calling",
     "function-calling",
     "agents",
-    "latency",
-    "realtime",
+    "token-efficiency",
+    "inference-cost",
+    "action-selection",
     "llm",
     "evaluation",
 ]
@@ -32,6 +33,8 @@ dependencies = []
 providers = ["litellm>=1.40", "tenacity>=8.0", "tiktoken>=0.7"]
 all = ["litellm>=1.40", "tenacity>=8.0", "tiktoken>=0.7"]
 dev = ["pytest>=8.0", "ruff>=0.5", "mypy>=1.10"]
+# v2 providers use stdlib HTTP; matplotlib generates the audited pilot figures.
+v2 = ["matplotlib>=3.9"]
 
 [project.scripts]
 kitchenrush = "kitchenrush.cli:main"

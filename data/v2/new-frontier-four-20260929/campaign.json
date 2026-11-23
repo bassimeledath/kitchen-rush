@@ -1,0 +1,24 @@
+{
+  "name": "new-frontier-four-20260929",
+  "purpose": "Paired first-pass comparison of newly released GPT-6.1 Sol and Claude Sonnet 5.5 at low and high effort on the frozen single-chef three-level banks.",
+  "configurations": [
+    {"key": "gpt-6-1-sol-low", "model": "openai/gpt-6.1-sol", "provider": "OpenAI", "route_slug": "openai", "effort": "low"},
+    {"key": "gpt-6-1-sol-high", "model": "openai/gpt-6.1-sol", "provider": "OpenAI", "route_slug": "openai", "effort": "high"},
+    {"key": "claude-sonnet-5-5-low", "model": "anthropic/claude-sonnet-5.5", "provider": "Anthropic", "route_slug": "anthropic", "effort": "low"},
+    {"key": "claude-sonnet-5-5-high", "model": "anthropic/claude-sonnet-5.5", "provider": "Anthropic", "route_slug": "anthropic", "effort": "high"}
+  ],
+  "levels": ["easy", "medium", "hard"],
+  "kitchens_per_level": 12,
+  "maximum_assignments": 144,
+  "inference_ceiling_usd": 189.0,
+  "total_with_5_5_percent_credit_fee_usd": 199.395,
+  "episode_ceiling_usd": 5.0,
+  "canary_ceiling_usd": 5.0,
+  "max_output_tokens_per_request": 32768,
+  "maximum_prompt_bytes": 32768,
+  "maximum_decisions_per_episode": 160,
+  "request_deadline_seconds": 600,
+  "episode_wall_seconds": 3600,
+  "maximum_parallel_episodes": 4,
+  "retry_policy": "No request retries. A failed response quarantines that independent episode. Park a configuration after two quarantined episodes. Stop all spending after an HTTP 400/401/402/403, a ledger overrun, a source mismatch, or a global budget gate. All unscored assignments stay visible; no outcome-based replacement."
+}

@@ -1,0 +1,738 @@
+{
+  "batch": "roster_canary",
+  "configuration_hash": "7980de5739ba2beb710902d9c6d9f310d4ed8db6f59995b066a68bbbed130b01",
+  "cost_policy": "Actual paid cost includes the first non-admitted boundary response. Operational reservations constrain stage/global spending, not scored admission. TypeSafe reservation is an explicit estimate, not a guaranteed provider maximum.",
+  "jobs": [
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-claude-haiku-4-5-56300-3-0-d0.4-tNone",
+      "model": "claude-haiku-4-5",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-claude-sonnet-4-6-56300-3-0-d0.4-tNone",
+      "model": "claude-sonnet-4-6",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-claude-sonnet-4-6-think-56300-3-0-d0.4-tNone",
+      "model": "claude-sonnet-4-6-think",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-claude-sonnet-5-56300-3-0-d0.4-tNone",
+      "model": "claude-sonnet-5",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-deepseek-v4-flash-56300-3-0-d0.4-tNone",
+      "model": "deepseek-v4-flash",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-deepseek-v4-flash-think-56300-3-0-d0.4-tNone",
+      "model": "deepseek-v4-flash-think",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-deepseek-v4-pro-56300-3-0-d0.4-tNone",
+      "model": "deepseek-v4-pro",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-gemini-3-1-flash-lite-56300-3-0-d0.4-tNone",
+      "model": "gemini-3-1-flash-lite",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-gemini-3-5-flash-lite-56300-3-0-d0.4-tNone",
+      "model": "gemini-3-5-flash-lite",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-gemini-3-5-flash-think-56300-3-0-d0.4-tNone",
+      "model": "gemini-3-5-flash-think",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-gemini-3-6-flash-low-56300-3-0-d0.4-tNone",
+      "model": "gemini-3-6-flash-low",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-gemini-3-7-flash-low-56300-3-0-d0.4-tNone",
+      "model": "gemini-3-7-flash-low",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-glm-5-2-56300-3-0-d0.4-tNone",
+      "model": "glm-5-2",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-glm-5-3-flash-56300-3-0-d0.4-tNone",
+      "model": "glm-5-3-flash",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-gpt-5-4-56300-3-0-d0.4-tNone",
+      "model": "gpt-5-4",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-gpt-5-4-mini-56300-3-0-d0.4-tNone",
+      "model": "gpt-5-4-mini",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-gpt-5-4-mini-think-56300-3-0-d0.4-tNone",
+      "model": "gpt-5-4-mini-think",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-gpt-5-4-think-56300-3-0-d0.4-tNone",
+      "model": "gpt-5-4-think",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-gpt-5-6-luna-56300-3-0-d0.4-tNone",
+      "model": "gpt-5-6-luna",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-gpt-oss-120b-think-56300-3-0-d0.4-tNone",
+      "model": "gpt-oss-120b-think",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-grok-build-think-56300-3-0-d0.4-tNone",
+      "model": "grok-build-think",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-jev-56300-3-0-d0.4-tNone",
+      "model": "jev",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-llama-4-scout-56300-3-0-d0.4-tNone",
+      "model": "llama-4-scout",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-mistral-small-56300-3-0-d0.4-tNone",
+      "model": "mistral-small",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-nemotron-3-nano-56300-3-0-d0.4-tNone",
+      "model": "nemotron-3-nano",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-nemotron-3-super-56300-3-0-d0.4-tNone",
+      "model": "nemotron-3-super",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-nemotron-3-ultra-56300-3-0-d0.4-tNone",
+      "model": "nemotron-3-ultra",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    },
+    {
+      "dollar_cap": 0.4,
+      "id": "roster_canary-qwen3-7-plus-56300-3-0-d0.4-tNone",
+      "model": "qwen3-7-plus",
+      "seed": 56300,
+      "size": 3,
+      "split": "development",
+      "token_cap": null,
+      "trial": 0
+    }
+  ],
+  "max_decisions": 160,
+  "models": {
+    "claude-haiku-4-5": {
+      "input_price": 1e-06,
+      "key": "claude-haiku-4-5",
+      "max_output": 2048,
+      "model": "anthropic/claude-haiku-4.5",
+      "output_price": 5e-06,
+      "prompt_limit": 200000,
+      "provider": "Anthropic",
+      "reasoning": {
+        "enabled": false
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 2e-06,
+      "route_slug": "anthropic"
+    },
+    "claude-sonnet-4-6": {
+      "input_price": 3e-06,
+      "key": "claude-sonnet-4-6",
+      "max_output": 2048,
+      "model": "anthropic/claude-sonnet-4.6",
+      "output_price": 1.5e-05,
+      "prompt_limit": 1000000,
+      "provider": "Anthropic",
+      "reasoning": {
+        "enabled": false
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 6e-06,
+      "route_slug": "anthropic"
+    },
+    "claude-sonnet-4-6-think": {
+      "input_price": 3e-06,
+      "key": "claude-sonnet-4-6-think",
+      "max_output": 2048,
+      "model": "anthropic/claude-sonnet-4.6",
+      "output_price": 1.5e-05,
+      "prompt_limit": 1000000,
+      "provider": "Anthropic",
+      "reasoning": {
+        "effort": "low"
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 6e-06,
+      "route_slug": "anthropic"
+    },
+    "claude-sonnet-5": {
+      "input_price": 2e-06,
+      "key": "claude-sonnet-5",
+      "max_output": 2048,
+      "model": "anthropic/claude-sonnet-5",
+      "output_price": 1e-05,
+      "prompt_limit": 1000000,
+      "provider": "Anthropic",
+      "reasoning": {
+        "enabled": false
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 4e-06,
+      "route_slug": "anthropic"
+    },
+    "deepseek-v4-flash": {
+      "input_price": 9e-08,
+      "key": "deepseek-v4-flash",
+      "max_output": 2048,
+      "model": "deepseek/deepseek-v4-flash",
+      "output_price": 1.8e-07,
+      "prompt_limit": 1048576,
+      "provider": "DeepInfra",
+      "reasoning": {
+        "enabled": false
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 9e-08,
+      "route_slug": "deepinfra/fp8"
+    },
+    "deepseek-v4-flash-think": {
+      "input_price": 9e-08,
+      "key": "deepseek-v4-flash-think",
+      "max_output": 2048,
+      "model": "deepseek/deepseek-v4-flash",
+      "output_price": 1.8e-07,
+      "prompt_limit": 1048576,
+      "provider": "DeepInfra",
+      "reasoning": {
+        "effort": "high"
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 9e-08,
+      "route_slug": "deepinfra/fp8"
+    },
+    "deepseek-v4-pro": {
+      "input_price": 1.3e-06,
+      "key": "deepseek-v4-pro",
+      "max_output": 2048,
+      "model": "deepseek/deepseek-v4-pro",
+      "output_price": 2.6e-06,
+      "prompt_limit": 1048576,
+      "provider": "DeepInfra",
+      "reasoning": {
+        "enabled": false
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 1.3e-06,
+      "route_slug": "deepinfra/fp8"
+    },
+    "gemini-3-1-flash-lite": {
+      "input_price": 2.5e-07,
+      "key": "gemini-3-1-flash-lite",
+      "max_output": 2048,
+      "model": "google/gemini-3.1-flash-lite",
+      "output_price": 1.5e-06,
+      "prompt_limit": 1048576,
+      "provider": "Google AI Studio",
+      "reasoning": {
+        "enabled": false
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 2.5e-07,
+      "route_slug": "google-ai-studio"
+    },
+    "gemini-3-5-flash-lite": {
+      "input_price": 3e-07,
+      "key": "gemini-3-5-flash-lite",
+      "max_output": 2048,
+      "model": "google/gemini-3.5-flash-lite",
+      "output_price": 2.5e-06,
+      "prompt_limit": 1048576,
+      "provider": "Google AI Studio",
+      "reasoning": {
+        "effort": "minimal"
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 3e-07,
+      "route_slug": "google-ai-studio"
+    },
+    "gemini-3-5-flash-think": {
+      "input_price": 1.5e-06,
+      "key": "gemini-3-5-flash-think",
+      "max_output": 2048,
+      "model": "google/gemini-3.5-flash",
+      "output_price": 9e-06,
+      "prompt_limit": 1048576,
+      "provider": "Google AI Studio",
+      "reasoning": {
+        "effort": "medium"
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 1.5e-06,
+      "route_slug": "google-ai-studio"
+    },
+    "gemini-3-6-flash-low": {
+      "input_price": 7.5e-07,
+      "key": "gemini-3-6-flash-low",
+      "max_output": 2048,
+      "model": "google/gemini-3.6-flash",
+      "output_price": 3.75e-06,
+      "prompt_limit": 1048576,
+      "provider": "Google AI Studio",
+      "reasoning": {
+        "effort": "low"
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 7.5e-07,
+      "route_slug": "google-ai-studio"
+    },
+    "gemini-3-7-flash-low": {
+      "input_price": 7.5e-07,
+      "key": "gemini-3-7-flash-low",
+      "max_output": 2048,
+      "model": "google/gemini-3.7-flash",
+      "output_price": 3.75e-06,
+      "prompt_limit": 1048576,
+      "provider": "Google AI Studio",
+      "reasoning": {
+        "effort": "low"
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 7.5e-07,
+      "route_slug": "google-ai-studio"
+    },
+    "glm-5-2": {
+      "input_price": 4.875e-07,
+      "key": "glm-5-2",
+      "max_output": 2048,
+      "model": "z-ai/glm-5.2",
+      "output_price": 1.56e-06,
+      "prompt_limit": 1048576,
+      "provider": "DeepInfra",
+      "reasoning": {
+        "enabled": false
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 4.875e-07,
+      "route_slug": "deepinfra/fp4"
+    },
+    "glm-5-3-flash": {
+      "input_price": 7.5e-08,
+      "key": "glm-5-3-flash",
+      "max_output": 2048,
+      "model": "z-ai/glm-5.3-flash",
+      "output_price": 2.5e-07,
+      "prompt_limit": 1048576,
+      "provider": "DeepInfra",
+      "reasoning": {
+        "effort": "low"
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 7.5e-08,
+      "route_slug": "deepinfra/fp4"
+    },
+    "gpt-5-4": {
+      "input_price": 2.5e-06,
+      "key": "gpt-5-4",
+      "max_output": 2048,
+      "model": "openai/gpt-5.4",
+      "output_price": 1.5e-05,
+      "prompt_limit": 1050000,
+      "provider": "OpenAI",
+      "reasoning": {
+        "effort": "none"
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 2.5e-06,
+      "route_slug": "openai"
+    },
+    "gpt-5-4-mini": {
+      "input_price": 7.5e-07,
+      "key": "gpt-5-4-mini",
+      "max_output": 2048,
+      "model": "openai/gpt-5.4-mini",
+      "output_price": 4.5e-06,
+      "prompt_limit": 400000,
+      "provider": "OpenAI",
+      "reasoning": {
+        "effort": "none"
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 7.5e-07,
+      "route_slug": "openai"
+    },
+    "gpt-5-4-mini-think": {
+      "input_price": 7.5e-07,
+      "key": "gpt-5-4-mini-think",
+      "max_output": 2048,
+      "model": "openai/gpt-5.4-mini",
+      "output_price": 4.5e-06,
+      "prompt_limit": 400000,
+      "provider": "OpenAI",
+      "reasoning": {
+        "effort": "low"
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 7.5e-07,
+      "route_slug": "openai"
+    },
+    "gpt-5-4-think": {
+      "input_price": 2.5e-06,
+      "key": "gpt-5-4-think",
+      "max_output": 2048,
+      "model": "openai/gpt-5.4",
+      "output_price": 1.5e-05,
+      "prompt_limit": 1050000,
+      "provider": "OpenAI",
+      "reasoning": {
+        "effort": "low"
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 2.5e-06,
+      "route_slug": "openai"
+    },
+    "gpt-5-6-luna": {
+      "input_price": 2e-07,
+      "key": "gpt-5-6-luna",
+      "max_output": 2048,
+      "model": "openai/gpt-5.6-luna",
+      "output_price": 1.2e-06,
+      "prompt_limit": 1050000,
+      "provider": "OpenAI",
+      "reasoning": {
+        "effort": "low"
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 2.5e-07,
+      "route_slug": "openai"
+    },
+    "gpt-oss-120b-think": {
+      "input_price": 1.5e-07,
+      "key": "gpt-oss-120b-think",
+      "max_output": 2048,
+      "model": "openai/gpt-oss-120b",
+      "output_price": 6e-07,
+      "prompt_limit": 131072,
+      "provider": "Groq",
+      "reasoning": {
+        "effort": "low"
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 1.5e-07,
+      "route_slug": "groq"
+    },
+    "grok-build-think": {
+      "input_price": 1e-06,
+      "key": "grok-build-think",
+      "max_output": 2048,
+      "model": "x-ai/grok-build-0.1",
+      "output_price": 2e-06,
+      "prompt_limit": 256000,
+      "provider": "xAI",
+      "reasoning": null,
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 1e-06,
+      "route_slug": "xai"
+    },
+    "jev": {
+      "input_price": 4.2e-08,
+      "key": "jev",
+      "max_output": 2048,
+      "model": "jev-1.13.0",
+      "output_price": 0.0,
+      "prompt_limit": 1000000,
+      "provider": "TypeSafe",
+      "reasoning": null,
+      "request_fee": 0.0,
+      "reservation_basis": "estimated_1M_input_tokens_no_documented_provider_limit",
+      "reservation_input_price": 4.2e-08,
+      "route_slug": "https://api.typesafe.ai/v1/systemone"
+    },
+    "llama-4-scout": {
+      "input_price": 1e-07,
+      "key": "llama-4-scout",
+      "max_output": 2048,
+      "model": "meta-llama/llama-4-scout",
+      "output_price": 3e-07,
+      "prompt_limit": 327680,
+      "provider": "DeepInfra",
+      "reasoning": null,
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 1e-07,
+      "route_slug": "deepinfra/fp8"
+    },
+    "mistral-small": {
+      "input_price": 1.5e-07,
+      "key": "mistral-small",
+      "max_output": 2048,
+      "model": "mistralai/mistral-small-2603",
+      "output_price": 6e-07,
+      "prompt_limit": 262144,
+      "provider": "Mistral",
+      "reasoning": {
+        "enabled": false
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 1.5e-07,
+      "route_slug": "mistral"
+    },
+    "nemotron-3-nano": {
+      "input_price": 5e-08,
+      "key": "nemotron-3-nano",
+      "max_output": 2048,
+      "model": "nvidia/nemotron-3-nano-30b-a3b",
+      "output_price": 2e-07,
+      "prompt_limit": 262144,
+      "provider": "Crusoe",
+      "reasoning": {
+        "enabled": false
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 5e-08,
+      "route_slug": "crusoe/fp8"
+    },
+    "nemotron-3-super": {
+      "input_price": 8e-08,
+      "key": "nemotron-3-super",
+      "max_output": 2048,
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "output_price": 4.5e-07,
+      "prompt_limit": 262144,
+      "provider": "DekaLLM",
+      "reasoning": {
+        "enabled": false
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 8e-08,
+      "route_slug": "dekallm/fp8"
+    },
+    "nemotron-3-ultra": {
+      "input_price": 5e-07,
+      "key": "nemotron-3-ultra",
+      "max_output": 2048,
+      "model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "output_price": 2.2e-06,
+      "prompt_limit": 262144,
+      "provider": "DeepInfra",
+      "reasoning": {
+        "enabled": false
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 5e-07,
+      "route_slug": "deepinfra/fp4"
+    },
+    "qwen3-7-plus": {
+      "input_price": 3.2e-07,
+      "key": "qwen3-7-plus",
+      "max_output": 2048,
+      "model": "qwen/qwen3.7-plus",
+      "output_price": 1.28e-06,
+      "prompt_limit": 1000000,
+      "provider": "Alibaba",
+      "reasoning": {
+        "enabled": false
+      },
+      "request_fee": 0.0,
+      "reservation_basis": "frozen_endpoint_context_and_max_input_tariff",
+      "reservation_input_price": 4e-07,
+      "route_slug": "alibaba"
+    }
+  },
+  "opening_balance": 10.532554644,
+  "previous": "corrected_pilot",
+  "protocol": "kitchen-rush-v2-choice-2",
+  "protocol_hash": "47421b61f030df539822268de77f57dc6808b8ecd0338f2a6861ad519c0a42ae",
+  "roster_sha256": "9fcd5aadfbb34c17b1bfca14db50ee3a69b50a939eeea55f5a7784d44c71b6e4",
+  "stage": "roster_canary"
+}

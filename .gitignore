@@ -37,3 +37,6 @@ runs/
 # Locally exported replays (the bundled demo replays are already tracked; new exports are yours)
 ui/replays/*.json
 calibration/**/spend.jsonl
+
+# Private held-out benchmark seed banks (never commit to Git)
+data/v3/private_*.json

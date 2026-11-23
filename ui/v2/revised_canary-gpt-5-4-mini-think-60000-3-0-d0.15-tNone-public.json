@@ -1,0 +1,2184 @@
+{
+  "accepted_cost_usd": 0.08404575,
+  "boundary_cost_usd": 0.0,
+  "completed": 3,
+  "cost_usd": 0.08404575,
+  "dollar_cap": 0.15,
+  "frames": [
+    {
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        3,
+        3
+      ],
+      "clock_gs": 0.0,
+      "hands": [],
+      "kind": "start",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "onion"
+        },
+        "category": null,
+        "name": "collect",
+        "note": "collected onion",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        3,
+        5
+      ],
+      "clock_gs": 2.3,
+      "hands": [
+        {
+          "ingredient": "onion",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "tomato"
+        },
+        "category": null,
+        "name": "collect",
+        "note": "collected tomato",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        5
+      ],
+      "clock_gs": 4.6,
+      "hands": [
+        {
+          "ingredient": "onion",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "tomato",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "egg"
+        },
+        "category": null,
+        "name": "collect",
+        "note": "collected egg",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        1,
+        4
+      ],
+      "clock_gs": 7.35,
+      "hands": [
+        {
+          "ingredient": "onion",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "tomato",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "egg",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "tomato"
+        },
+        "category": null,
+        "name": "chop",
+        "note": "chopped tomato",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        5
+      ],
+      "clock_gs": 12.1,
+      "hands": [
+        {
+          "ingredient": "onion",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "tomato",
+          "state": "CHOPPED"
+        },
+        {
+          "ingredient": "egg",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "col": 2,
+          "row": 6
+        },
+        "category": null,
+        "name": "move_to",
+        "note": "moved to [5, 2] (3 steps) (next to [6, 2])",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        2
+      ],
+      "clock_gs": 12.55,
+      "hands": [
+        {
+          "ingredient": "onion",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "tomato",
+          "state": "CHOPPED"
+        },
+        {
+          "ingredient": "egg",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "recipe": "R3"
+        },
+        "category": null,
+        "name": "plate",
+        "note": "plated R3",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        2
+      ],
+      "clock_gs": 17.55,
+      "hands": [
+        {
+          "ingredient": "R3",
+          "state": "PLATE"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "order_id": "O1"
+        },
+        "category": null,
+        "name": "serve",
+        "note": "served O1 (R3)",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        1
+      ],
+      "clock_gs": 20.7,
+      "hands": [],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "col": 4,
+          "row": 0
+        },
+        "category": null,
+        "name": "move_to",
+        "note": "moved to [1, 4] (7 steps) (next to [0, 4])",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        1,
+        4
+      ],
+      "clock_gs": 21.75,
+      "hands": [],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "egg"
+        },
+        "category": null,
+        "name": "collect",
+        "note": "collected egg",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        1,
+        4
+      ],
+      "clock_gs": 23.75,
+      "hands": [
+        {
+          "ingredient": "egg",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "egg"
+        },
+        "category": null,
+        "name": "cook",
+        "note": "cooking egg on burner 1",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": 40.35,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": "egg",
+          "ready_gs": 32.35,
+          "start_gs": 26.35,
+          "status": "COOKING"
+        }
+      ],
+      "chef_pos": [
+        5,
+        4
+      ],
+      "clock_gs": 26.35,
+      "hands": [],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "seconds": 5
+        },
+        "category": null,
+        "name": "wait",
+        "note": "waited 5s",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": 40.35,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": "egg",
+          "ready_gs": 32.35,
+          "start_gs": 26.35,
+          "status": "COOKING"
+        }
+      ],
+      "chef_pos": [
+        5,
+        4
+      ],
+      "clock_gs": 31.35,
+      "hands": [],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "seconds": 1
+        },
+        "category": null,
+        "name": "wait",
+        "note": "waited 1s",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": 40.35,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": "egg",
+          "ready_gs": 32.35,
+          "start_gs": 26.35,
+          "status": "READY"
+        }
+      ],
+      "chef_pos": [
+        5,
+        4
+      ],
+      "clock_gs": 32.35,
+      "hands": [],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "burner_index": 1,
+          "ingredient": "egg"
+        },
+        "category": null,
+        "name": "collect_cooked",
+        "note": "took cooked egg off burner 1",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        4
+      ],
+      "clock_gs": 33.35,
+      "hands": [
+        {
+          "ingredient": "egg",
+          "state": "COOKED"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "noodles"
+        },
+        "category": null,
+        "name": "collect",
+        "note": "collected noodles",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        2,
+        5
+      ],
+      "clock_gs": 35.95,
+      "hands": [
+        {
+          "ingredient": "egg",
+          "state": "COOKED"
+        },
+        {
+          "ingredient": "noodles",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "onion"
+        },
+        "category": null,
+        "name": "collect",
+        "note": "collected onion",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        3,
+        5
+      ],
+      "clock_gs": 38.1,
+      "hands": [
+        {
+          "ingredient": "egg",
+          "state": "COOKED"
+        },
+        {
+          "ingredient": "noodles",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "onion",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 114,
+          "dish": "R2",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "recipe": "R1"
+        },
+        "category": null,
+        "name": "plate",
+        "note": "plated R1",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        2
+      ],
+      "clock_gs": 43.85,
+      "hands": [
+        {
+          "ingredient": "R1",
+          "state": "PLATE"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "ACTIVE"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 114,
+          "dish": "R2",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "order_id": "O2"
+        },
+        "category": null,
+        "name": "serve",
+        "note": "served O2 (R1)",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        1
+      ],
+      "clock_gs": 47.0,
+      "hands": [],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 114,
+          "dish": "R2",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "tomato"
+        },
+        "category": null,
+        "name": "collect",
+        "note": "collected tomato",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        5
+      ],
+      "clock_gs": 49.6,
+      "hands": [
+        {
+          "ingredient": "tomato",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 114,
+          "dish": "R2",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "col": 5,
+          "row": 0
+        },
+        "category": null,
+        "name": "move_to",
+        "note": "moved to [1, 5] (4 steps) (next to [0, 5])",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        1,
+        5
+      ],
+      "clock_gs": 50.2,
+      "hands": [
+        {
+          "ingredient": "tomato",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 114,
+          "dish": "R2",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "lettuce"
+        },
+        "category": null,
+        "name": "collect",
+        "note": "collected lettuce",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        1,
+        5
+      ],
+      "clock_gs": 52.2,
+      "hands": [
+        {
+          "ingredient": "tomato",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "lettuce",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 114,
+          "dish": "R2",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "ingredient": "noodles"
+        },
+        "category": null,
+        "name": "collect",
+        "note": "collected noodles",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        2,
+        5
+      ],
+      "clock_gs": 54.35,
+      "hands": [
+        {
+          "ingredient": "tomato",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "lettuce",
+          "state": "RAW"
+        },
+        {
+          "ingredient": "noodles",
+          "state": "RAW"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 114,
+          "dish": "R2",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "recipe": "R2"
+        },
+        "category": null,
+        "name": "plate",
+        "note": "plated R2",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        2
+      ],
+      "clock_gs": 60.25,
+      "hands": [
+        {
+          "ingredient": "R2",
+          "state": "PLATE"
+        }
+      ],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 114,
+          "dish": "R2",
+          "order_id": "O3",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "action": {
+        "arguments": {
+          "order_id": "O3"
+        },
+        "category": null,
+        "name": "serve",
+        "note": "served O3 (R2)",
+        "ok": true
+      },
+      "burners": [
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            3
+          ],
+          "index": 0,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        },
+        {
+          "burn_gs": null,
+          "cell": [
+            6,
+            4
+          ],
+          "index": 1,
+          "ingredient": null,
+          "ready_gs": null,
+          "start_gs": null,
+          "status": "FREE"
+        }
+      ],
+      "chef_pos": [
+        5,
+        1
+      ],
+      "clock_gs": 63.4,
+      "hands": [],
+      "kind": "action",
+      "orders": [
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 45,
+          "dish": "R3",
+          "order_id": "O1",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 0.0,
+          "base_value": 1.0,
+          "deadline_gs": 87,
+          "dish": "R1",
+          "order_id": "O2",
+          "status": "SERVED"
+        },
+        {
+          "arrival_gs": 36.0,
+          "base_value": 1.0,
+          "deadline_gs": 114,
+          "dish": "R2",
+          "order_id": "O3",
+          "status": "SERVED"
+        }
+      ]
+    }
+  ],
+  "input_tokens": 75173,
+  "invalid": 0,
+  "model_label": "gpt-5.4-mini\u00b7think",
+  "output_tokens": 6148,
+  "protocol": "kitchen-rush-v2-choice-2",
+  "protocol_hash": "c45cb8c99119cd7f9bdda8b4d917daaae93c7458f45e8a3cb02dd50eb194e31b",
+  "quality": 100.0,
+  "reason": "game_terminal",
+  "replay_export_schema": "sanitized-choice-episode-1",
+  "requests": [
+    {
+      "admitted": true,
+      "cost_usd": 0.00470925,
+      "input_tokens": 3177,
+      "output_tokens": 517
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.00391275,
+      "input_tokens": 3231,
+      "output_tokens": 331
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.00483225,
+      "input_tokens": 3239,
+      "output_tokens": 534
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.00368325,
+      "input_tokens": 3249,
+      "output_tokens": 277
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.003231,
+      "input_tokens": 3252,
+      "output_tokens": 176
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.003027,
+      "input_tokens": 3274,
+      "output_tokens": 127
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.00295575,
+      "input_tokens": 3233,
+      "output_tokens": 118
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.0034995,
+      "input_tokens": 3226,
+      "output_tokens": 240
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.0031575,
+      "input_tokens": 3244,
+      "output_tokens": 161
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.00729075,
+      "input_tokens": 3235,
+      "output_tokens": 1081
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.0034215,
+      "input_tokens": 3236,
+      "output_tokens": 221
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.00336375,
+      "input_tokens": 3231,
+      "output_tokens": 209
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.00362325,
+      "input_tokens": 3229,
+      "output_tokens": 267
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.0030105,
+      "input_tokens": 3246,
+      "output_tokens": 128
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.0033345,
+      "input_tokens": 3246,
+      "output_tokens": 200
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.00327075,
+      "input_tokens": 3341,
+      "output_tokens": 170
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.0029265,
+      "input_tokens": 3320,
+      "output_tokens": 97
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.00303825,
+      "input_tokens": 3313,
+      "output_tokens": 123
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.0042615,
+      "input_tokens": 3318,
+      "output_tokens": 394
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.002973,
+      "input_tokens": 3340,
+      "output_tokens": 104
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.00320925,
+      "input_tokens": 3331,
+      "output_tokens": 158
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.00411,
+      "input_tokens": 3338,
+      "output_tokens": 357
+    },
+    {
+      "admitted": true,
+      "cost_usd": 0.003204,
+      "input_tokens": 3324,
+      "output_tokens": 158
+    }
+  ],
+  "source": {
+    "audit_gate": "data/v2/release-r2/revised_canary-gate.json",
+    "audit_gate_sha256": "281eff48a052609a72b727402005be429996e0750015fdbc28a33712f32bde21",
+    "episode_id": "revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone--attempt2",
+    "episode_sha256": "dd57468d46ff0922ea22c360be08236be8b8a5516305023ecf08f1f085498476",
+    "manifest_sha256": "e989fcfe63e2e1122f6158ac50a4152036ae534ad13100e4a7e8784b8b7e0db3",
+    "prior_failed_attempt": {
+      "accounted_usd": 0.40045425,
+      "error": "ProviderError: transport failure TimeoutError; no automatic retry",
+      "failure_kind": "provider_failure",
+      "job": "revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone",
+      "known_cost_usd": 0.02672625,
+      "known_input_tokens": 25873,
+      "known_output_tokens": 1627,
+      "model": "gpt-5-4-mini-think",
+      "original_path": "runs/v2/release-r2/revised_canary/revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone.json",
+      "original_sha256": "5aa37c1f8e3d2da7e748975dabb0b3028f5ebef5cb44781ebde38c67b0954dfb",
+      "retained_liability_usd": 0.373728,
+      "token_cap": null,
+      "unknown_response_usage": true
+    },
+    "purpose": "Audited selected replay; one kitchen is not a model ranking.",
+    "source_archive_sha256": "c0c1b2ce82c783d7e0d3c553fc9897d3738d38d3e83a948a292ce4f1e8026392"
+  },
+  "spec": {
+    "blocked": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        6
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        6,
+        6
+      ]
+    ],
+    "grid_n": 7,
+    "ingredient_rules": {
+      "broth_base": {
+        "burn_window": 8,
+        "choppable": false,
+        "cook_time": 11,
+        "cookable_from": "RAW",
+        "name": "broth_base"
+      },
+      "bun": {
+        "burn_window": 0.0,
+        "choppable": false,
+        "cook_time": 0.0,
+        "cookable_from": null,
+        "name": "bun"
+      },
+      "cheese": {
+        "burn_window": 0.0,
+        "choppable": false,
+        "cook_time": 0.0,
+        "cookable_from": null,
+        "name": "cheese"
+      },
+      "egg": {
+        "burn_window": 8,
+        "choppable": false,
+        "cook_time": 6,
+        "cookable_from": "RAW",
+        "name": "egg"
+      },
+      "lettuce": {
+        "burn_window": 0.0,
+        "choppable": true,
+        "cook_time": 0.0,
+        "cookable_from": null,
+        "name": "lettuce"
+      },
+      "mushroom": {
+        "burn_window": 5,
+        "choppable": true,
+        "cook_time": 11,
+        "cookable_from": "RAW",
+        "name": "mushroom"
+      },
+      "noodles": {
+        "burn_window": 7,
+        "choppable": false,
+        "cook_time": 11,
+        "cookable_from": "RAW",
+        "name": "noodles"
+      },
+      "onion": {
+        "burn_window": 0.0,
+        "choppable": true,
+        "cook_time": 0.0,
+        "cookable_from": null,
+        "name": "onion"
+      },
+      "patty": {
+        "burn_window": 8,
+        "choppable": false,
+        "cook_time": 5,
+        "cookable_from": "RAW",
+        "name": "patty"
+      },
+      "tomato": {
+        "burn_window": 0.0,
+        "choppable": true,
+        "cook_time": 0.0,
+        "cookable_from": null,
+        "name": "tomato"
+      }
+    },
+    "orders": [
+      {
+        "order_id": "O1"
+      },
+      {
+        "order_id": "O2"
+      },
+      {
+        "order_id": "O3"
+      }
+    ],
+    "recipe_cards": {
+      "R1": {
+        "egg": "COOKED",
+        "noodles": "RAW",
+        "onion": "RAW"
+      },
+      "R2": {
+        "lettuce": "RAW",
+        "noodles": "RAW",
+        "tomato": "RAW"
+      },
+      "R3": {
+        "egg": "RAW",
+        "onion": "RAW",
+        "tomato": "CHOPPED"
+      }
+    },
+    "seed": 60000,
+    "stations": [
+      {
+        "cell": [
+          0,
+          1
+        ],
+        "ingredient": "broth_base",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          0,
+          2
+        ],
+        "ingredient": "bun",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          0,
+          3
+        ],
+        "ingredient": "cheese",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          0,
+          4
+        ],
+        "ingredient": "egg",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          0,
+          5
+        ],
+        "ingredient": "lettuce",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          1,
+          6
+        ],
+        "ingredient": "mushroom",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          2,
+          6
+        ],
+        "ingredient": "noodles",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          3,
+          6
+        ],
+        "ingredient": "onion",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          4,
+          6
+        ],
+        "ingredient": "patty",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          5,
+          6
+        ],
+        "ingredient": "tomato",
+        "type": "ING"
+      },
+      {
+        "cell": [
+          6,
+          5
+        ],
+        "ingredient": null,
+        "type": "BOARD"
+      },
+      {
+        "cell": [
+          6,
+          4
+        ],
+        "ingredient": null,
+        "type": "STOVE"
+      },
+      {
+        "cell": [
+          6,
+          3
+        ],
+        "ingredient": null,
+        "type": "STOVE"
+      },
+      {
+        "cell": [
+          6,
+          2
+        ],
+        "ingredient": null,
+        "type": "PLATE"
+      },
+      {
+        "cell": [
+          6,
+          1
+        ],
+        "ingredient": null,
+        "type": "PASS"
+      },
+      {
+        "cell": [
+          5,
+          0
+        ],
+        "ingredient": null,
+        "type": "BIN"
+      }
+    ]
+  },
+  "status": "complete",
+  "token_cap": null
+}

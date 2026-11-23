@@ -1,0 +1,106 @@
+{
+  "D1": [],
+  "D2": [],
+  "D3": [
+    {
+      "seed": 8000,
+      "reason": "no valid full_burner_witness schedule found"
+    }
+  ],
+  "D4": [
+    {
+      "seed": 8000,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8001,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8002,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8003,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8005,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8006,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8007,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8011,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8012,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8015,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8016,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8019,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8021,
+      "reason": "no valid full_burner_witness schedule found"
+    }
+  ],
+  "D5": [
+    {
+      "seed": 8001,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8002,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8003,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8006,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8010,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8011,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8012,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8014,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8016,
+      "reason": "no valid full_burner_witness schedule found"
+    },
+    {
+      "seed": 8018,
+      "reason": "no valid full_burner_witness schedule found"
+    }
+  ]
+}

@@ -101,10 +101,13 @@ class KitchenRushEngine:
 
     def __init__(self, spec: KitchenSpec, *, record_trace: bool = False) -> None:
         self.spec = spec
+        self.ingredient_rules = dict(config.INGREDIENTS)
         self.grid_n = spec.grid_n
         self.show_ready_actions = spec.show_ready_actions
         self.active_recipes = tuple(spec.active_recipes)
-        self.active_ingredients = set(config.recipe_ingredients(self.active_recipes))
+        self.recipes = {r: dict((spec.recipe_cards or config.RECIPES)[r])
+                        for r in self.active_recipes}
+        self.active_ingredients = {i for recipe in self.recipes.values() for i in recipe}
 
         self.stations = {s.cell: s for s in spec.stations}
         self.blocked: set[tuple[int, int]] = set(spec.blocked)   # non-walkable counters / walls
@@ -455,7 +458,7 @@ class KitchenRushEngine:
 
     def _a_chop(self, args: dict) -> dict[str, Any]:
         ing = args.get("ingredient")
-        if ing not in config.INGREDIENTS or not config.INGREDIENTS[ing].choppable:
+        if ing not in self.ingredient_rules or not self.ingredient_rules[ing].choppable:
             return self._invalid(f"{ing} is not choppable", INV_BAD_TARGET)
         item = self._held(ing, config.RAW)
         if item is None:
@@ -468,7 +471,7 @@ class KitchenRushEngine:
 
     def _a_cook(self, args: dict) -> dict[str, Any]:
         ing = args.get("ingredient")
-        ic = config.INGREDIENTS.get(ing)
+        ic = self.ingredient_rules.get(ing)
         if ic is None or ic.cookable_from is None:
             return self._invalid(f"{ing} is not cookable", INV_BAD_TARGET)
         item = self._held(ing, ic.cookable_from)
@@ -537,7 +540,7 @@ class KitchenRushEngine:
         recipe = args.get("recipe")
         if recipe not in self.active_recipes:
             return self._invalid(f"{recipe} not on the menu", INV_BAD_TARGET)
-        required = dict(config.RECIPES[recipe])
+        required = dict(self.recipes[recipe])
         comps = [h for h in self.hands if not h.is_plate]
         have: dict[tuple[str, str], int] = {}
         for c in comps:
@@ -570,7 +573,8 @@ class KitchenRushEngine:
             return self._invalid(f"order {order_id} expired before you reached the pass", INV_EXPIRED_SERVE)
         self._charge_serve(order_id)
         tf = scoring.time_factor(self.clock_gs, order.arrival_gs, order.deadline_gs)
-        qualifies = config.recipe_n_steps(order.dish) >= config.COMBO_MIN_STEPS
+        qualifies = 1 + sum(config.component_pipeline_len(i, s)
+                            for i, s in self.recipes[order.dish].items()) >= config.COMBO_MIN_STEPS
         if qualifies:
             self.combo_count += 1
             eff_streak = self.combo_count

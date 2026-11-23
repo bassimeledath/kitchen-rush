@@ -1,0 +1,46 @@
+{
+  "last_block": [
+    {
+      "completed": 0,
+      "cost_usd": 0.012405,
+      "id": "smoke-r3-sonnet-43004-0-d0.05-tNone",
+      "invalid": 0,
+      "quality": 0,
+      "reason": "cannot_reserve_next_request",
+      "status": "complete"
+    },
+    {
+      "completed": 0,
+      "cost_usd": 0.359775,
+      "id": "smoke-r3-sonnet-43004-0-d0.4-tNone",
+      "invalid": 11,
+      "quality": 0,
+      "reason": "cannot_reserve_next_request",
+      "status": "complete"
+    },
+    {
+      "completed": 2,
+      "cost_usd": 0.11353665,
+      "id": "smoke-r3-mini-43004-0-d0.4-tNone",
+      "invalid": 0,
+      "quality": 66.66666666666666,
+      "reason": "game_terminal",
+      "status": "complete"
+    }
+  ],
+  "ledger": {
+    "accounted_usd": 2.22298494,
+    "cap_usd": 50.0,
+    "overruns": 0,
+    "requests": 647,
+    "retained_failed_requests": 1,
+    "settled_usd": 2.20427169,
+    "stages": {
+      "canary": 0.709813188,
+      "pilot": 0.0,
+      "smoke": 1.513171752
+    },
+    "unresolved_requests": 0,
+    "unresolved_reserve_usd": 0.01871325
+  }
+}

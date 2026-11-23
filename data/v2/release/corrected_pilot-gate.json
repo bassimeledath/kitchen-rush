@@ -1,0 +1,277 @@
+{
+  "batch": "corrected_pilot",
+  "batch_cost_usd": 3.971948106,
+  "boundary_cost_usd": 0.087042,
+  "configuration_hash": "7980de5739ba2beb710902d9c6d9f310d4ed8db6f59995b066a68bbbed130b01",
+  "episodes": 24,
+  "ledger": {
+    "accounted_usd": 14.758856616,
+    "cap_usd": 200.0,
+    "overruns": 0,
+    "prior_accounted_usd": 10.532554644,
+    "requests": 699,
+    "retained_liability_usd": 0.0,
+    "settled_usd": 4.226301972,
+    "unresolved_requests": 0
+  },
+  "manifest_sha256": "3c672516254eaf6aff8d7a057bd394dc9975cb49c83d7a64c291f0eb7d48a81c",
+  "protocol_hash": "47421b61f030df539822268de77f57dc6808b8ecd0338f2a6861ad519c0a42ae",
+  "requests_verified": 622,
+  "roster_coverage": {
+    "blocked_configurations": [
+      {
+        "key": "gemini-3-5-flash",
+        "reason": "OpenRouter mandatory reasoning; direct API off support and billing unverified."
+      },
+      {
+        "key": "phonellm-alpha-1",
+        "reason": "No verified dedicated-container cost allocation or resource cap; no v2 strict-choice adapter."
+      }
+    ],
+    "eligible_configurations": 28,
+    "historical_labels": 32,
+    "total_configurations": 30
+  },
+  "roster_sha256": "9fcd5aadfbb34c17b1bfca14db50ee3a69b50a939eeea55f5a7784d44c71b6e4",
+  "source_archive_sha256": "85aae1c08d73f6caa2c9eb9235009468e9a9bf8d40af0236657c53e65ac2f5c2",
+  "stage": "corrected_validation",
+  "status": "passed",
+  "summary": {
+    "B80": {
+      "claude-sonnet-4-6": {
+        "conservative": null,
+        "mean": null,
+        "status": "not reached within uncensored tested budgets"
+      },
+      "gpt-5-4-mini-think": {
+        "conservative": null,
+        "mean": null,
+        "status": "not reached within uncensored tested budgets"
+      },
+      "jev": {
+        "conservative": null,
+        "mean": null,
+        "status": "not tested / ineligible"
+      }
+    },
+    "rows": [
+      {
+        "budget": 0.05,
+        "budget_kind": "USD",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 3,
+        "mean_completion": 0.0,
+        "mean_cost_usd": 0.050537,
+        "mean_invalid": 0,
+        "mean_output_tokens": 57,
+        "model": "claude-sonnet-4-6",
+        "quality": 0,
+        "seeds": 3,
+        "seeds_by_family": {
+          "2": 1,
+          "3": 1,
+          "4": 1
+        }
+      },
+      {
+        "budget": 0.4,
+        "budget_kind": "USD",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 3,
+        "mean_completion": 0.3333333333333333,
+        "mean_cost_usd": 0.404453,
+        "mean_invalid": 10,
+        "mean_output_tokens": 525,
+        "model": "claude-sonnet-4-6",
+        "quality": 5.5555555555555545,
+        "seeds": 3,
+        "seeds_by_family": {
+          "2": 1,
+          "3": 1,
+          "4": 1
+        }
+      },
+      {
+        "budget": 512,
+        "budget_kind": "tokens",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 1,
+        "mean_completion": 0.0,
+        "mean_cost_usd": 0.387387,
+        "mean_invalid": 12,
+        "mean_output_tokens": 512,
+        "model": "claude-sonnet-4-6",
+        "quality": 0,
+        "seeds": 1,
+        "seeds_by_family": {
+          "3": 1
+        }
+      },
+      {
+        "budget": 2048,
+        "budget_kind": "tokens",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 1,
+        "mean_completion": 0.3333333333333333,
+        "mean_cost_usd": 0.79689,
+        "mean_invalid": 25,
+        "mean_output_tokens": 1209,
+        "model": "claude-sonnet-4-6",
+        "quality": 0,
+        "seeds": 1,
+        "seeds_by_family": {
+          "3": 1
+        }
+      },
+      {
+        "budget": 8192,
+        "budget_kind": "tokens",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 1,
+        "mean_completion": 0.3333333333333333,
+        "mean_cost_usd": 0.769944,
+        "mean_invalid": 19,
+        "mean_output_tokens": 1210,
+        "model": "claude-sonnet-4-6",
+        "quality": 0,
+        "seeds": 1,
+        "seeds_by_family": {
+          "3": 1
+        }
+      },
+      {
+        "budget": 0.05,
+        "budget_kind": "USD",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 3,
+        "mean_completion": 0.5555555555555556,
+        "mean_cost_usd": 0.05140775,
+        "mean_invalid": 0,
+        "mean_output_tokens": 2770,
+        "model": "gpt-5-4-mini-think",
+        "quality": 55.55555555555555,
+        "seeds": 3,
+        "seeds_by_family": {
+          "2": 1,
+          "3": 1,
+          "4": 1
+        }
+      },
+      {
+        "budget": 0.4,
+        "budget_kind": "USD",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 3,
+        "mean_completion": 1.0,
+        "mean_cost_usd": 0.10590745,
+        "mean_invalid": 0.3333333333333333,
+        "mean_output_tokens": 7627.333333333333,
+        "model": "gpt-5-4-mini-think",
+        "quality": 98.88888888888889,
+        "seeds": 3,
+        "seeds_by_family": {
+          "2": 1,
+          "3": 1,
+          "4": 1
+        }
+      },
+      {
+        "budget": 512,
+        "budget_kind": "tokens",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 1,
+        "mean_completion": 0.0,
+        "mean_cost_usd": 0.00834315,
+        "mean_invalid": 1,
+        "mean_output_tokens": 512,
+        "model": "gpt-5-4-mini-think",
+        "quality": 0,
+        "seeds": 1,
+        "seeds_by_family": {
+          "3": 1
+        }
+      },
+      {
+        "budget": 2048,
+        "budget_kind": "tokens",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 1,
+        "mean_completion": 0.0,
+        "mean_cost_usd": 0.03112755,
+        "mean_invalid": 1,
+        "mean_output_tokens": 2048,
+        "model": "gpt-5-4-mini-think",
+        "quality": 0,
+        "seeds": 1,
+        "seeds_by_family": {
+          "3": 1
+        }
+      },
+      {
+        "budget": 8192,
+        "budget_kind": "tokens",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 1,
+        "mean_completion": 0.6666666666666666,
+        "mean_cost_usd": 0.1140999,
+        "mean_invalid": 0,
+        "mean_output_tokens": 6969,
+        "model": "gpt-5-4-mini-think",
+        "quality": 66.66666666666666,
+        "seeds": 1,
+        "seeds_by_family": {
+          "3": 1
+        }
+      },
+      {
+        "budget": 0.05,
+        "budget_kind": "USD",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 3,
+        "mean_completion": 0.1111111111111111,
+        "mean_cost_usd": 0.003925236,
+        "mean_invalid": 8.333333333333334,
+        "mean_output_tokens": 36496.666666666664,
+        "model": "jev",
+        "quality": 11.111111111111109,
+        "seeds": 3,
+        "seeds_by_family": {
+          "2": 1,
+          "3": 1,
+          "4": 1
+        }
+      },
+      {
+        "budget": 0.4,
+        "budget_kind": "USD",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 3,
+        "mean_completion": 0.3333333333333333,
+        "mean_cost_usd": 0.005155066,
+        "mean_invalid": 6.666666666666667,
+        "mean_output_tokens": 47987.666666666664,
+        "model": "jev",
+        "quality": 21.11111111111111,
+        "seeds": 3,
+        "seeds_by_family": {
+          "2": 1,
+          "3": 1,
+          "4": 1
+        }
+      }
+    ],
+    "uncertainty": "95% seed-cluster percentile bootstrap within each task family, equal family weighting, 4000 draws; unavailable below two seeds per family. Small-sample intervals are exploratory and can miss distribution tails."
+  }
+}

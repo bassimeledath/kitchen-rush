@@ -1,0 +1,7690 @@
+{
+  "replay_schema": "choice-replay-1",
+  "kind": "scripted",
+  "protocol": "kitchen-rush-v2-choice-2",
+  "protocol_hash": "c45cb8c99119cd7f9bdda8b4d917daaae93c7458f45e8a3cb02dd50eb194e31b",
+  "seed": 56000,
+  "layout": {
+    "grid_n": 7,
+    "blocked": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        6
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        6,
+        6
+      ]
+    ],
+    "stations": [
+      {
+        "cell": [
+          0,
+          1
+        ],
+        "type": "ING",
+        "ingredient": "broth_base"
+      },
+      {
+        "cell": [
+          0,
+          2
+        ],
+        "type": "ING",
+        "ingredient": "bun"
+      },
+      {
+        "cell": [
+          0,
+          3
+        ],
+        "type": "ING",
+        "ingredient": "cheese"
+      },
+      {
+        "cell": [
+          0,
+          4
+        ],
+        "type": "ING",
+        "ingredient": "egg"
+      },
+      {
+        "cell": [
+          0,
+          5
+        ],
+        "type": "ING",
+        "ingredient": "lettuce"
+      },
+      {
+        "cell": [
+          1,
+          6
+        ],
+        "type": "ING",
+        "ingredient": "mushroom"
+      },
+      {
+        "cell": [
+          2,
+          6
+        ],
+        "type": "ING",
+        "ingredient": "noodles"
+      },
+      {
+        "cell": [
+          3,
+          6
+        ],
+        "type": "ING",
+        "ingredient": "onion"
+      },
+      {
+        "cell": [
+          4,
+          6
+        ],
+        "type": "ING",
+        "ingredient": "patty"
+      },
+      {
+        "cell": [
+          5,
+          6
+        ],
+        "type": "ING",
+        "ingredient": "tomato"
+      },
+      {
+        "cell": [
+          6,
+          5
+        ],
+        "type": "BOARD",
+        "ingredient": null
+      },
+      {
+        "cell": [
+          6,
+          4
+        ],
+        "type": "STOVE",
+        "ingredient": null
+      },
+      {
+        "cell": [
+          6,
+          3
+        ],
+        "type": "STOVE",
+        "ingredient": null
+      },
+      {
+        "cell": [
+          6,
+          2
+        ],
+        "type": "PLATE",
+        "ingredient": null
+      },
+      {
+        "cell": [
+          6,
+          1
+        ],
+        "type": "PASS",
+        "ingredient": null
+      },
+      {
+        "cell": [
+          5,
+          0
+        ],
+        "type": "BIN",
+        "ingredient": null
+      }
+    ]
+  },
+  "steps": [
+    {
+      "kind": "start",
+      "state": {
+        "clock_gs": 0.0,
+        "chef_pos": [
+          3,
+          3
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#..@..I\n#.....I\nX.....I\n#RPSSB#",
+        "hands": [],
+        "hand_slots_free": 4,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {},
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 0,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": null,
+      "note": "Two orders are visible. The third recipe stays hidden until it arrives."
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 2.6,
+        "chef_pos": [
+          1,
+          1
+        ],
+        "grid_ascii": "#IIIII#\n#@....I\n#.....I\n#.....I\n#.....I\nX.....I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "broth_base",
+            "state": "RAW"
+          }
+        ],
+        "hand_slots_free": 3,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "collect",
+              "note": "collected broth_base",
+              "call": "collect"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 0,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "collect",
+        "arguments": {
+          "ingredient": "broth_base"
+        },
+        "id": null
+      },
+      "note": "collected broth_base"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 5.8,
+        "chef_pos": [
+          5,
+          5
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#.....I\nX....@I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "broth_base",
+            "state": "RAW"
+          },
+          {
+            "ingredient": "tomato",
+            "state": "RAW"
+          }
+        ],
+        "hand_slots_free": 2,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "collect",
+              "note": "collected tomato",
+              "call": "collect"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 0,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "collect",
+        "arguments": {
+          "ingredient": "tomato"
+        },
+        "id": null
+      },
+      "note": "collected tomato"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 9.8,
+        "chef_pos": [
+          5,
+          5
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#.....I\nX....@I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "broth_base",
+            "state": "RAW"
+          },
+          {
+            "ingredient": "tomato",
+            "state": "CHOPPED"
+          }
+        ],
+        "hand_slots_free": 2,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "chop",
+              "note": "chopped tomato",
+              "call": "chop"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 0,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "chop",
+        "arguments": {
+          "ingredient": "tomato"
+        },
+        "id": null
+      },
+      "note": "chopped tomato"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 12.55,
+        "chef_pos": [
+          1,
+          4
+        ],
+        "grid_ascii": "#IIIII#\n#...@.I\n#.....I\n#.....I\n#.....I\nX.....I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "broth_base",
+            "state": "RAW"
+          },
+          {
+            "ingredient": "tomato",
+            "state": "CHOPPED"
+          },
+          {
+            "ingredient": "egg",
+            "state": "RAW"
+          }
+        ],
+        "hand_slots_free": 1,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "collect",
+              "note": "collected egg",
+              "call": "collect"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 0,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "collect",
+        "arguments": {
+          "ingredient": "egg"
+        },
+        "id": null
+      },
+      "note": "collected egg"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 15.15,
+        "chef_pos": [
+          5,
+          4
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#.....I\nX...@.I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "broth_base",
+            "state": "RAW"
+          },
+          {
+            "ingredient": "tomato",
+            "state": "CHOPPED"
+          }
+        ],
+        "hand_slots_free": 2,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "COOKING",
+            "ingredient": "egg",
+            "ready_gs": 19.15,
+            "burn_gs": 25.15
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "cook",
+              "note": "cooking egg on burner 1",
+              "call": "cook"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 0,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "cook",
+        "arguments": {
+          "ingredient": "egg"
+        },
+        "id": null
+      },
+      "note": "cooking egg on burner 1"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 17.15,
+        "chef_pos": [
+          5,
+          4
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#.....I\nX...@.I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "broth_base",
+            "state": "RAW"
+          },
+          {
+            "ingredient": "tomato",
+            "state": "CHOPPED"
+          }
+        ],
+        "hand_slots_free": 2,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "COOKING",
+            "ingredient": "egg",
+            "ready_gs": 19.15,
+            "burn_gs": 25.15
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "wait",
+              "note": "waited 2s",
+              "call": "wait"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 0,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "wait",
+        "arguments": {
+          "seconds": 2
+        },
+        "id": null
+      },
+      "note": "waited 2s"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 19.15,
+        "chef_pos": [
+          5,
+          4
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#.....I\nX...@.I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "broth_base",
+            "state": "RAW"
+          },
+          {
+            "ingredient": "tomato",
+            "state": "CHOPPED"
+          }
+        ],
+        "hand_slots_free": 2,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "READY",
+            "ingredient": "egg",
+            "ready_gs": 19.15,
+            "burn_gs": 25.15
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "wait",
+              "note": "waited 2s",
+              "call": "wait"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 0,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "wait",
+        "arguments": {
+          "seconds": 2
+        },
+        "id": null
+      },
+      "note": "waited 2s"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 20.15,
+        "chef_pos": [
+          5,
+          4
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#.....I\nX...@.I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "broth_base",
+            "state": "RAW"
+          },
+          {
+            "ingredient": "tomato",
+            "state": "CHOPPED"
+          },
+          {
+            "ingredient": "egg",
+            "state": "COOKED"
+          }
+        ],
+        "hand_slots_free": 1,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "collect_cooked",
+              "note": "took cooked egg off burner 1",
+              "call": "collect_cooked"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 0,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "collect_cooked",
+        "arguments": {
+          "ingredient": "egg",
+          "burner_index": 1
+        },
+        "id": null
+      },
+      "note": "took cooked egg off burner 1"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 25.45,
+        "chef_pos": [
+          5,
+          2
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#.....I\nX.@...I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "R1",
+            "state": "PLATE"
+          }
+        ],
+        "hand_slots_free": 3,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "plate",
+              "note": "plated R1",
+              "call": "plate"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 0,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "plate",
+        "arguments": {
+          "recipe": "R1"
+        },
+        "id": null
+      },
+      "note": "plated R1"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 28.6,
+        "chef_pos": [
+          5,
+          1
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#.....I\nX@....I\n#RPSSB#",
+        "hands": [],
+        "hand_slots_free": 4,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "serve",
+              "note": "served O1 (R1)",
+              "call": "serve"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 1,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "serve",
+        "arguments": {
+          "order_id": "O1"
+        },
+        "id": null
+      },
+      "note": "served O1 (R1)"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 31.35,
+        "chef_pos": [
+          1,
+          2
+        ],
+        "grid_ascii": "#IIIII#\n#.@...I\n#.....I\n#.....I\n#.....I\nX.....I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "bun",
+            "state": "RAW"
+          }
+        ],
+        "hand_slots_free": 3,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "collect",
+              "note": "collected bun",
+              "call": "collect"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 1,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "collect",
+        "arguments": {
+          "ingredient": "bun"
+        },
+        "id": null
+      },
+      "note": "collected bun"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 34.1,
+        "chef_pos": [
+          3,
+          5
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#....@I\n#.....I\nX.....I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "bun",
+            "state": "RAW"
+          },
+          {
+            "ingredient": "onion",
+            "state": "RAW"
+          }
+        ],
+        "hand_slots_free": 2,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "collect",
+              "note": "collected onion",
+              "call": "collect"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 1,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "collect",
+        "arguments": {
+          "ingredient": "onion"
+        },
+        "id": null
+      },
+      "note": "collected onion"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 36.4,
+        "chef_pos": [
+          5,
+          5
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#.....I\nX....@I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "bun",
+            "state": "RAW"
+          },
+          {
+            "ingredient": "onion",
+            "state": "RAW"
+          },
+          {
+            "ingredient": "tomato",
+            "state": "RAW"
+          }
+        ],
+        "hand_slots_free": 1,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "collect",
+              "note": "collected tomato",
+              "call": "collect"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 1,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "collect",
+        "arguments": {
+          "ingredient": "tomato"
+        },
+        "id": null
+      },
+      "note": "collected tomato"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 40.4,
+        "chef_pos": [
+          5,
+          5
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#.....I\nX....@I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "bun",
+            "state": "RAW"
+          },
+          {
+            "ingredient": "onion",
+            "state": "RAW"
+          },
+          {
+            "ingredient": "tomato",
+            "state": "CHOPPED"
+          }
+        ],
+        "hand_slots_free": 1,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "chop",
+              "note": "chopped tomato",
+              "call": "chop"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 1,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "chop",
+        "arguments": {
+          "ingredient": "tomato"
+        },
+        "id": null
+      },
+      "note": "chopped tomato"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 45.85,
+        "chef_pos": [
+          5,
+          2
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#.....I\nX.@...I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "R2",
+            "state": "PLATE"
+          }
+        ],
+        "hand_slots_free": 3,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "plate",
+              "note": "plated R2",
+              "call": "plate"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "ACTIVE",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 1,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "plate",
+        "arguments": {
+          "recipe": "R2"
+        },
+        "id": null
+      },
+      "note": "plated R2"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 49.0,
+        "chef_pos": [
+          5,
+          1
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#.....I\nX@....I\n#RPSSB#",
+        "hands": [],
+        "hand_slots_free": 4,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "serve",
+              "note": "served O2 (R2)",
+              "call": "serve"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 2,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "serve",
+        "arguments": {
+          "order_id": "O2"
+        },
+        "id": null
+      },
+      "note": "served O2 (R2)"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 50.0,
+        "chef_pos": [
+          5,
+          1
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#.....I\nX@....I\n#RPSSB#",
+        "hands": [],
+        "hand_slots_free": 4,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "wait",
+              "note": "waited 1s",
+              "call": "wait"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          }
+        },
+        "pending_orders": 1,
+        "requested_orders": 3,
+        "completed_orders": 2,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "wait",
+        "arguments": {
+          "seconds": 1
+        },
+        "id": null
+      },
+      "note": "waited 1s"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 51.0,
+        "chef_pos": [
+          5,
+          1
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#.....I\nX@....I\n#RPSSB#",
+        "hands": [],
+        "hand_slots_free": 4,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "wait",
+              "note": "waited 1s",
+              "call": "wait"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          },
+          {
+            "order_id": "O3",
+            "dish": "R3",
+            "status": "ACTIVE",
+            "arrival_gs": 50.0,
+            "deadline_gs": 118
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          },
+          "R3": {
+            "bun": "RAW",
+            "cheese": "RAW",
+            "patty": "RAW"
+          }
+        },
+        "pending_orders": 0,
+        "requested_orders": 3,
+        "completed_orders": 2,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "wait",
+        "arguments": {
+          "seconds": 1
+        },
+        "id": null
+      },
+      "note": "waited 1s"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 53.75,
+        "chef_pos": [
+          1,
+          2
+        ],
+        "grid_ascii": "#IIIII#\n#.@...I\n#.....I\n#.....I\n#.....I\nX.....I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "bun",
+            "state": "RAW"
+          }
+        ],
+        "hand_slots_free": 3,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "collect",
+              "note": "collected bun",
+              "call": "collect"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          },
+          {
+            "order_id": "O3",
+            "dish": "R3",
+            "status": "ACTIVE",
+            "arrival_gs": 50.0,
+            "deadline_gs": 118
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          },
+          "R3": {
+            "bun": "RAW",
+            "cheese": "RAW",
+            "patty": "RAW"
+          }
+        },
+        "pending_orders": 0,
+        "requested_orders": 3,
+        "completed_orders": 2,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "collect",
+        "arguments": {
+          "ingredient": "bun"
+        },
+        "id": null
+      },
+      "note": "collected bun"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 55.9,
+        "chef_pos": [
+          1,
+          3
+        ],
+        "grid_ascii": "#IIIII#\n#..@..I\n#.....I\n#.....I\n#.....I\nX.....I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "bun",
+            "state": "RAW"
+          },
+          {
+            "ingredient": "cheese",
+            "state": "RAW"
+          }
+        ],
+        "hand_slots_free": 2,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "collect",
+              "note": "collected cheese",
+              "call": "collect"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          },
+          {
+            "order_id": "O3",
+            "dish": "R3",
+            "status": "ACTIVE",
+            "arrival_gs": 50.0,
+            "deadline_gs": 118
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          },
+          "R3": {
+            "bun": "RAW",
+            "cheese": "RAW",
+            "patty": "RAW"
+          }
+        },
+        "pending_orders": 0,
+        "requested_orders": 3,
+        "completed_orders": 2,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "collect",
+        "arguments": {
+          "ingredient": "cheese"
+        },
+        "id": null
+      },
+      "note": "collected cheese"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 58.65,
+        "chef_pos": [
+          4,
+          5
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#....@I\nX.....I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "bun",
+            "state": "RAW"
+          },
+          {
+            "ingredient": "cheese",
+            "state": "RAW"
+          },
+          {
+            "ingredient": "patty",
+            "state": "RAW"
+          }
+        ],
+        "hand_slots_free": 1,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "collect",
+              "note": "collected patty",
+              "call": "collect"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          },
+          {
+            "order_id": "O3",
+            "dish": "R3",
+            "status": "ACTIVE",
+            "arrival_gs": 50.0,
+            "deadline_gs": 118
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          },
+          "R3": {
+            "bun": "RAW",
+            "cheese": "RAW",
+            "patty": "RAW"
+          }
+        },
+        "pending_orders": 0,
+        "requested_orders": 3,
+        "completed_orders": 2,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "collect",
+        "arguments": {
+          "ingredient": "patty"
+        },
+        "id": null
+      },
+      "note": "collected patty"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 64.25,
+        "chef_pos": [
+          5,
+          2
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#.....I\nX.@...I\n#RPSSB#",
+        "hands": [
+          {
+            "ingredient": "R3",
+            "state": "PLATE"
+          }
+        ],
+        "hand_slots_free": 3,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "plate",
+              "note": "plated R3",
+              "call": "plate"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          },
+          {
+            "order_id": "O3",
+            "dish": "R3",
+            "status": "ACTIVE",
+            "arrival_gs": 50.0,
+            "deadline_gs": 118
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          },
+          "R3": {
+            "bun": "RAW",
+            "cheese": "RAW",
+            "patty": "RAW"
+          }
+        },
+        "pending_orders": 0,
+        "requested_orders": 3,
+        "completed_orders": 2,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "plate",
+        "arguments": {
+          "recipe": "R3"
+        },
+        "id": null
+      },
+      "note": "plated R3"
+    },
+    {
+      "kind": "action",
+      "state": {
+        "clock_gs": 67.4,
+        "chef_pos": [
+          5,
+          1
+        ],
+        "grid_ascii": "#IIIII#\n#.....I\n#.....I\n#.....I\n#.....I\nX@....I\n#RPSSB#",
+        "hands": [],
+        "hand_slots_free": 4,
+        "stations": [
+          {
+            "type": "ING",
+            "ingredient": "broth_base",
+            "cell": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "bun",
+            "cell": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "cheese",
+            "cell": [
+              0,
+              3
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "egg",
+            "cell": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "lettuce",
+            "cell": [
+              0,
+              5
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "mushroom",
+            "cell": [
+              1,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "noodles",
+            "cell": [
+              2,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "onion",
+            "cell": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "patty",
+            "cell": [
+              4,
+              6
+            ]
+          },
+          {
+            "type": "ING",
+            "ingredient": "tomato",
+            "cell": [
+              5,
+              6
+            ]
+          },
+          {
+            "type": "BOARD",
+            "ingredient": null,
+            "cell": [
+              6,
+              5
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "STOVE",
+            "ingredient": null,
+            "cell": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "PLATE",
+            "ingredient": null,
+            "cell": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "PASS",
+            "ingredient": null,
+            "cell": [
+              6,
+              1
+            ]
+          },
+          {
+            "type": "BIN",
+            "ingredient": null,
+            "cell": [
+              5,
+              0
+            ]
+          }
+        ],
+        "burners": [
+          {
+            "burner_index": 0,
+            "cell": [
+              6,
+              3
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          },
+          {
+            "burner_index": 1,
+            "cell": [
+              6,
+              4
+            ],
+            "status": "FREE",
+            "ingredient": null,
+            "ready_gs": null,
+            "burn_gs": null
+          }
+        ],
+        "last_turn": {
+          "think_gs": 0,
+          "calls": [
+            {
+              "ok": true,
+              "action": "serve",
+              "note": "served O3 (R3)",
+              "call": "serve"
+            }
+          ],
+          "aborted_calls": [],
+          "failed_at_index": null,
+          "overflow_dropped": []
+        },
+        "orders": [
+          {
+            "order_id": "O1",
+            "dish": "R1",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 57
+          },
+          {
+            "order_id": "O2",
+            "dish": "R2",
+            "status": "SERVED",
+            "arrival_gs": 0.0,
+            "deadline_gs": 91
+          },
+          {
+            "order_id": "O3",
+            "dish": "R3",
+            "status": "SERVED",
+            "arrival_gs": 50.0,
+            "deadline_gs": 118
+          }
+        ],
+        "recipe_cards": {
+          "R1": {
+            "broth_base": "RAW",
+            "egg": "COOKED",
+            "tomato": "CHOPPED"
+          },
+          "R2": {
+            "bun": "RAW",
+            "onion": "RAW",
+            "tomato": "CHOPPED"
+          },
+          "R3": {
+            "bun": "RAW",
+            "cheese": "RAW",
+            "patty": "RAW"
+          }
+        },
+        "pending_orders": 0,
+        "requested_orders": 3,
+        "completed_orders": 3,
+        "invalid_actions": 0,
+        "ingredient_rules": {
+          "patty": {
+            "name": "patty",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 6,
+            "burn_window": 8
+          },
+          "bun": {
+            "name": "bun",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "lettuce": {
+            "name": "lettuce",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "tomato": {
+            "name": "tomato",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "onion": {
+            "name": "onion",
+            "choppable": true,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "cheese": {
+            "name": "cheese",
+            "choppable": false,
+            "cookable_from": null,
+            "cook_time": 0.0,
+            "burn_window": 0.0
+          },
+          "broth_base": {
+            "name": "broth_base",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 11,
+            "burn_window": 3
+          },
+          "mushroom": {
+            "name": "mushroom",
+            "choppable": true,
+            "cookable_from": "CHOPPED",
+            "cook_time": 9,
+            "burn_window": 7
+          },
+          "noodles": {
+            "name": "noodles",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 10,
+            "burn_window": 3
+          },
+          "egg": {
+            "name": "egg",
+            "choppable": false,
+            "cookable_from": "RAW",
+            "cook_time": 4,
+            "burn_window": 6
+          }
+        },
+        "action_seconds": {
+          "collect": 2,
+          "chop": 4,
+          "cook": 2,
+          "collect_cooked": 1,
+          "plate": 5,
+          "serve": 3,
+          "discard": 1,
+          "invalid": 3,
+          "move_per_cell": 0.15
+        }
+      },
+      "action": {
+        "name": "serve",
+        "arguments": {
+          "order_id": "O3"
+        },
+        "id": null
+      },
+      "note": "served O3 (R3)"
+    }
+  ],
+  "reason": "game_terminal",
+  "verification": {
+    "status": "replay_verified",
+    "source": "Re-executed every public state and action against the current source; no API calls."
+  },
+  "quality": 100.0
+}

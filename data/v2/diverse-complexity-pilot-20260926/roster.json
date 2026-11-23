@@ -1,0 +1,139 @@
+{
+  "campaign_ceiling_usd": 7.0,
+  "combined_expert_ceiling_usd": 12.0,
+  "configurations": [
+    {
+      "episode_cap_usd": 2,
+      "model": {
+        "input_price": 2e-06,
+        "key": "gpt-6-sol-low",
+        "max_output": 32768,
+        "model": "openai/gpt-6-sol",
+        "output_price": 1e-05,
+        "prompt_limit": 32768,
+        "provider": "OpenAI",
+        "reasoning": {
+          "effort": "low"
+        },
+        "request_fee": 0.0,
+        "reservation_basis": "frozen_endpoint_undiscounted_max_tier_and_32768_input_ceiling",
+        "reservation_input_price": 5e-06,
+        "reservation_output_price": 1.5e-05,
+        "route_slug": "openai"
+      }
+    },
+    {
+      "episode_cap_usd": 2,
+      "model": {
+        "input_price": 2e-06,
+        "key": "gpt-6-sol-high",
+        "max_output": 32768,
+        "model": "openai/gpt-6-sol",
+        "output_price": 1e-05,
+        "prompt_limit": 32768,
+        "provider": "OpenAI",
+        "reasoning": {
+          "effort": "high"
+        },
+        "request_fee": 0.0,
+        "reservation_basis": "frozen_endpoint_undiscounted_max_tier_and_32768_input_ceiling",
+        "reservation_input_price": 5e-06,
+        "reservation_output_price": 1.5e-05,
+        "route_slug": "openai"
+      }
+    },
+    {
+      "episode_cap_usd": 1,
+      "model": {
+        "input_price": 1.5e-06,
+        "key": "gemini-3-8-flash-low",
+        "max_output": 32768,
+        "model": "google/gemini-3.8-flash",
+        "output_price": 7.5e-06,
+        "prompt_limit": 32768,
+        "provider": "Google AI Studio",
+        "reasoning": {
+          "effort": "low"
+        },
+        "request_fee": 0.0,
+        "reservation_basis": "frozen_endpoint_undiscounted_max_tier_and_32768_input_ceiling",
+        "reservation_input_price": 1.5e-06,
+        "reservation_output_price": 7.5e-06,
+        "route_slug": "google-ai-studio"
+      }
+    },
+    {
+      "episode_cap_usd": 1.5,
+      "model": {
+        "input_price": 1.4e-06,
+        "key": "glm-5-2-low",
+        "max_output": 32768,
+        "model": "z-ai/glm-5.2",
+        "output_price": 4.4e-06,
+        "prompt_limit": 32768,
+        "provider": "Baidu",
+        "reasoning": {
+          "effort": "low"
+        },
+        "request_fee": 0.0,
+        "reservation_basis": "frozen_endpoint_undiscounted_max_tier_and_32768_input_ceiling",
+        "reservation_input_price": 1.4e-06,
+        "reservation_output_price": 4.4e-06,
+        "route_slug": "baidu/fp8"
+      }
+    },
+    {
+      "episode_cap_usd": 0.4,
+      "model": {
+        "input_price": 7.5e-08,
+        "key": "gpt-oss-20b-low",
+        "max_output": 32768,
+        "model": "openai/gpt-oss-20b",
+        "output_price": 3e-07,
+        "prompt_limit": 32768,
+        "provider": "Groq",
+        "reasoning": {
+          "effort": "low"
+        },
+        "request_fee": 0.0,
+        "reservation_basis": "frozen_endpoint_undiscounted_max_tier_and_32768_input_ceiling",
+        "reservation_input_price": 7.5e-08,
+        "reservation_output_price": 3e-07,
+        "route_slug": "groq"
+      }
+    },
+    {
+      "episode_cap_usd": 0.4,
+      "model": {
+        "input_price": 1e-07,
+        "key": "llama-4-scout",
+        "max_output": 16384,
+        "model": "meta-llama/llama-4-scout",
+        "output_price": 3e-07,
+        "prompt_limit": 32768,
+        "provider": "DeepInfra",
+        "reasoning": null,
+        "request_fee": 0.0,
+        "reservation_basis": "frozen_endpoint_undiscounted_max_tier_and_32768_input_ceiling",
+        "reservation_input_price": 1e-07,
+        "reservation_output_price": 3e-07,
+        "route_slug": "deepinfra/fp8"
+      }
+    }
+  ],
+  "first_pass_episodes": 18,
+  "frozen_date": "2026-09-26",
+  "levels": [
+    0,
+    1,
+    2
+  ],
+  "maximum_episodes": 36,
+  "name": "diverse-complexity-pilot-20260926",
+  "pricing_policy": "Frozen selected-route undiscounted text tariffs, reversing advertised discount; actual billed separate",
+  "rank_eligible": false,
+  "seeds": [
+    90501,
+    90502
+  ]
+}

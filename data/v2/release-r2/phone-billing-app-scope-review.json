@@ -1,0 +1,54 @@
+{
+  "kind": "scoped_billing_sandbox_inventory",
+  "observed_at_unix": 1789636959.3141482,
+  "method": "SandboxList",
+  "include_finished": true,
+  "maximum_pages_per_app": 3,
+  "ledger_modified": false,
+  "compute_created": false,
+  "targets": [
+    {
+      "target": "probe",
+      "billing_sha256": "5e2df640e0ce0314d5dd3de9e5425bfcc771c9c8fc4d7f31f7ecae325af9812d",
+      "app_id": "ap-VIST80KKPmMaC3ZlA67rtB",
+      "expected_sandbox_id": "sb-t7CY44k1Ye28Tb4fMRYECh",
+      "sandboxes": [
+        {
+          "sandbox_id": "sb-t7CY44k1Ye28Tb4fMRYECh",
+          "created_at_unix": 1789632176.878474,
+          "started_at_unix": 1789632180.966311,
+          "finished_at_unix": 1789632606.529669,
+          "image_id": "im-KNuhx8x5CNGSM9Kp9F9Xw8",
+          "timeout_seconds": 1800,
+          "gpu_type": "B200",
+          "memory_mib_limit": 65536,
+          "milli_cpu_limit": 4000
+        }
+      ],
+      "pagination_exhausted": true,
+      "pages_requested": 2
+    },
+    {
+      "target": "episodes",
+      "billing_sha256": "a51a0f8bb4f912eac3976329595724c6bf34d816b3216c4a297bad17694277ca",
+      "app_id": "ap-tUv1efa5JcgJ38tjRbg13d",
+      "expected_sandbox_id": "sb-MTZuK4eoSkbxYyYR4OOoYo",
+      "sandboxes": [
+        {
+          "sandbox_id": "sb-MTZuK4eoSkbxYyYR4OOoYo",
+          "created_at_unix": 1789634373.396058,
+          "started_at_unix": 1789634376.765054,
+          "finished_at_unix": 1789634785.490161,
+          "image_id": "im-KNuhx8x5CNGSM9Kp9F9Xw8",
+          "timeout_seconds": 1800,
+          "gpu_type": "B200",
+          "memory_mib_limit": 65536,
+          "milli_cpu_limit": 4000
+        }
+      ],
+      "pagination_exhausted": true,
+      "pages_requested": 2
+    }
+  ],
+  "status": "metadata_read_complete"
+}

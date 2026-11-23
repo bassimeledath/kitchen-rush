@@ -1,125 +1,130 @@
 <img src="assets/kitchen-rush-logo.png" alt="Kitchen Rush" width="420">
 
-**An agent tool-calling benchmark where speed matters as much as intelligence.**
+**How much useful work can a model complete with a limited allowance?**
 
-<p>
-  <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-blue.svg"></a>
-  <img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-blue.svg">
-</p>
+Kitchen Rush is a reproducible kitchen task for evaluating model action selection.
+Give models the same orders, rules and possible actions. Limit their resources. Measure
+what gets completed and what it costs.
 
-<p align="center">
-  <img src="docs/assets/duel_b1.gif" width="85%"
-       alt="claude-sonnet-4.6 and gpt-5.4-mini (low reasoning) racing the same kitchen at a 1-second latency budget">
-</p>
+**V2 is being validated.** A roster canary exposed an overly restrictive per-request token
+ceiling and incomplete operational tariff reservations. Both are corrected; the revised
+configuration has passed its six-configuration canary: 150 requests independently audited.
+The 29-configuration checkpoint has started but paused after an OpenRouter funding rejection;
+its unfinished runs are unranked. Earlier runs remain diagnostic,
+with every charge retained in the $200 total. [V1 results are archived](README.v1.md).
 
-## Why this exists
+## Three ideas
 
-Most tool-calling benchmarks check *whether* a model makes the right calls — and the world
-politely waits while it thinks. But if you're building a voice assistant or anything realtime,
-you care about two things at once: does the model do the right thing, **and does it do it fast
-enough?**
+1. **Useful work.** Complete requested orders through valid actions. Wrong choices cost
+   game time and reduce quality. All models choose from the same candidates, including
+   illegal actions and explicit waits. One action executes before the next observation.
+2. **Limited budgets.** Compare quality at dollar allowances across model architectures.
+   Separately measure quality under generation-token allowances where accounting is
+   comparable. Reasoning, actions and recovery consume the episode's resources.
+3. **Unfamiliar kitchens.** Recipes, preparation requirements and cooking timers vary.
+   Stable operations must be applied to new combinations. Read the rules; a fixed recipe
+   script is insufficient. The generator remains learnable and is not memorization-proof.
 
-Kitchen Rush measures both at once with one rule: **the time a model spends thinking is charged
-to the game clock before its actions execute.** While the model deliberates, food keeps cooking,
-food burns, and order deadlines slip away. Speed and accuracy aren't two charts you squint at —
-they're one score.
+Inference pauses the kitchen. Actions and waits still advance cooking, burning and order
+expiry. API/network speed does not affect scores or public charts.
 
-## How it works
+## One task, two resource views
 
-The model plays a chef in an [Overcooked](https://github.com/HumanCompatibleAI/overcooked_ai)-style
-kitchen. Orders stream in (burgers, soups, ramen…), and the model fulfils them with ordinary
-function calls — `collect`, `chop`, `cook`, `plate`, `serve` — racing deadlines, burn timers,
-and a combo bonus for consecutive successful dishes. Three changes from Overcooked:
+Jev and generative models share the action-selection task. Jev returns a typed choice;
+generative models return the selected action as JSON. Neither receives a planner, legality
+filter, automatic repair or hidden future orders. Shared automatic walking is disclosed
+assistance. This evaluates action selection, not unconstrained tool-argument generation.
 
-1. **Latency is the game.** Thinking time is charged to the shared clock, then actions execute.
-   A model can chain several calls in one response and pay the latency once.
-2. **The chef walks itself.** Travel happens automatically inside each action. What's tested is
-   choosing the right action sequence under time pressure, not video-game reflexes.
-3. **Deterministic.** The same seed and action sequence reproduce the same episode exactly, and
-   every run replays in a browser viewer.
+**Dollar view:** execute a selected action only if cumulative actual inference charges fit
+the episode allowance. The first response crossing it is paid and archived, but not executed.
+Actual cost therefore includes a possible extra boundary request. Compare quality against
+known costs across every attempt of a scheduled job. Show unresolved charges separately;
+only resolved-cost points enter the empirical Pareto frontier. Equal dollars do not mean equal compute.
 
-Every episode produces a single 0–100 score, **KR**. It's graded on a curve between two anchors:
-KR 0 means "no better than doing nothing," KR 100 means "matched a scripted reference chef that
-plays the same kitchen with zero latency." Worked example: if doing nothing finishes at −60, the
-reference chef at +140, and your model at +40, your model covered 100 of the 200 points between
-the anchors — KR 50. Average over many seeded kitchens for the leaderboard number
-([docs/METHODOLOGY.md](docs/METHODOLOGY.md) has the full formula).
+**Token view:** enforce an episode allowance of generated tokens, including reported reasoning
+once. Input tokens are reported separately and included in cost. Jev has no token-efficiency
+rank until compatible counting and enforcement are established; it remains eligible for the
+shared dollar view. Provider failures are unscored and reported with their spending.
 
-## The latency budget
+**B80** is the smallest tested token allowance reaching mean quality 80. Conservative B80
+requires the lower 95% confidence bound to reach 80. No interpolation; report “not reached
+within tested budgets” when appropriate. A dollar backstop that cuts a token run short makes
+it cost-censored and ineligible to establish B80. Cells containing replacement attempts are
+also ineligible: a restarted wallet cannot prove the whole job fit the original token allowance.
 
-Each kitchen is generated at a **latency budget** (`--latency-budget`, seconds per decision):
-deadlines are priced so a chef deciding in exactly that many seconds per move can finish every
-order, with roughly 50% headroom to spare. Decide faster than the budget and you bank slack;
-decide slower and orders start becoming unfinishable. Each budget gets its own leaderboard —
-results are never averaged together.
+## Scoring
 
-In deployment terms: the winner at a 1-second budget is the pick when every decision must land
-in about a second (what a voice agent needs); a 5-second budget suits an interactive assistant
-that can afford a short burst of reasoning. The same model can rank very differently at the two
-budgets — that reordering is precisely what the benchmark is for.
+For each kitchen, with three requested orders:
 
-## Leaderboard
+```text
+quality = 100 × max(0, (completed orders − 0.1 × invalid actions) / 3)
+```
 
-Models are clocked on their own real, measured API latency: we sample each model's live serving
-speed, freeze it, and run the game on that clock. Slow in production, slow on the board.
+Two completed orders and one invalid action score **63.3**. Also report raw completion and
+invalid-action counts. Unfinished orders receive no credit. Token waste reduces the work
+possible within the allowance; it does not receive a second arbitrary quality penalty.
 
-<p align="center">
-  <img src="docs/assets/calibrated_bar_b1.png" width="49%" alt="Board at 1-second latency budget">
-  <img src="docs/assets/calibrated_bar_b5.png" width="49%" alt="Board at 5-second latency budget">
-</p>
+Average repeated trials within kitchens, then kitchens within each size family, then weight
+families equally. Uncertainty resamples kitchens within families; small samples remain
+exploratory. Every episode must reproduce its actions, frames and final score exactly.
 
-16 models · 12 seeds · snapshot **2026-07-10**. Bars are mean KR, whiskers are 95% confidence
-intervals; blue = tied for the lead. Full tables (including cost and per-model speed
-measurements): [leaderboard/results/calibrated_board.md](leaderboard/results/calibrated_board.md).
+## Validation before rankings
 
-`claude-sonnet-4.6` leads both budgets (KR 36 at 1s, 55 at 5s); `glm-5.2` is runner-up at both,
-roughly 10× cheaper. Under 1-second pressure the fast, low-reasoning models hold the podium;
-give each decision five seconds and the reasoners climb. Same models, different budget,
-different winner.
+Offline tests cover the engine, resource accounting, replay and failure handling.
+[A clean checkout passed 191 Python tests and the replay accounting suite](data/v2/release-r2/clean-checkout-validation-20260917.json), without local run files or credentials.
+An independent offline study exercised 1,200
+kitchens and replayed three policies on each: a public-rule reader completed all perfectly;
+a table containing every recipe but fixed preparation/timing averaged 24.7 quality. A stronger
+controller with adaptive timing reached 82.6. These results expose brittle scripts and also
+show that within-environment specialization remains possible.
 
-One caveat: this board is clocked on dated, real-world API measurements, so it's a snapshot of
-that day rather than a reproducible artifact ([docs/LIMITATIONS.md](docs/LIMITATIONS.md)).
+The release sequence is a six-configuration canary, full-roster canaries, matched dollar and
+token sweeps, repeated trials, then fresh confirmation. A second main seed per family follows
+if funds allow. All prior charges, failed-attempt
+liability and boundary responses count toward the $200 operational ceiling. Unsupported
+configurations remain explicitly listed. Token coverage precedes additional dollar-only depth.
 
-## Try it
+## First validation results
 
-Watch a game in the browser (scripted chef, no model calls):
+These are **six current-configuration canary episodes**, with 150 requests independently
+audited, including two interrupted attempts and their replacements. All six configurations
+faced the same development kitchen with a $0.15 allowance. This checks integration; one
+kitchen cannot establish stable rankings. Token-budget sweeps and B80 are still pending.
+
+![Canary cost and quality](docs/v2/release-r2-assets/revised-canary-cost-quality.png)
+
+[Current figures, coverage and penalty sensitivity](docs/v2/RELEASE_RESULTS.md) ·
+[Raw evidence and accounting archive](data/v2/release-r2/evidence-diagnostics-20260917.zip)
+
+The full-roster checkpoint is paused for account funding. Its partial traces and charges are
+preserved; the [reviewed recovery procedure](docs/v2/FUNDING_RECOVERY.md) keeps the same tasks,
+settings and budgets when funding is restored.
+
+PhoneLLM's isolated compatibility probe succeeded. Its three replay-verified diagnostic
+kitchens scored zero, but use different tasks from the shared canary and remain unranked.
+Hosted-cost accounting is not yet comparable enough for this dollar leaderboard;
+[inclusion status and evidence](docs/v2/PHONELLM_INCLUSION_REVIEW.md) explain the remaining gap.
+
+## Reproduce without API calls
 
 ```bash
-pip install -e .                          # the core has zero dependencies
-kitchenrush replay --oracle --tier easy --seed 0       # writes ui/replays/easy_seed0.json
-cd ui && python3 -m http.server 8000                   # then open http://localhost:8000
-# ...or race up to 4 models side-by-side on one clock: ?replays=a.json,b.json (see ui/README.md)
+python -m pip install -e '.[dev,v2]'
+python scripts/release_v2.py offline
+python scripts/audit_generalization_v2.py
+python -m http.server 8000 --directory ui
+# Open http://localhost:8000/v2/ for the current kitchen replay.
 ```
 
-Benchmark a real model:
+Paid runs require local provider credentials, a frozen campaign, a spending ledger and the
+preceding checkpoint's audited gate. Keys and request headers are never written to artifacts.
+The original `kitchenrush` CLI and v1 results are retained for historical reproduction.
 
-```bash
-pip install -e '.[providers]'
-kitchenrush bench --model anthropic:claude-sonnet-4-6 --tier medium --latency-budget 1
-```
+- [Short list of v2 changes](docs/REMODEL_PROPOSAL.md)
+- [Exact evaluation contract](docs/v2/PROTOCOL.md)
+- [Frozen model roster and migration notes](data/v2/release-r2-roster.json)
+- [Independent generalization evidence](docs/v2/GENERALIZATION_REVIEW.md)
+- [Engine and accounting review](docs/v2/CONTRACT_ADVERSARIAL_REVIEW.md)
+- [Related research and strongest objections](docs/v2/POSITIONING_REVIEW.md)
+- [Working name candidates](docs/v2/NAME_CANDIDATES.md)
 
-Any LiteLLM-routable model works via `provider:model`. Other CLI commands (`run`, `bench`,
-`replay`, `seeds`, `calibrate`) and custom-client support are covered in the docs below.
-
-## Learn more
-
-- [docs/METHODOLOGY.md](docs/METHODOLOGY.md) — scoring, statistics, and the latency-budget math
-- [docs/](docs) — ruleset, calibration evidence, limitations, and the submission guide
-
-## Citation
-
-If you use Kitchen Rush in your work, please cite it (machine-readable copy in
-[CITATION.cff](CITATION.cff)):
-
-```bibtex
-@software{kitchenrush2026,
-  author = {Eledath, Bassim},
-  title  = {Kitchen Rush: A Benchmark for Accurate and Fast Tool Calling},
-  url    = {https://github.com/bassimeledath/kitchen-rush},
-  year   = {2026}
-}
-```
-
-## License
-
-Apache-2.0. See [LICENSE](LICENSE).
+Apache-2.0 · [License](LICENSE)

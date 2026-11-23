@@ -1,0 +1,22 @@
+{
+  "purpose": "Second versioned paired recovery after the first recovery stopped on HTTP 402; both efforts restart all eight incomplete original seeds, and every prior artifact remains immutable.",
+  "seeds": [90605, 90606, 90609, 90611, 90612, 90613, 90614, 90615],
+  "models": ["gpt-6-sol-low", "gpt-6-sol-high"],
+  "order_by_seed": {
+    "90605": ["gpt-6-sol-high", "gpt-6-sol-low"],
+    "90606": ["gpt-6-sol-low", "gpt-6-sol-high"],
+    "90609": ["gpt-6-sol-high", "gpt-6-sol-low"],
+    "90611": ["gpt-6-sol-low", "gpt-6-sol-high"],
+    "90612": ["gpt-6-sol-high", "gpt-6-sol-low"],
+    "90613": ["gpt-6-sol-low", "gpt-6-sol-high"],
+    "90614": ["gpt-6-sol-high", "gpt-6-sol-low"],
+    "90615": ["gpt-6-sol-low", "gpt-6-sol-high"]
+  },
+  "campaign_ceiling_usd": 51.34464,
+  "episode_cap_usd": 3.25,
+  "episode_wall_seconds": 3600,
+  "campaign_wall_seconds": 28800,
+  "total_request_deadline_seconds": 600,
+  "socket_timeout_seconds": 600,
+  "retry_policy": "No retries or substitutions. HTTP 400/401/402/403/429 stops campaign immediately. Other failures quarantine an episode; two consecutive quarantined episodes stop campaign. Any operational fuse stops campaign."
+}

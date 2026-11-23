@@ -1,0 +1,39 @@
+{
+  "D1": [],
+  "D2": [],
+  "D3": [],
+  "D4": [
+    {
+      "seed": 6008,
+      "reason": "witness burned food after ToolCall(name='wait', arguments={'seconds': 1}, id=None) at t=102.19999999999999"
+    },
+    {
+      "seed": 6010,
+      "reason": "witness only served 1/5 on D=4 seed=6010"
+    }
+  ],
+  "D5": [
+    {
+      "seed": 6007,
+      "reason": "witness burned food after ToolCall(name='serve', arguments={'order_id': 'O4'}, id=None) at t=254.85000000000005"
+    }
+  ],
+  "D6": [
+    {
+      "seed": 6000,
+      "reason": "witness only served 3/7 on D=6 seed=6000"
+    },
+    {
+      "seed": 6003,
+      "reason": "witness only served 1/7 on D=6 seed=6003"
+    },
+    {
+      "seed": 6008,
+      "reason": "witness only served 1/7 on D=6 seed=6008"
+    },
+    {
+      "seed": 6010,
+      "reason": "witness only served 1/7 on D=6 seed=6010"
+    }
+  ]
+}

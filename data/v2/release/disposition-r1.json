@@ -1,0 +1,36 @@
+{
+  "accounting": {
+    "accounted_usd": 16.175129022,
+    "cap_usd": 200.0,
+    "overruns": 0,
+    "prior_accounted_usd": 10.532554644,
+    "requests": 899,
+    "retained_failed_requests": 1,
+    "settled_usd": 5.547833898,
+    "stages": {
+      "canary": 0.0,
+      "confirmation": 0.0,
+      "corrected_validation": 4.226301972,
+      "main": 0.0,
+      "pilot": 0.0,
+      "recovery": 0.0,
+      "repeat": 0.0,
+      "roster_canary": 1.416272406,
+      "smoke": 0.0,
+      "tokens": 0.0
+    },
+    "unresolved_requests": 0,
+    "unresolved_reserve_usd": 0.09474048
+  },
+  "campaign": "release-r1",
+  "cause": [
+    "Per-call 2048 generation cap repeatedly truncated a reasoning configuration.",
+    "Operational reservation omitted higher nested text tariffs."
+  ],
+  "disposition": "Superseded diagnostic campaign; no full-roster gate or ranking.",
+  "error": "ProviderError: HTTP 429; no automatic retry",
+  "request": "roster_canary-deepseek-v4-flash-think-56300-3-0-d0.4-tNone:11",
+  "retained_liability_usd": 0.09474048,
+  "retry_policy": "Never redispatch this request or release its reservation. A revised campaign may make distinct calls after fresh validation.",
+  "stopped_process_exit": 130
+}

@@ -1,0 +1,492 @@
+[
+  {
+    "level": "easy",
+    "seed": 92010,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "quarantined",
+    "original_sha256": "d1c8355e58a3404fb9d49f6d2e50673f4204436144cfa1771f2b8d5f51c8eb70"
+  },
+  {
+    "level": "easy",
+    "seed": 92010,
+    "key": "claude-sonnet-5-5-high",
+    "original_status": "quarantined",
+    "original_sha256": "d8f5635addff39f1c64527fe6361f54d0e5255e921257c871459e47ca30dface"
+  },
+  {
+    "level": "easy",
+    "seed": 92011,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "quarantined",
+    "original_sha256": "6ddcab07b958d26630a0b77a52e761621496a184934cca2317ce767d085e49f0"
+  },
+  {
+    "level": "easy",
+    "seed": 92011,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "quarantined",
+    "original_sha256": "05dfdaf24e19762d7c11f1e57bd1925586342b639a59f14431a197a6f3bcc525"
+  },
+  {
+    "level": "medium",
+    "seed": 92000,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "quarantined",
+    "original_sha256": "89269e57116028248a9932814c7be5376dc8aca49497de1ea0eb06805d828a2d"
+  },
+  {
+    "level": "medium",
+    "seed": 92000,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92003,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92003,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92009,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92009,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92010,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92010,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92012,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92012,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92013,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92013,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92014,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92014,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92016,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92016,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92017,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92017,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92019,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92019,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92020,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92020,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92021,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "medium",
+    "seed": 92021,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90603,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90603,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90604,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90604,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90605,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90605,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90606,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90606,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90606,
+    "key": "claude-sonnet-5-5-low",
+    "original_status": "quarantined",
+    "original_sha256": "4b9b6d8296ef9ba77b3691ceba20a1cb2b86ae30c35d022ed8ae94b3b712ed6b"
+  },
+  {
+    "level": "hard",
+    "seed": 90606,
+    "key": "claude-sonnet-5-5-high",
+    "original_status": "quarantined",
+    "original_sha256": "84251b6a72ee6db4daf0b786927e4ec8bb08f16e14fc49dbf0dc14e2dd326e5b"
+  },
+  {
+    "level": "hard",
+    "seed": 90607,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90607,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90607,
+    "key": "claude-sonnet-5-5-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90607,
+    "key": "claude-sonnet-5-5-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90608,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90608,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90608,
+    "key": "claude-sonnet-5-5-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90608,
+    "key": "claude-sonnet-5-5-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90609,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90609,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90609,
+    "key": "claude-sonnet-5-5-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90609,
+    "key": "claude-sonnet-5-5-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90611,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90611,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90611,
+    "key": "claude-sonnet-5-5-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90611,
+    "key": "claude-sonnet-5-5-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90612,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90612,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90612,
+    "key": "claude-sonnet-5-5-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90612,
+    "key": "claude-sonnet-5-5-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90613,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90613,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90613,
+    "key": "claude-sonnet-5-5-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90613,
+    "key": "claude-sonnet-5-5-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90614,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90614,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90614,
+    "key": "claude-sonnet-5-5-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90614,
+    "key": "claude-sonnet-5-5-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90615,
+    "key": "gpt-6-1-sol-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90615,
+    "key": "gpt-6-1-sol-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90615,
+    "key": "claude-sonnet-5-5-low",
+    "original_status": "unattempted",
+    "original_sha256": null
+  },
+  {
+    "level": "hard",
+    "seed": 90615,
+    "key": "claude-sonnet-5-5-high",
+    "original_status": "unattempted",
+    "original_sha256": null
+  }
+]

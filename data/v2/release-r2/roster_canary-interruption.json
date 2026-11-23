@@ -1,0 +1,54 @@
+{
+  "kind": "funding_interruption",
+  "recorded_at_unix": 1789634165.762026,
+  "manifest_sha256": "3a12ce86c44bba53cf3a86853216179342827fcb71092a9cb321133f160906ca",
+  "http_status": 402,
+  "confirmed_charges_usd": 0.312291,
+  "unknown_liability_usd": 6.24576,
+  "scheduled_jobs": 29,
+  "attempted_jobs": 3,
+  "unattempted_jobs": 26,
+  "observations": [
+    {
+      "path": "runs/v2/release-r2/roster_canary/roster_canary-claude-haiku-4-5-60100-3-0-d0.4-tNone.json",
+      "sha256": "e7002d505d39a2167e2d47607e7b2006323c7cb7aa29e0083ce6727d85e5383f",
+      "model": "claude-haiku-4-5",
+      "status": "incomplete",
+      "reason": "operational_spending_gate",
+      "known_cost_usd": 0.159879,
+      "unknown_reserve_usd": 0,
+      "actions": 37,
+      "rank_eligible": false
+    },
+    {
+      "path": "runs/v2/release-r2/roster_canary/roster_canary-claude-sonnet-4-6-60100-3-0-d0.4-tNone.json",
+      "sha256": "60dbc99e133fe215217c5bc4d359a4b64ea13267405d23b32903958297c0bb11",
+      "model": "claude-sonnet-4-6",
+      "status": "incomplete",
+      "reason": "operational_spending_gate",
+      "known_cost_usd": 0.089232,
+      "unknown_reserve_usd": 0,
+      "actions": 7,
+      "rank_eligible": false
+    },
+    {
+      "path": "runs/v2/release-r2/roster_canary/roster_canary-claude-sonnet-4-6-think-60100-3-0-d0.4-tNone.json",
+      "sha256": "271572e4ca992094a0c342bbcdfdc0ef1281c2b101f4be52a567b06e0c544ab7",
+      "model": "claude-sonnet-4-6-think",
+      "status": "quarantined",
+      "reason": "provider_or_accounting_failure",
+      "known_cost_usd": 0.06318,
+      "unknown_reserve_usd": 6.24576,
+      "actions": 5,
+      "rank_eligible": false
+    }
+  ],
+  "account_status_evidence_path": "runs/v2/release-r2/funding-check-20260917.json",
+  "account_status_evidence_sha256": "87165b3aa239ca993daf3ffe2faf2e67dd5e4cbc6befc3d2771e44e2f5bc44da",
+  "resume_requirements": [
+    "funded account verified read-only",
+    "reviewed operational amendment permits one replacement for the funding failure and its peer pauses",
+    "retain original traces and all charges and unknown liability",
+    "same frozen models kitchens allowances and scoring"
+  ]
+}

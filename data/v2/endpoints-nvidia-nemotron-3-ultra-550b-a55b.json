@@ -1,0 +1,208 @@
+{
+  "data": {
+    "id": "nvidia/nemotron-3-ultra-550b-a55b",
+    "name": "NVIDIA: Nemotron 3 Ultra",
+    "created": 1780551208,
+    "description": "NVIDIA Nemotron 3 Ultra is an open frontier-reasoning and orchestration model from NVIDIA, with 55B active parameters out of 550B total (MoE). Built on a hybrid Transformer-Mamba mixture-of-experts architecture, it...",
+    "architecture": {
+      "tokenizer": "Other",
+      "instruct_type": null,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ]
+    },
+    "endpoints": [
+      {
+        "name": "DeepInfra | nvidia/nemotron-3-ultra-550b-a55b-20260604",
+        "model_id": "nvidia/nemotron-3-ultra-550b-a55b",
+        "model_name": "NVIDIA: Nemotron 3 Ultra",
+        "context_length": 262144,
+        "pricing": {
+          "prompt": "0.0000005",
+          "completion": "0.0000022",
+          "input_cache_read": "0.0000001",
+          "discount": 0
+        },
+        "provider_name": "DeepInfra",
+        "tag": "deepinfra/fp4",
+        "quantization": "fp4",
+        "max_completion_tokens": 16384,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "top_k",
+          "seed",
+          "min_p",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "response_format",
+          "logit_bias",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": false,
+          "function": false
+        },
+        "status": 0,
+        "uptime_last_30m": null,
+        "uptime_last_5m": null,
+        "uptime_last_1d": 99.96082698585418,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      },
+      {
+        "name": "BaseTen | nvidia/nemotron-3-ultra-550b-a55b-20260604",
+        "model_id": "nvidia/nemotron-3-ultra-550b-a55b",
+        "model_name": "NVIDIA: Nemotron 3 Ultra",
+        "context_length": 202800,
+        "pricing": {
+          "prompt": "0.0000006",
+          "completion": "0.0000024",
+          "input_cache_read": "0.00000012",
+          "discount": 0
+        },
+        "provider_name": "BaseTen",
+        "tag": "baseten/fp4",
+        "quantization": "fp4",
+        "max_completion_tokens": 182520,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.99932867883996,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      },
+      {
+        "name": "BaseTen | nvidia/nemotron-3-ultra-550b-a55b-20260604",
+        "model_id": "nvidia/nemotron-3-ultra-550b-a55b",
+        "model_name": "NVIDIA: Nemotron 3 Ultra",
+        "context_length": 202800,
+        "pricing": {
+          "prompt": "0.0000006",
+          "completion": "0.0000024",
+          "input_cache_read": "0.00000012",
+          "discount": 0
+        },
+        "provider_name": "BaseTen",
+        "tag": "baseten/fp4",
+        "quantization": "fp4",
+        "max_completion_tokens": 182520,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 100,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      },
+      {
+        "name": "Venice | nvidia/nemotron-3-ultra-550b-a55b-20260604",
+        "model_id": "nvidia/nemotron-3-ultra-550b-a55b",
+        "model_name": "NVIDIA: Nemotron 3 Ultra",
+        "context_length": 256000,
+        "pricing": {
+          "prompt": "0.000000625",
+          "completion": "0.000003125",
+          "input_cache_read": "0.0000001875",
+          "discount": 0
+        },
+        "provider_name": "Venice",
+        "tag": "venice/fp8",
+        "quantization": "fp8",
+        "max_completion_tokens": 32768,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": false,
+          "function": false
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 95.52477283463473,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      }
+    ]
+  }
+}

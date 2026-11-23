@@ -1,0 +1,298 @@
+{
+  "all_attempts_accounted_usd": 0.914713062,
+  "attempt_count": 8,
+  "batch": "revised_canary",
+  "batch_cost_usd": 0.510898698,
+  "boundary_cost_usd": 0.0191616,
+  "configuration_hash": "7d3d605d7c128a8c42cda541aff2693b2e81b3d1c4ed419d75e04eadf07a4193",
+  "episodes": 6,
+  "evaluated_artifacts": {
+    "revised_canary-claude-sonnet-4-6-think-60000-3-0-d0.15-tNone": "runs/v2/release-r2/revised_canary/revised_canary-claude-sonnet-4-6-think-60000-3-0-d0.15-tNone.json",
+    "revised_canary-deepseek-v4-flash-think-60000-3-0-d0.15-tNone": "runs/v2/release-r2/revised_canary/attempts/revised_canary-deepseek-v4-flash-think-60000-3-0-d0.15-tNone--attempt2.json",
+    "revised_canary-gemini-3-5-flash-60000-3-0-d0.15-tNone": "runs/v2/release-r2/revised_canary/revised_canary-gemini-3-5-flash-60000-3-0-d0.15-tNone.json",
+    "revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone": "runs/v2/release-r2/revised_canary/attempts/revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone--attempt2.json",
+    "revised_canary-grok-build-think-60000-3-0-d0.15-tNone": "runs/v2/release-r2/revised_canary/revised_canary-grok-build-think-60000-3-0-d0.15-tNone.json",
+    "revised_canary-jev-60000-3-0-d0.15-tNone": "runs/v2/release-r2/revised_canary/revised_canary-jev-60000-3-0-d0.15-tNone.json"
+  },
+  "failed_attempt_accounted_usd": 0.403814364,
+  "failed_attempt_count": 2,
+  "failed_attempts": [
+    {
+      "accounted_usd": 0.003360114,
+      "error": "operational_spending_gate",
+      "failure_kind": "peer_accounting_pause",
+      "job": "revised_canary-deepseek-v4-flash-think-60000-3-0-d0.15-tNone",
+      "known_cost_usd": 0.003360114,
+      "known_input_tokens": 10141,
+      "known_output_tokens": 13904,
+      "model": "deepseek-v4-flash-think",
+      "original_path": "runs/v2/release-r2/revised_canary/revised_canary-deepseek-v4-flash-think-60000-3-0-d0.15-tNone.json",
+      "original_sha256": "5d2ff7030d772bdf383f9892d690380df7003d1004fe77b53e476828fd806d5b",
+      "retained_liability_usd": 0.0,
+      "token_cap": null,
+      "unknown_response_usage": false
+    },
+    {
+      "accounted_usd": 0.40045425,
+      "error": "ProviderError: transport failure TimeoutError; no automatic retry",
+      "failure_kind": "provider_failure",
+      "job": "revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone",
+      "known_cost_usd": 0.02672625,
+      "known_input_tokens": 25873,
+      "known_output_tokens": 1627,
+      "model": "gpt-5-4-mini-think",
+      "original_path": "runs/v2/release-r2/revised_canary/revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone.json",
+      "original_sha256": "5aa37c1f8e3d2da7e748975dabb0b3028f5ebef5cb44781ebde38c67b0954dfb",
+      "retained_liability_usd": 0.373728,
+      "token_cap": null,
+      "unknown_response_usage": true
+    }
+  ],
+  "job_resources": {
+    "revised_canary-claude-sonnet-4-6-think-60000-3-0-d0.15-tNone": {
+      "known_cost_usd": 0.150342,
+      "known_input_tokens": 45769,
+      "known_output_tokens": 869,
+      "replacement_affected": false,
+      "retained_liability_usd": 0,
+      "unknown_response_usage": false
+    },
+    "revised_canary-deepseek-v4-flash-think-60000-3-0-d0.15-tNone": {
+      "known_cost_usd": 0.022581774,
+      "known_input_tokens": 88059,
+      "known_output_tokens": 83780,
+      "replacement_affected": true,
+      "retained_liability_usd": 0.0,
+      "unknown_response_usage": false
+    },
+    "revised_canary-gemini-3-5-flash-60000-3-0-d0.15-tNone": {
+      "known_cost_usd": 0.0986025,
+      "known_input_tokens": 64331,
+      "known_output_tokens": 234,
+      "replacement_affected": false,
+      "retained_liability_usd": 0,
+      "unknown_response_usage": false
+    },
+    "revised_canary-gpt-5-4-mini-think-60000-3-0-d0.15-tNone": {
+      "known_cost_usd": 0.110772,
+      "known_input_tokens": 101046,
+      "known_output_tokens": 7775,
+      "replacement_affected": true,
+      "retained_liability_usd": 0.373728,
+      "unknown_response_usage": true
+    },
+    "revised_canary-grok-build-think-60000-3-0-d0.15-tNone": {
+      "known_cost_usd": 0.1539444,
+      "known_input_tokens": 54958,
+      "known_output_tokens": 52130,
+      "replacement_affected": false,
+      "retained_liability_usd": 0,
+      "unknown_response_usage": false
+    },
+    "revised_canary-jev-60000-3-0-d0.15-tNone": {
+      "known_cost_usd": 0.004742388,
+      "known_input_tokens": 112914,
+      "known_output_tokens": 43909,
+      "replacement_affected": false,
+      "retained_liability_usd": 0,
+      "unknown_response_usage": false
+    }
+  },
+  "ledger": {
+    "accounted_usd": 22.089842084,
+    "cap_usd": 200.0,
+    "overruns": 0,
+    "prior_accounted_usd": 16.175129022,
+    "requests": 151,
+    "retained_liability_usd": 5.373728,
+    "settled_usd": 0.540985062,
+    "unresolved_requests": 0
+  },
+  "manifest_sha256": "e989fcfe63e2e1122f6158ac50a4152036ae534ad13100e4a7e8784b8b7e0db3",
+  "operational_amendment": {
+    "path": "data/v2/release-r2/peer-pause-amendment.json",
+    "sha256": "09f12f33c2c85fc3a9b4fc54680b653813f027d409dc68d1bb02f81f03fd74f5",
+    "source_archive": "data/v2/release-r2/source-eecfc4119dc403896c2f6fdbd1309dadd5b87bcedf7d0a7c151d0d3d2f8f82f3.zip",
+    "source_archive_sha256": "676bb7d49e1aae740f613bbb9dc98cd696b9ddc5b7996c5b94b7e29910a6a069"
+  },
+  "orchestration": {
+    "archive": "data/v2/release-r2/source-be2e6206c2f7eed34fb7073f7ef16de2fa453436196034d6da85c3ae63bc5fd3.zip",
+    "scripts": {
+      "scripts/audit_release_v2.py": "6ea9a7a811465ce35f20f4a1f583acc4b951d5b9b5274eb9c068f4951bd0603d",
+      "scripts/audit_roster_v2.py": "efff6886fccf0c3e9b5509ca460ba6021fcdb59b321f8cd381da5cfb6f1bbcb6",
+      "scripts/release_v2.py": "625af5aac6cd07ec716f40f79f28fe9cbcf357993ab037e4dbdbecb7f5c985b6"
+    },
+    "version": 1
+  },
+  "protocol_hash": "c45cb8c99119cd7f9bdda8b4d917daaae93c7458f45e8a3cb02dd50eb194e31b",
+  "requests_verified": 150,
+  "roster_coverage": {
+    "blocked_configurations": [
+      {
+        "key": "phonellm-alpha-1",
+        "reason": "No verified dedicated-container cost allocation or resource cap; no v2 strict-choice adapter."
+      }
+    ],
+    "eligible_configurations": 29,
+    "historical_labels": 32,
+    "total_configurations": 30
+  },
+  "roster_sha256": "78deef542dce7f5f8471a9993caace262dbec9e74595badb7b074a19ea489172",
+  "source_archive": "data/v2/release-r2/source-be2e6206c2f7eed34fb7073f7ef16de2fa453436196034d6da85c3ae63bc5fd3.zip",
+  "source_archive_sha256": "c0c1b2ce82c783d7e0d3c553fc9897d3738d38d3e83a948a292ce4f1e8026392",
+  "stage": "corrected_validation",
+  "status": "passed",
+  "summary": {
+    "B80": {
+      "claude-sonnet-4-6-think": {
+        "conservative": null,
+        "mean": null,
+        "status": "not tested / ineligible"
+      },
+      "deepseek-v4-flash-think": {
+        "conservative": null,
+        "mean": null,
+        "status": "not tested / ineligible"
+      },
+      "gemini-3-5-flash": {
+        "conservative": null,
+        "mean": null,
+        "status": "not tested / ineligible"
+      },
+      "gpt-5-4-mini-think": {
+        "conservative": null,
+        "mean": null,
+        "status": "not tested / ineligible"
+      },
+      "grok-build-think": {
+        "conservative": null,
+        "mean": null,
+        "status": "not tested / ineligible"
+      },
+      "jev": {
+        "conservative": null,
+        "mean": null,
+        "status": "not tested / ineligible"
+      }
+    },
+    "recovery_interpretation": "Replacement quality is conditional on a completed attempt. Entire replacement-affected token cells are ineligible for B80; known tokens and costs remain in job_resources. Unknown response usage is not treated as zero.",
+    "rows": [
+      {
+        "b80_eligible": false,
+        "budget": 0.15,
+        "budget_kind": "USD",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 1,
+        "mean_completion": 0.0,
+        "mean_cost_usd": 0.150342,
+        "mean_invalid": 1,
+        "mean_output_tokens": 869,
+        "model": "claude-sonnet-4-6-think",
+        "quality": 0,
+        "replacement_affected": false,
+        "seeds": 1,
+        "seeds_by_family": {
+          "3": 1
+        }
+      },
+      {
+        "b80_eligible": false,
+        "budget": 0.15,
+        "budget_kind": "USD",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 1,
+        "mean_completion": 1.0,
+        "mean_cost_usd": 0.01922166,
+        "mean_invalid": 0,
+        "mean_output_tokens": 69876,
+        "model": "deepseek-v4-flash-think",
+        "quality": 100.0,
+        "replacement_affected": false,
+        "seeds": 1,
+        "seeds_by_family": {
+          "3": 1
+        }
+      },
+      {
+        "b80_eligible": false,
+        "budget": 0.15,
+        "budget_kind": "USD",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 1,
+        "mean_completion": 0.6666666666666666,
+        "mean_cost_usd": 0.0986025,
+        "mean_invalid": 10,
+        "mean_output_tokens": 234,
+        "model": "gemini-3-5-flash",
+        "quality": 33.33333333333333,
+        "replacement_affected": false,
+        "seeds": 1,
+        "seeds_by_family": {
+          "3": 1
+        }
+      },
+      {
+        "b80_eligible": false,
+        "budget": 0.15,
+        "budget_kind": "USD",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 1,
+        "mean_completion": 1.0,
+        "mean_cost_usd": 0.08404575,
+        "mean_invalid": 0,
+        "mean_output_tokens": 6148,
+        "model": "gpt-5-4-mini-think",
+        "quality": 100.0,
+        "replacement_affected": false,
+        "seeds": 1,
+        "seeds_by_family": {
+          "3": 1
+        }
+      },
+      {
+        "b80_eligible": false,
+        "budget": 0.15,
+        "budget_kind": "USD",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 1,
+        "mean_completion": 0.6666666666666666,
+        "mean_cost_usd": 0.1539444,
+        "mean_invalid": 0,
+        "mean_output_tokens": 52130,
+        "model": "grok-build-think",
+        "quality": 66.66666666666666,
+        "replacement_affected": false,
+        "seeds": 1,
+        "seeds_by_family": {
+          "3": 1
+        }
+      },
+      {
+        "b80_eligible": false,
+        "budget": 0.15,
+        "budget_kind": "USD",
+        "ci95": null,
+        "dollar_censored": 0,
+        "episodes": 1,
+        "mean_completion": 0.3333333333333333,
+        "mean_cost_usd": 0.004742388,
+        "mean_invalid": 4,
+        "mean_output_tokens": 43909,
+        "model": "jev",
+        "quality": 20.0,
+        "replacement_affected": false,
+        "seeds": 1,
+        "seeds_by_family": {
+          "3": 1
+        }
+      }
+    ],
+    "uncertainty": "95% seed-cluster percentile bootstrap within each task family, equal family weighting, 4000 draws; unavailable below two seeds per family. Small-sample intervals are exploratory and can miss distribution tails."
+  },
+  "verifier_sha256": "ed05dedc9299dfdfbe213b64d2bf061df089a2ec45995410d3318da664541045"
+}
