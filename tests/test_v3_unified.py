@@ -382,3 +382,56 @@ def test_full_chat_preserves_reasoning_details_and_raw_tool_calls():
     assert asst["tool_calls"][0]["id"] == "call_abc"
     assert asst["reasoning_details"] == [rd[0]]
     assert chat[2]["role"] == "tool" and chat[2]["tool_call_id"] == "call_abc"
+
+
+def test_difficulty_ladder_monotonicity():
+    """Verify D=1..5 structural, stove-pressure, and deterministic baseline monotonicity."""
+    from kitchenrush.v3.env import difficulty_profile
+    from kitchenrush.v3.solvers import run_greedy_overlap_solver
+
+    stats = []
+    for level in (1, 2, 3, 4, 5):
+        prof = difficulty_profile(level)
+        cpbs, acts, util_lbs, gr_rates = [], [], [], []
+        seed = 8000
+        while len(cpbs) < 12:
+            try:
+                spec, batches = generate_kitchen(seed, level)
+            except RuntimeError:
+                seed += 1
+                continue
+            seed += 1
+            eng = UnifiedEngine(spec)
+            cooked_cnt = 0
+            cook_time = 0.0
+            for o in spec.orders:
+                for ing, st in spec.recipe_cards[o.dish].items():
+                    if st == "COOKED":
+                        cooked_cnt += 1
+                        cook_time += eng.ingredient_rules[ing].cook_time
+            cpbs.append(cooked_cnt / spec.burner_count)
+            acts.append(sum(len(b) for b in batches))
+            max_dl = max(o.deadline_gs for o in spec.orders)
+            util_lbs.append(cook_time / (spec.burner_count * max_dl))
+            gr = run_greedy_overlap_solver(spec)
+            gr_rates.append(gr["served"] / len(spec.orders))
+        stats.append({
+            "level": level,
+            "orders": prof.n_orders,
+            "burn_hi": prof.burn_window_range[1],
+            "slack": prof.deadline_slack,
+            "cpb": sum(cpbs) / len(cpbs),
+            "acts": sum(acts) / len(acts),
+            "util_lb": sum(util_lbs) / len(util_lbs),
+            "gr": sum(gr_rates) / len(gr_rates),
+        })
+
+    for a, b in zip(stats, stats[1:]):
+        assert a["orders"] < b["orders"], f"orders not increasing: {a} vs {b}"
+        assert a["burn_hi"] > b["burn_hi"], f"burn_window not tightening: {a} vs {b}"
+        assert a["slack"] > b["slack"], f"deadline_slack not tightening: {a} vs {b}"
+        assert a["cpb"] < b["cpb"], f"cooked/burner dropped: {a} vs {b}"
+        assert a["acts"] < b["acts"], f"witness actions dropped: {a} vs {b}"
+        assert a["util_lb"] < b["util_lb"], f"stove util_lb dropped: {a} vs {b}"
+        assert a["gr"] > b["gr"], f"greedy baseline did not decrease: {a} vs {b}"
+

@@ -174,7 +174,7 @@ class DifficultyProfile:
 
 
 def difficulty_profile(level: int) -> DifficultyProfile:
-    """Single smooth, monotonic complexity dial D >= 1 (extensible past D=5)."""
+    """Single smooth, strictly monotonic complexity dial D=1..5 (extensible past D=5)."""
     if level < 1:
         raise ValueError("difficulty level must be >= 1")
     table = {
@@ -183,56 +183,58 @@ def difficulty_profile(level: int) -> DifficultyProfile:
             min_components=2, max_components=3, min_cooked=1, max_cooked=1,
             cook_time_range=(8, 14), burn_window_range=(14, 18),
             initial_active=2, arrival_gap_range=(0, 0),
-            deadline_slack=0.70, min_deadline_pad=18.0, shuffle_stations=False,
+            deadline_slack=0.65, min_deadline_pad=16.0, shuffle_stations=False,
         ),
         2: DifficultyProfile(
             level=2, n_orders=3, n_burners=3, grid_n=7,
             min_components=3, max_components=3, min_cooked=1, max_cooked=2,
-            cook_time_range=(18, 28), burn_window_range=(12, 16),
+            cook_time_range=(18, 28), burn_window_range=(12, 15),
             initial_active=3, arrival_gap_range=(0, 0),
             deadline_slack=0.22, min_deadline_pad=9.0, shuffle_stations=False,
         ),
         3: DifficultyProfile(
             level=3, n_orders=4, n_burners=3, grid_n=7,
             min_components=3, max_components=3, min_cooked=1, max_cooked=2,
-            cook_time_range=(22, 36), burn_window_range=(10, 14),
+            cook_time_range=(22, 36), burn_window_range=(10, 13),
             initial_active=3, arrival_gap_range=(14, 22),
-            deadline_slack=0.14, min_deadline_pad=7.0, shuffle_stations=True,
+            deadline_slack=0.12, min_deadline_pad=6.0, shuffle_stations=True,
         ),
         4: DifficultyProfile(
-            level=4, n_orders=5, n_burners=4, grid_n=7,
+            level=4, n_orders=6, n_burners=4, grid_n=7,
             min_components=3, max_components=4, min_cooked=2, max_cooked=2,
-            cook_time_range=(26, 44), burn_window_range=(9, 12),
-            initial_active=3, arrival_gap_range=(16, 26),
-            deadline_slack=0.09, min_deadline_pad=5.0, shuffle_stations=True,
+            cook_time_range=(30, 50), burn_window_range=(8, 10),
+            initial_active=4, arrival_gap_range=(15, 23),
+            deadline_slack=0.04, min_deadline_pad=3.5, shuffle_stations=True,
         ),
         5: DifficultyProfile(
-            level=5, n_orders=6, n_burners=4, grid_n=7,
+            level=5, n_orders=8, n_burners=4, grid_n=7,
             min_components=3, max_components=4, min_cooked=2, max_cooked=2,
-            cook_time_range=(32, 54), burn_window_range=(8, 11),
-            initial_active=4, arrival_gap_range=(16, 24),
-            deadline_slack=0.04, min_deadline_pad=3.0, shuffle_stations=True,
+            cook_time_range=(34, 58), burn_window_range=(6, 8),
+            initial_active=4, arrival_gap_range=(14, 20),
+            deadline_slack=0.02, min_deadline_pad=2.0, shuffle_stations=True,
         ),
     }
     if level in table:
         return table[level]
-    # Smooth open-ended scaling for D >= 6 (chessboard-style unlimited headroom)
+    # Strictly monotonic open-ended scaling for D >= 6: cooked/burner >= 4.0 + 0.5*extra.
     extra = level - 5
+    n_burners = min(6, 4 + extra // 2)
+    n_orders = max(8 + 2 * extra, int(math.ceil((4.0 + 0.5 * extra) * n_burners / 2.0)))
     return DifficultyProfile(
         level=level,
-        n_orders=6 + extra,
-        n_burners=min(6, 4 + (extra + 1) // 2),
+        n_orders=n_orders,
+        n_burners=n_burners,
         grid_n=7 if level <= 7 else 9,
         min_components=3,
         max_components=4,
         min_cooked=2,
         max_cooked=2,
-        cook_time_range=(32 + 4 * extra, 54 + 6 * extra),
-        burn_window_range=(max(5, 8 - extra // 2), max(7, 11 - extra // 2)),
-        initial_active=min(5, 4 + extra // 2),
-        arrival_gap_range=(16, 26),
-        deadline_slack=max(0.02, 0.04 * (0.75 ** extra)),
-        min_deadline_pad=max(2.0, 3.0 - 0.5 * extra),
+        cook_time_range=(34 + 4 * extra, 58 + 6 * extra),
+        burn_window_range=(max(4, 6 - extra // 2), max(6, 8 - extra // 2)),
+        initial_active=min(n_burners, 4 + extra // 2),
+        arrival_gap_range=(max(10, 14 - extra), max(16, 20 - extra)),
+        deadline_slack=max(0.01, 0.02 * (0.75 ** extra)),
+        min_deadline_pad=max(1.5, 2.0 - 0.25 * extra),
         shuffle_stations=True,
     )
 

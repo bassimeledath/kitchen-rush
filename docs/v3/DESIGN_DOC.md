@@ -55,11 +55,12 @@ A sharp question anyone should ask: *If a deterministic Python solver can beat e
 * **Atomic `wait(seconds)`:** A `wait(t)` runs to completion for the full `t` seconds; any arrival/expiry/burn that happens during the wait cancels *subsequent* queued calls after the wait, not the wait itself. Models must calculate wait durations rather than blindly calling `wait(120)`.
 * **Invalid action penalty:** Illegal calls cost **3 game-seconds**, increment `invalid`, and interrupt the rest of that batch.
 * **No hidden harness traps:**
-  * **One generous, configurable output token ceiling (`DEFAULT_MAX_TOKENS = 32768`, overridable via `--max-tokens`)** applied uniformly across every model in a campaign so `reasoning_effort`—never silent truncation—governs thinking length. *(Earlier audits caught Haiku clipping 47 empty turns at `2048` and `gemini-4-neon-medium` clipping 2 opening planning turns at `16384`; `32768` gives `medium` reasoners headroom across all models, and anyone running `high` reasoning configs can pass `--max-tokens 65536`.)*
-  * **Scaled action & turn limits (`max_actions = max_turns = max(160, 24 × N)`):** Keeps `160` for `D=1..5` and scales smoothly with order count `N = D + 1` for `D=6+`, removing any artificial ceiling while ensuring 1-call/turn models are never cut off early.
+  * **One generous, configurable output token ceiling (`DEFAULT_MAX_TOKENS = 32768`, overridable via `--max-tokens`) and `DEFAULT_REQUEST_TIMEOUT_S = 300` (overridable via `--timeout`)** applied uniformly across every model in a campaign so `reasoning_effort`—never silent truncation or premature HTTP timeout—governs thinking length. *(Earlier audits caught Haiku clipping 47 empty turns at `2048`, `gemini-4-neon-medium` clipping 2 opening planning turns at `16384`, and a legitimate `29,039`-token / `257.1s` turn on `gemini-4-neon-medium`; `32768` + `300s` gives `medium` reasoners full headroom, and anyone running `high` reasoning configs can pass `--max-tokens 65536`.)*
+  * **Full reasoning-state continuity (`reasoning_details` + `raw_tool_calls`):** In `full_chat`, `OpenRouterToolAdapter` and `_append_full_chat_turn` preserve OpenRouter's `reasoning_details` (e.g. Google's encrypted `thought_signature`, OpenAI/Anthropic reasoning blocks) and raw `tool_calls` verbatim across turns (excluding truncated `finish_reason="length"` turns and filtering sliced call IDs). Restoring `reasoning_details` immediately lifted `gemini-4-neon` from `0%` clears and `~55%` cache hits to `7/7` clears and `71–81%` cache hits.
+  * **Scaled action & turn limits (`max_actions = max_turns = max(160, 24 × (D + 1))`):** Gives generous `1.65×+` headroom over the ~95-action `D=5` witness and scales smoothly for `D=6+`, ensuring 1-call/turn models are never cut off early.
   * **Mandatory tool calling (`tool_choice="required"`):** Prevents models from wasting turns emitting plain-text chatter instead of kitchen actions.
   * **Immutable campaign manifest (`manifest.json`):** Stores bank/spec SHA-256 hashes, protocol, history mode, `tool_choice`, and exact planned episodes — refusing to silently reuse stale files on resume and aggregating strictly manifest members (reporting `planned / scored / missing` explicitly).
-  * **Crash-safe dynamic per-attempt spend reservations:** Before every HTTP attempt, reserves conservatively against the actual serialized request byte size (with 1.25× input tariff buffer for cache writes) plus `max_tokens` output, persists the reservation to `spend.jsonl`, retains uncertain liability on transport timeouts, and distinguishes provider-billed turns from estimated fallbacks.
+  * **Crash-safe dynamic per-attempt spend reservations:** Before every HTTP attempt, reserves conservatively against the actual serialized request byte size (with 1.25× input tariff buffer for cache writes) plus `max_tokens` output, persists the reservation to `spend.jsonl`, releases pre-send DNS/connect failures cleanly while retaining conservative uncertain liability on post-send read timeouts, and distinguishes provider-billed turns from estimated fallbacks.
   * **Full audit logging & Cap Alerts:** Every turn records `finish_reason`, `provider_route`, `requested_effort`, `max_tokens`, `empty_turns`, and `truncated_turns`, printing loud `[CAP_HIT]` diagnostics if any limit ever triggers.
 
 ### B. Batched Execution with Event-Driven Interrupts
@@ -96,39 +97,39 @@ We dropped the arbitrary 5-turn window and tested three non-arbitrary policies h
 
 One unified parametric generator `generate_kitchen(seed, level=D)` controls all difficulty levels.
 
-### Supported Range (`D = 1..6`, Extensible to `D = 7+`)
+### Supported Range (`D = 1..5` Official Ladder, Extensible to `D = 6+`)
 
-| Dial $D$ | Orders ($N$) | Burners ($B$) | Action/Turn Cap | Cooked / Order | Cook Time Range | Burn Window | Initial Active | Hidden Arrivals | Station Layout | Deadline Slack $\sigma(D)$ (min pad) |
-| :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :--- | :-: | :-: |
-| **D=1** | 2 | 2 | 160 | 1 | 8–14s | 14–18s | 2 | None | Fixed | **+70%** (min 18s) |
-| **D=2** | 3 | 3 | 160 | 1–2 | 18–28s | 12–16s | 3 | None | Fixed | **+22%** (min 9s) |
-| **D=3** | 4 | 3 | 160 | 1–2 | 22–36s | 10–14s | 3 | 1 hidden (+14–22s) | **Shuffled** | **+14%** (min 7s) |
-| **D=4** | 5 | 4 | 160 | 2 | 26–44s | 9–12s | 3 | 2 hidden (+16–26s) | **Shuffled** | **+9%** (min 5s) |
-| **D=5** | 6 | 4 | 160 | 2 | 32–54s | 8–11s | 4 | 2 hidden (+16–24s) | **Shuffled** | **+4%** (min 3s) |
-| **D=6** | 7 | 5 | 168 | 2 | 36–60s | 8–11s | 4 | 3 hidden (+16–26s) | **Shuffled** | **+3%** (min 2.5s) |
+| Dial $D$ | Tier Role | Orders ($N$) | Burners ($B$) | Cooked / Burner | Cook Time Range | Burn Window | Initial Active | Hidden Arrivals | Station Layout | Slack $\sigma(D)$ (min pad) | **Error Tolerance** |
+| :-: | :--- | :-: | :-: | :-: | :-: | :-: | :-: | :--- | :-: | :-: | :-: |
+| **D=1** | Easy / Floor | 2 | 2 | `1.00` | 8–14s | 14–18s | 2 | None | Fixed | **+65%** (16s) | **`15.9s`** |
+| **D=2** | Basic Overlap | 3 | 3 | `1.48` | 18–28s | 12–15s | 3 | None | Fixed | **+22%** (9s) | **`9.1s`** |
+| **D=3** | Multi-Wave | 4 | 3 | `2.10` | 22–36s | 10–13s | 3 | 1 hidden (+14–22s) | **Shuffled** | **+12%** (6s) | **`5.2s`** |
+| **D=4** | **Hard** | **6** | **4** | **`3.00`** | 30–50s | **8–10s** | 4 | 2 hidden (+15–23s) | **Shuffled** | **+4%** (3.5s) | **`2.8s`** |
+| **D=5** | **Near-Perfection** | **8** | **4** | **`4.00`** | 34–58s | **6–8s** | 4 | 4 hidden (+14–20s) | **Shuffled** | **+2%** (2.0s) | **`1.2s`** |
 
-*(At **every** level, all 5 cookable ingredients independently randomize `cookable_from ∈ {RAW, CHOPPED}`, `cook_time`, and `burn_window`. Validated claims cover the tested `D=1..6` range; `max_actions = max(160, 24 × N)` removes the fixed-160 ceiling for higher levels.)*
+*(At **every** level, all 5 cookable ingredients independently randomize `cookable_from ∈ {RAW, CHOPPED}`, `cook_time`, and `burn_window`. `Error Tolerance` is the mean maximum single-stall delay in seconds that the verified witness can absorb and still full-clear, measured across 40 fresh seeds/level. `D >= 6` remains parametrically extensible in `difficulty_profile` with `cooked/burner >= 4.0 + 0.5*(D-5)` and `max_actions = max(160, 24 × (D + 1))`.)*
 
-### Why We Upgraded the Witness to Full-Burner Pipelining (`best_parallel_witness`)
-In our first `full_chat` tests on bank v1, both `gpt-6.2-sol-low` (`4/6`) and `gemini-4-neon-low` (`3/4`) cleared ~70–75% of `D=5` kitchens — because **frontier models were out-scheduling our old 2-order-throttled witness by 80–95 seconds!** (On `D=5 seed=3000`, the old witness took `357.5s` by leaving 3/4 burners idle while holding a cooked item, whereas `gpt-6.2-sol-medium` finished in `262.3s`.)
+### Why We Locked `best_parallel_witness` to `full_burner_witness`-Only (v3.2 Monotonicity Audit)
+Two major calibration audits hardened the witness and level ladder:
+1. **Bank v1 → v2 (`full_burner_witness`):** Frontier models out-scheduled our original 2-order-throttled witness by 80–95s, so we upgraded to an un-throttled $N$-burner pipelining witness (`full_burner_witness`).
+2. **Bank v2 → v3 (Eliminating `D=6` Inversion & Fallback Bimodality):** A 50-seed Monte Carlo audit caught two subtle defects in the earlier 6-level `bank v2`: (a) `best_parallel_witness` fell back to the slower conservative `scheduled_witness` on `40%` of `D=5` seeds and `60%` of `D=6` seeds, creating bimodal "easy-mode" deadlines (`+50–100%` looser); and (b) adding a 5th burner at `D=6` for only 1 extra order actually *dropped* cooked-items-per-burner (`3.00 → 2.80`) and stove utilization (`53% → 43%`).
 
-Upgrading to **`best_parallel_witness`** (an un-throttled $N$-burner pipelining selector that lifts ready items into hand while continuing to load idle burners, and always includes the baseline `scheduled_witness` in its candidate pool so it is never slower) tightened deadlines cleanly **purely from physics**, reducing mean finish times across fresh accepted seeds by **13.2% at D=3, 11.7% at D=4, and 18.4% at D=5** (driving the old no-oracle scheduler down to `3/10` clears at D=5, and a single fixed-parameter online policy `clear_pad=20s` to `5/10` at D=5 and `3/10` at D=6):
+Removing the `scheduled_witness` fallback (`full_burner_witness` only across 100% of seeds) and consolidating to a **5-level strictly monotonic ladder (`D=1..5`)** with `4` burners at both `D=4` (`6` orders) and `D=5` (`8` orders) makes every structural dial, stove utilization metric, error tolerance, and deterministic baseline strictly monotonic (enforced in CI by `test_difficulty_ladder_monotonicity`):
 
-| Bank v2 (`D=1..6`, 10 fresh seeds/level) | Witness Actions | Sequential Baseline | GreedyOverlap Baseline |
+| Bank v3 (`D=1..5`, 10 fresh seeds/level) | Witness Actions | Sequential Baseline | GreedyOverlap Baseline |
 | :-: | :-: | :---: | :---: |
-| **D=1** | 15.0 | 100.0% (`10/10` clears) | 100.0% (`10/10` clears) |
-| **D=2** | 28.4 | 53.3% (`0/10` clears) | 76.7% (`5/10` clears) |
-| **D=3** | 39.8 | 37.5% (`0/10` clears) | 57.5% (`3/10` clears) |
-| **D=4** | 59.3 | 34.0% (`0/10` clears) | 44.0% (`0/10` clears) |
-| **D=5** | 71.8 | 33.3% (`0/10` clears) | 16.7% (`0/10` clears) |
-| **D=6** | 85.8 | 24.3% (`0/10` clears) | 21.4% (`1/10` clears) |
+| **D=1** | 16.0 | 100.0% (`10/10` clears) | 100.0% (`10/10` clears) |
+| **D=2** | 27.2 | 43.3% (`0/10` clears) | 86.7% (`6/10` clears) |
+| **D=3** | 38.5 | 37.5% (`0/10` clears) | 57.5% (`1/10` clears) |
+| **D=4 (Hard)** | 71.7 | 23.3% (`0/10` clears) | 11.7% (`0/10` clears) |
+| **D=5 (Near-Perfection)** | 94.9 | 16.2% (`0/10` clears) | 5.0% (`0/10` clears) |
 
 ### Plain-English Analogies: What Each Step $D \to D+1$ Feels Like
-* **$D = 1$ ("Sunday dinner for two"):** 2 orders, 1 cooked item each, short cooks (8–14s), +70% slack. Doing orders one-at-a-time clears 100% of kitchens. *Tests basic native tool calling and reading randomized `cookable_from` rules.*
-* **$D = 1 \to 2$ ("Three guests eating together"):** 3 orders, cook times double (18–28s), slack drops to +22%. Serial cooking now fails most full clears. *Forces basic parallel cooking across 3 burners.*
-* **$D = 2 \to 3$ ("Friday lunch in a brand-new kitchen"):** 4 orders on 3 burners, **all station locations shuffle**, burn windows shrink (10–14s), slack drops to +14%, and **Order 4 arrives hidden mid-episode**. *Tests dynamic replanning under burner contention.*
-* **$D = 3 \to 4$ ("Dinner rush on a 4-burner line"):** 5 orders, **every order needs 2 cooked items** (10 stove jobs), 3–4 ingredients/dish (hitting the 4-hand ceiling), 2 hidden arrivals, +9% slack. *Tests true multi-order pipelining without plating collisions.*
-* **$D = 4 \to 5$ ("Peak Friday rush, razor margin"):** 6 orders (12 stove jobs), 32–54s unequal cooks, 8–11s burn windows, and only **+4% slack** (3s min pad). One early mistake cascades across the rush.
+* **$D = 1$ ("Sunday dinner for two"):** 2 orders, 1 cooked item each, short cooks (8–14s), +65% slack (`~15.9s` error tolerance). Serial execution clears 100% of kitchens. *Tests basic native tool calling and randomized `cookable_from` rules.*
+* **$D = 1 \to 2$ ("Three guests eating together"):** 3 orders across 3 burners, cook times double (18–28s), slack drops to +22% (`~9.1s` tolerance). Serial cooking fails full clears. *Forces basic parallel cooking.*
+* **$D = 2 \to 3$ ("Friday lunch in a brand-new kitchen"):** 4 orders on 3 burners, **all station locations shuffle**, burn windows shrink (10–13s), slack drops to +12% (`~5.2s` tolerance), and **Order 4 arrives hidden mid-episode**. *Tests dynamic replanning under burner contention.*
+* **$D = 3 \to 4$ ("Hard: Peak 4-burner rush"):** 6 orders (12 cooked items across 4 burners, `3.0 c/b`), 3–4 ingredients/dish, 2 hidden arrivals, 8–10s burn windows, +4% slack (`~2.8s` tolerance). *Breaks low-reasoning and mid-tier models (`GreedyOverlap = 11.7%`, `0/10` clears).*
+* **$D = 4 \to 5$ ("Near-Perfection: Sustained 8-order marathon"):** 8 orders (16 cooked items crammed onto 4 burners, `4.0 c/b`, ~95 actions), 4 hidden arrivals, razor 6–8s burn windows, and only **+2% slack (`~1.2s` tolerance)**. *A single burn, invalid call, or scheduling slip breaks the full clear.*
 
 ### Exact Deadline Calibration Math
 1. Build the draft kitchen with unconstrained deadlines (`3000s`).
@@ -204,27 +205,22 @@ For each `(model, level)` cell over scored episodes $e = 1, \dots, K$, let:
 * **D=5 (same 4 seeds `3000–3003`):** Tied `3/4` (`95.8%`) clears — `gpt-6.2-sol-low` (**\$0.0493**/cleared ord) vs. `gemini-4-neon-low` (**\$0.0736**/cleared ord, `5.16` avg batch, `59.4%` cache).
 * That `75%` clear rate at `low` reasoning on bank v1 directly motivated our **full-burner witness upgrade (`bank v2`)**, which compressed `D=4..5` makespans by ~20% and unlocked `D=6`.
 
-### C. Live Verification of Tightened `Bank v2` (`full_chat`, `tool_choice="required"`, `D=4..6`, 4 matched fresh seeds, 0 empty/truncated turns)
+### C. Reasoning-Continuity Fix & Live Verification of Strictly Monotonic `Bank v3` (`v3.2`)
 
-| Level | `gemini-4-neon-low` | `gpt-6.2-sol-low` |
-| :-: | :--- | :--- |
-| **D=4** | 2/4 clears (90.0%, \$0.0828/cleared ord, 5.71 batch, 48% cache) | **4/4 clears** (100.0%, **\$0.0332**/cleared ord, 1.00 batch, 96% cache) |
-| **D=5** | 0/4 clears (66.7%, `no clear`, 5.19 batch, 54% cache) | **2/4 clears** (87.5%, **\$0.0691**/cleared ord, 1.00 batch, 97% cache) |
-| **D=6** | 0/4 clears (75.0%, `no clear`, 4.52 batch, 65% cache) | **1/3 clears** (81.0%, **\$0.1198**/cleared ord, 1.00 batch, 97% cache) |
+1. **`reasoning_details` preservation fix (verified on `bank v2`):** Earlier `gemini-4-neon` runs stripped OpenRouter's `reasoning_details` (`google-gemini-v1` encrypted `thought_signature`), cutting cache hits to `48–61%` and breaking multi-turn state continuity. Echoing `reasoning_details` + `raw_tool_calls` verbatim in `full_chat` immediately restored `71–81%` cache hits, dropped mistakes to `0`, and lifted `gemini-4-neon-medium` to `7/7` clears on `D=6 seed=6001` (`92.9%` completion, `7.10` avg batch).
+2. **Live `D=4` (Hard) vs `D=5` (Near-Perfection) validation on `calibration_bank_v3.json` (`runs/v3/bank_v3_d4_d5_val/`, `12/12` scored, `\$4.12` total, `0` truncations, `0` empty turns, `0` cap hits, `555/555` provider-billed turns):**
 
-*(Every single `low` episode had `0` empty turns and `0` length truncations; 1 `D=6` Sol episode stopped cleanly at the `\$6.00` verification cap.)*
-
-**Follow-up `medium`-reasoning check on `Bank v2` (`D=5..6`, exact same paired seeds, `full_chat`, `tool_choice="required"`):**
-* **`gpt-6.2-sol-medium` (3 paired seeds, \$1.86 total, `0` invalids/burns/truncations, `97.7%` cache):**
-  * **D=5 (`6000–6002`):** **3/3 clears (100%, \$0.0436/cleared ord)** — beat `low` (`2/3`, \$0.0517/cleared ord on the same 3 seeds) on both reliability *and* cost per cleared dish.
-  * **D=6 (`6001, 6002, 6004`):** **1/3 clears (90.5% completion, \$0.1533/cleared ord)** — lifted order completion from `17/21` (`low`) to `19/21` (`medium`) with `0` mistakes, proving `D=6` still has pure scheduling headroom even at `medium` reasoning.
-* **`gemini-4-neon-medium` (2 paired seeds, \$2.53 total, `0` invalids/burns, `54–61%` cache):**
-  * **D=5 (`6000–6001`):** **0/2 clears (`10/12 = 83.3%` vs `66.7%` at `low`)**; hit `max_tokens=16384` twice on Turn 1–2 of `seed=6000` (`[CAP_HIT: output_length_cap(2), empty_turns(2)]`), directly motivating bumping `DEFAULT_MAX_TOKENS` to `32768` (configurable via `--max-tokens`).
-  * **D=6 (`6001–6002`):** **0/2 clears (`10/14 = 71.4%` vs `64.3%` at `low`, `0` truncations)**.
+| Level | Model | Clears | Order Completion | Out Tok / Cleared Ord | USD / Cleared Ord | USD / Served Ord | Inv+Burn / 100 Acts | Cache % | Spend |
+| :-: | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| **D=4 (Hard)** | `gemini-4-neon-low` | **0/3** | 14/18 (`77.8%`) | no clear | no clear | `\$0.0585` | `0.0` (0i+0b) | `66.6%` | `\$0.82` |
+| **D=4 (Hard)** | `gpt-6.2-sol-medium` | **3/3** | 18/18 (`100.0%`) | `1,063` | `\$0.0522` | `\$0.0522` | `0.5` (0i+1b) | `97.0%` | `\$0.94` |
+| **D=5 (Near-Perfection)** | `gemini-4-neon-low` | **0/3** | 17/24 (`70.8%`) | no clear | no clear | `\$0.0718` | `2.1` (1i+4b) | `81.9%` | `\$1.22` |
+| **D=5 (Near-Perfection)** | `gpt-6.2-sol-medium` | **1/3** | 20/24 (`83.3%`) | `2,428` | `\$0.1425` | `\$0.0570` | `1.1` (1i+2b) | `98.4%` | `\$1.14` |
 
 **What this proves:**
-* **No saturation:** `gpt-6.2-sol-low` steps cleanly down **`100% → 50% → 33%` clears** across `D=4 → D=5 → D=6`, `gpt-6.2-sol-medium` reaches `100%` on `D=5` yet still sits at **`33%` on `D=6`**, and `gemini-4-neon` (`low` & `medium`) remains at `0%` on `D=5..6` — cleanly separating top frontier models and reasoning tiers without needing `D=7` for v1.
-* **Clean pre-leaderboard checklist:** Generate a fresh private held-out seed bank (outside Git) and run all target models under this single locked protocol (`full_chat`, `tool_choice="required"`, `DEFAULT_MAX_TOKENS=32768` configurable via `--max-tokens`, `max_actions = max_turns = max(160, 24 × N)`, Full-Clear Gated metrics).
+* **Strict monotonicity with zero inversions:** Both models step down cleanly from `D=4 → D=5` across clears, order completion, mistake rate, and cost per dish (`gpt-6.2-sol-medium`: `100% → 33%` clears, `\$0.0522 → \$0.1425`/cleared ord).
+* **Two genuinely hard top rungs, no saturation:** `D=4` (`6` orders / `4` burners, `2.8s` tolerance) already breaks low-reasoning models (`0/3`), while `D=5` (`8` orders / `4` burners, `1.2s` tolerance, `6–8s` burn window) demands spotless execution (`8/8` clear achieved with 0 mistakes on `seed=8004`, while 1–2 slips failed `8000` and `8005`).
+* **Ready for official leaderboard:** Generate a fresh private held-out seed bank (`D=1..5`, `n = 20` seeds/level, outside Git) and run the locked model roster under the unified `v3.2` protocol (`full_chat`, `tool_choice="required"`, `reasoning_details` preserved, `DEFAULT_MAX_TOKENS=32768`, `DEFAULT_REQUEST_TIMEOUT_S=300`, `full_burner`-only witness, Full-Clear Gated metrics).
 
 ---
 

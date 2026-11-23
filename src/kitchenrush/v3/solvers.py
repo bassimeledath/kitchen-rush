@@ -913,21 +913,20 @@ def best_parallel_witness(
     *,
     allow_arrival_peek: bool = True,
 ) -> tuple[list[list[dict[str, Any]]], dict[str, float]]:
-    """Run the un-throttled full-burner witness across candidate stagger pads (plus baseline) and return the shortest valid schedule."""
+    """Run the un-throttled full-burner witness across candidate stagger pads and return the shortest valid schedule.
+
+    Deliberately does NOT fall back to the slower conservative `scheduled_witness`,
+    ensuring every generated seed across all difficulty levels is anchored by the
+    same parallel policy (preventing bimodal "easy-mode" fallback deadlines at high D).
+    """
     best: tuple[list[list[dict[str, Any]]], dict[str, float]] | None = None
-    for cp in (10.0, 12.0, 14.0, 16.5, 20.0):
+    for cp in (8.0, 10.0, 12.0, 14.0, 16.5, 20.0):
         try:
             b, s = full_burner_witness(spec, clear_pad=cp, allow_arrival_peek=allow_arrival_peek)
             if best is None or max(s.values()) < max(best[1].values()):
                 best = (b, s)
         except Exception:
             continue
-    try:
-        b0, s0 = scheduled_witness(spec, allow_arrival_peek=allow_arrival_peek)
-        if len(s0) == len(spec.orders) and (best is None or max(s0.values()) < max(best[1].values())):
-            best = (b0, s0)
-    except Exception:
-        pass
     if best is None:
-        raise RuntimeError("no valid witness schedule found")
+        raise RuntimeError("no valid full_burner_witness schedule found")
     return best

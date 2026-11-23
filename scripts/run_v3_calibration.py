@@ -223,7 +223,7 @@ def main() -> None:
 
     p_b = sub.add_parser("build-bank")
     p_b.add_argument("--bank", default=str(DEFAULT_BANK))
-    p_b.add_argument("--levels", default="1,2,3,4,5,6")
+    p_b.add_argument("--levels", default="1,2,3,4,5")
     p_b.add_argument("--seeds-per-level", type=int, default=10)
     p_b.add_argument("--start-seed", type=int, default=6000)
     p_b.add_argument("--max-attempts", type=int, default=250)
