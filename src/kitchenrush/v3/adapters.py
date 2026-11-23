@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import socket
 import time
 import urllib.error
 import urllib.request
@@ -24,7 +25,7 @@ from .env import MAX_BATCH_CALLS, RULES_TEXT, TOOL_SCHEMAS
 
 
 DEFAULT_MAX_TOKENS = 32768
-DEFAULT_REQUEST_TIMEOUT_S = 180
+DEFAULT_REQUEST_TIMEOUT_S = 300
 
 
 class ProviderError(RuntimeError):
@@ -67,6 +68,8 @@ class TurnDecision:
     max_tokens: int | None = None
     reservation_id: str | None = None
     raw_content: str | None = None
+    raw_tool_calls: list[dict[str, Any]] | None = None
+    reasoning_details: list[dict[str, Any]] | None = None
     parse_errors: list[str] = field(default_factory=list)
 
 
@@ -332,14 +335,18 @@ class OpenRouterToolAdapter(AgentAdapter):
                     continue
                 raise ProviderError(f"HTTP {exc.code}: {err_body}", exc.code) from exc
             except (urllib.error.URLError, TimeoutError, OSError) as exc:
-                # Transport timeout after send may still have been billed upstream: retain worst-case liability!
+                # Pre-send DNS/connect failures never reach upstream; read timeouts after send may still be billed.
+                pre_send = isinstance(exc, urllib.error.URLError) and isinstance(
+                    exc.reason, (socket.gaierror, ConnectionRefusedError)
+                )
+                uncertain = not pre_send
                 if release_attempt is not None:
-                    release_attempt(res_id, True, f"Transport error: {exc}")
+                    release_attempt(res_id, uncertain, f"Transport error: {exc}")
                 if attempt < 2:
                     time.sleep(3 * (attempt + 1))
-                    last_err = ProviderError(f"Transport error: {exc}", uncertain_billing=True)
+                    last_err = ProviderError(f"Transport error: {exc}", uncertain_billing=uncertain)
                     continue
-                raise ProviderError(f"Transport error after retries: {exc}", uncertain_billing=True) from exc
+                raise ProviderError(f"Transport error after retries: {exc}", uncertain_billing=uncertain) from exc
         else:
             raise last_err or ProviderError("Unknown provider failure")
 
@@ -357,6 +364,14 @@ class OpenRouterToolAdapter(AgentAdapter):
         choice = choices[0]
         msg = choice.get("message") or {}
         calls, parse_errors = _parse_tool_calls(msg)
+        raw_tc = msg.get("tool_calls")
+        raw_tool_calls = (
+            [tc for tc in raw_tc[:MAX_BATCH_CALLS] if isinstance(tc, dict)]
+            if isinstance(raw_tc, list) and raw_tc
+            else None
+        )
+        raw_rd = msg.get("reasoning_details")
+        reasoning_details = raw_rd if isinstance(raw_rd, list) and raw_rd else None
 
         usage = raw.get("usage") or {}
         p_tok = int(usage.get("prompt_tokens") or 0)
@@ -389,5 +404,7 @@ class OpenRouterToolAdapter(AgentAdapter):
             max_tokens=self.spec.max_tokens,
             reservation_id=winning_res_id,
             raw_content=msg.get("content"),
+            raw_tool_calls=raw_tool_calls,
+            reasoning_details=reasoning_details,
             parse_errors=parse_errors,
         )

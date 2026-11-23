@@ -159,30 +159,55 @@ def _append_full_chat_turn(
     decision_calls: list[Any],
     raw_content: str | None,
     step_res: dict[str, Any],
+    *,
+    reasoning_details: list[dict[str, Any]] | None = None,
+    raw_tool_calls: list[dict[str, Any]] | None = None,
 ) -> None:
     chat_messages.append({"role": "user", "content": user_text})
     if not decision_calls:
-        chat_messages.append({"role": "assistant", "content": raw_content or "(no tool calls)"})
+        asst_msg: dict[str, Any] = {"role": "assistant", "content": raw_content or "(no tool calls)"}
+        if reasoning_details:
+            asst_msg["reasoning_details"] = reasoning_details
+        chat_messages.append(asst_msg)
         return
 
-    tool_calls_payload = []
+    tool_calls_payload: list[dict[str, Any]] = []
     call_ids: list[str] = []
+    use_raw_tc = raw_tool_calls is not None and len(raw_tool_calls) == len(decision_calls)
     for i, c in enumerate(decision_calls):
-        cid = c.id or f"call_{len(chat_messages)}_{i}"
+        raw_tc = raw_tool_calls[i] if use_raw_tc else None
+        cid = (raw_tc.get("id") if isinstance(raw_tc, dict) else None) or c.id or f"call_{len(chat_messages)}_{i}"
         call_ids.append(cid)
-        tool_calls_payload.append({
-            "id": cid,
-            "type": "function",
-            "function": {
-                "name": c.name,
-                "arguments": json.dumps(c.arguments or {}, separators=(",", ":")),
-            },
-        })
-    chat_messages.append({
+        if use_raw_tc and isinstance(raw_tc, dict):
+            tc_copy = dict(raw_tc)
+            tc_copy["id"] = cid
+            tc_copy.setdefault("type", "function")
+            tool_calls_payload.append(tc_copy)
+        else:
+            tool_calls_payload.append({
+                "id": cid,
+                "type": "function",
+                "function": {
+                    "name": c.name,
+                    "arguments": json.dumps(c.arguments or {}, separators=(",", ":")),
+                },
+            })
+
+    asst_msg = {
         "role": "assistant",
-        "content": raw_content or "",
+        "content": raw_content if raw_content is not None else "",
         "tool_calls": tool_calls_payload,
-    })
+    }
+    if reasoning_details:
+        call_id_set = set(call_ids)
+        filtered_rd = [
+            item
+            for item in reasoning_details
+            if not isinstance(item, dict) or item.get("id") is None or item.get("id") in call_id_set
+        ]
+        if filtered_rd:
+            asst_msg["reasoning_details"] = filtered_rd
+    chat_messages.append(asst_msg)
 
     executed = step_res.get("calls") or []
     interrupted = step_res.get("interrupted_reason")
@@ -367,7 +392,15 @@ def run_episode(
         step_res = engine.step_batch(decision.calls)
 
         if history_mode == "full_chat":
-            _append_full_chat_turn(chat_messages, user_text, decision.calls, decision.raw_content, step_res)
+            _append_full_chat_turn(
+                chat_messages,
+                user_text,
+                decision.calls,
+                decision.raw_content,
+                step_res,
+                reasoning_details=decision.reasoning_details if decision.finish_reason != "length" else None,
+                raw_tool_calls=decision.raw_tool_calls,
+            )
 
         compact_turn = {
             "turn": step_res["turn"],

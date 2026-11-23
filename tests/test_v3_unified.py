@@ -358,3 +358,27 @@ def test_configurable_max_tokens_and_high_effort_models():
         assert k in mod.MODELS
         assert mod.MODELS[k].reasoning == {"effort": "high"}
         assert mod.MODELS[k].max_tokens == DEFAULT_MAX_TOKENS
+
+
+def test_full_chat_preserves_reasoning_details_and_raw_tool_calls():
+    from kitchenrush.tools import ToolCall
+    from kitchenrush.v3.runner import _append_full_chat_turn
+
+    chat: list[dict] = []
+    calls = [ToolCall(name="collect", arguments={"ingredient": "egg"}, id="call_abc")]
+    raw_tc = [{
+        "id": "call_abc",
+        "type": "function",
+        "function": {"name": "collect", "arguments": "{\"ingredient\":\"egg\"}"},
+    }]
+    rd = [
+        {"type": "reasoning.encrypted", "format": "google-gemini-v1", "id": "call_abc", "data": "SIG123"},
+        {"type": "reasoning.encrypted", "format": "google-gemini-v1", "id": "call_dropped", "data": "DROP"},
+    ]
+    step_res = {"calls": [{"ok": True, "note": "collected"}], "events": []}
+    _append_full_chat_turn(chat, "STATE_JSON:{}", calls, None, step_res, reasoning_details=rd, raw_tool_calls=raw_tc)
+    asst = chat[1]
+    assert asst["role"] == "assistant"
+    assert asst["tool_calls"][0]["id"] == "call_abc"
+    assert asst["reasoning_details"] == [rd[0]]
+    assert chat[2]["role"] == "tool" and chat[2]["tool_call_id"] == "call_abc"
